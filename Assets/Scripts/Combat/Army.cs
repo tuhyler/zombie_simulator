@@ -1279,7 +1279,8 @@ public class Army : MonoBehaviour
             }
             else if (!city)
             {
-				world.mainPlayer.ReturnToFriendlyTile();
+                world.azai.duelReport = world.GetEnemyCity(targetCamp.cityLoc).empire.enemyLeader.leaderName + "_defeat";
+                world.mainPlayer.ReturnToFriendlyTile();
 				if (world.azai.isSelected || world.mainPlayer.isSelected)
 					world.unitMovement.SelectWorker();
 				//world.ToggleConversationCam(false, targetCamp.cityLoc, true);

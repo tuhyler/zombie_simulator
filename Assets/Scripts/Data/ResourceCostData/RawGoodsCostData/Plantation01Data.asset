@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Plantation01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Plantation01
   audio: {fileID: 8300000, guid: ab865f026075ed94fa419ce00b081277, type: 3}
@@ -39,14 +38,15 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 23
-    resourceAmount: 30
-  producedResourceTime: 1e000000
+    resourceAmount: 1
+  producedResourceTime: 0f000000
   rawMaterials: 1
   rawResourceType: 8
   isResearch: 0
   terrainType: 5
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0

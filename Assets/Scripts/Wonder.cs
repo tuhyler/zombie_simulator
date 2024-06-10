@@ -212,6 +212,18 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 		audioSource.Play();
 	}
 
+    public IEnumerator PlayFireWorksAudio()
+    {
+        int soundCount = 0;
+
+        while (soundCount < 15)
+        {
+            soundCount++;
+            audioSource.PlayOneShot(world.cityBuilderManager.fireworks);
+            yield return new WaitForSeconds(1);
+        }
+    }
+
 	private void IncreasePercentDone()
     {
         percentDone++;
@@ -633,9 +645,9 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         {    
             ParticleSystem firework = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/Fireworks"), fireworkLocs[i], Quaternion.Euler(-90, 0, 0));
 			firework.transform.SetParent(world.psHolder, false);
-
 		}
 
+        StartCoroutine(PlayFireWorksAudio());
 		//fireworks1.gameObject.SetActive(true);
 		//fireworks1.Play();
 		//fireworks2.gameObject.SetActive(true);

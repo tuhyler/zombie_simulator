@@ -79,4 +79,9 @@ public class ResourceHolder : MonoBehaviour
     {
         return resourceDict[resourceType].sellResource;
     }
+
+    public float GetPurchaseAmount(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].resourceQuantityPerPop;
+    }
 }

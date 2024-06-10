@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Weaver01SouthData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5122609563439273834, guid: ea0671f0b267dd6498d939def4338a32, type: 3}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Weaver01South
   audio: {fileID: 8300000, guid: 8597ed8c6dfb1354a82fd559ad4e03f1, type: 3}
@@ -28,10 +27,10 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 95e68108a06d3ba4e8126feb5904bad1, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
-  - resourceType: 7
-    resourceAmount: 10
+  - resourceType: 31
+    resourceAmount: 40
   - resourceType: 6
-    resourceAmount: 50
+    resourceAmount: 25
   consumedResources:
   - resourceType: 4
     resourceAmount: 2
@@ -49,6 +48,7 @@ MonoBehaviour:
   terrainType: 5
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 1
   housingIncrease: 0
   cityHousing: 0

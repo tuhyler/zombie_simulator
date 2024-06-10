@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Lumbermill01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Lumbermill01
   audio: {fileID: 8300000, guid: b4526b40350bcec4fa2a92ce4da01ad3, type: 3}
@@ -29,7 +28,9 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: a47aa928dd3f3114f95bf61ddcf7107f, type: 3}
   improvementCost:
   - resourceType: 6
-    resourceAmount: 25
+    resourceAmount: 15
+  - resourceType: 7
+    resourceAmount: 5
   consumedResources:
   - resourceType: 4
     resourceAmount: 1
@@ -39,14 +40,15 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 6
-    resourceAmount: 4
-  producedResourceTime: 06000000
+    resourceAmount: 2
+  producedResourceTime: 0f000000
   rawMaterials: 1
   rawResourceType: 4
   isResearch: 0
   terrainType: 7
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0

@@ -291,7 +291,6 @@ MonoBehaviour:
   buildDataSO: {fileID: 0}
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 0}
-  lightBeam: {fileID: 0}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 3136344403743662241}
   exclamationPoint: {fileID: 0}
@@ -354,7 +353,6 @@ MonoBehaviour:
   targetBunk: {x: 0, y: 0, z: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
-  idleTime: 0
   attackStrength: 0
   strengthBonus: 0
   atHome: 0
@@ -386,6 +384,7 @@ MonoBehaviour:
   bodyGuard: {fileID: 0}
   leaderName: 
   leaderUnitList: []
+  challengeGap: 10
   hasSomethingToSay: 0
   defending: 0
   dueling: 0

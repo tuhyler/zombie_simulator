@@ -11,6 +11,8 @@ public class BodyGuard : Military
 	[SerializeField]
 	public GameObject battleIcon;
 	private int isDizzyHash;
+	[HideInInspector]
+	public string duelReport = "";
 
 	private void Awake()
 	{
@@ -151,6 +153,8 @@ public class BodyGuard : Military
 		else
 		{
 			FinishDuel();
+			world.GetEnemyCity(army.enemyCityLoc).empire.enemyLeader.ResetTimeWaited();
+			duelReport = "azaidefeat";
 			world.mainPlayer.ReturnToFriendlyTile();
 			if (isSelected || world.mainPlayer.isSelected)
 				world.unitMovement.SelectWorker();
@@ -296,6 +300,12 @@ public class BodyGuard : Military
 
 		if (world.uiSpeechWindow.activeStatus)
 			Rotate(world.mainPlayer.transform.position + world.mainPlayer.transform.forward);
+
+		if (duelReport != "")
+		{
+			world.mainPlayer.conversationHaver.SetSomethingToSay(duelReport);
+			duelReport = "";
+		}
 	}
 
 	public BodyGuardData SaveBodyGuardData()
@@ -310,6 +320,7 @@ public class BodyGuard : Military
 		data.dueling = dueling;
 		data.waiting = waiting;
 		data.dizzy = dizzy;
+		data.duelReport = duelReport;
 
 		if (dueling)
 			data.forward = army.forward;
@@ -327,6 +338,7 @@ public class BodyGuard : Military
 		dueling = data.bodyGuardData.dueling;
 		waiting = data.bodyGuardData.waiting;
 		dizzy = data.bodyGuardData.dizzy;
+		duelReport = data.bodyGuardData.duelReport;
 
 		if (data.bodyGuardData.somethingToSay)
 		{

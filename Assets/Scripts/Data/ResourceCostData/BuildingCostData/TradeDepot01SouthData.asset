@@ -22,7 +22,7 @@ MonoBehaviour:
   improvementDisplayName: Trade Depot
   improvementLevel: 1
   improvementNameAndLevel: Trade Depot-1
-  improvementDescription: Opens trade stop and builds ancient era traders
+  improvementDescription: Creates trade stop and builds ancient era traders
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 443eb3caa69410a468f9f460b148f74c, type: 3}
   mapIcon: {fileID: 21300000, guid: a4ab15b5ffbfb554cbf20f939e4de92d, type: 3}

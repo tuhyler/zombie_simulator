@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Emerald
   resourceIcon: {fileID: 21300000, guid: 21012d122bbe64c4784ad70b26599092, type: 3}
-  ResourceGatheringTime: 20
+  ResourceGatheringTime: 30
   ResourceGatheringAmount: 1
   resourcePrice: 6
   resourceQuantityPerPop: 1

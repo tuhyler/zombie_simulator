@@ -23,6 +23,15 @@ MonoBehaviour:
   - {fileID: 8037020374292714346, guid: 88e5dcc01456f8f4a831785e139e2db9, type: 3}
   decors:
   - {fileID: 0}
+  prefabLocs:
+  - SeaCorner
+  - SeaKittyCorner
+  - SeaRiver
+  - SeaRiverCornerLeft
+  - SeaRiverCornerRight
+  - SeaThreeWay
+  decorLocs:
+  - 
   title: Sea
   clearedForestData: {fileID: 0}
   grassland: 0

@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Fish
   resourceIcon: {fileID: 21300000, guid: 1690ec111a2aa164a8cf0ceca05a283b, type: 3}
-  ResourceGatheringTime: 5
+  ResourceGatheringTime: 6
   ResourceGatheringAmount: 1
   resourcePrice: 1
   resourceQuantityPerPop: 1
@@ -26,4 +26,4 @@ MonoBehaviour:
   requirement: Fishing Boat
   uvCoordinatesForRocks: {x: 0, y: 0}
   forVisual: 1
-  sellInitially: 0
+  sellResource: 0

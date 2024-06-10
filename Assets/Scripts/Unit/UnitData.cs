@@ -17,7 +17,7 @@ public class UnitData : IUnitData
 	public Vector3 destinationLoc;
     public Vector3 finalDestinationLoc;
     public Vector3Int currentLocation;
-	public int idleTime, id;
+	public int id;
 
 	//combat
 	public Vector3Int cityHomeBase, barracksBunk, marchPosition, targetBunk;

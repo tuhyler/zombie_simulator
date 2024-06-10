@@ -20,6 +20,12 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 9073605623283122857, guid: 958ea9c5f011fd44e8b05c51b580875d, type: 3}
   - {fileID: 9073605623283122857, guid: 6fd3d4ee77ac3b94c90193632c865751, type: 3}
+  prefabLocs:
+  - Desert
+  decorLocs:
+  - 
+  - DesertDecor01
+  - DesertDecor02
   title: Desert
   clearedForestData: {fileID: 0}
   grassland: 0
@@ -29,10 +35,10 @@ MonoBehaviour:
   isLand: 1
   isSeaCorner: 0
   movementCost: 10
+  terrainAttackBonus: 0
   type: 5
   specificTerrain: 0
   terrainDesc: 1
   rawResourceType: 0
   resourceType: 0
   keepProp: 0
-  hasRocks: 0

@@ -18,6 +18,10 @@ MonoBehaviour:
   - {fileID: 608616143501096269, guid: 06e4506da3202984d9fbc3005d1b3810, type: 3}
   decors:
   - {fileID: 9073605623283122857, guid: d9ebf97fa0239104c9b2721b3f2aed90, type: 3}
+  prefabLocs:
+  - Grassland
+  decorLocs:
+  - JungleProp
   title: Jungle
   clearedForestData: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14, type: 2}
   grassland: 1

@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: FarmFP02Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/FP01
-  audio: {fileID: 8300000, guid: fd547594fa4d0ec44b52f036d8414a5a, type: 3}
+  audio: {fileID: 8300000, guid: bfad1d1a0ee9b58488affd536c0e12ab, type: 3}
   isSecondary: 1
   isBuilding: 0
   isBuildingImprovement: 0
@@ -29,7 +28,7 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   improvementCost:
   - resourceType: 6
-    resourceAmount: 50
+    resourceAmount: 30
   consumedResources:
   - resourceType: 4
     resourceAmount: 2
@@ -39,14 +38,15 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 2
-    resourceAmount: 4
-  producedResourceTime: 1e000000
+    resourceAmount: 5
+  producedResourceTime: 14000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0
   terrainType: 5
   specificTerrain: 1
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0

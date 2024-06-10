@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Diamond
   resourceIcon: {fileID: 21300000, guid: 3707d13fe0680ae4daed6629952c8902, type: 3}
-  ResourceGatheringTime: 20
+  ResourceGatheringTime: 30
   ResourceGatheringAmount: 1
   resourcePrice: 12
   resourceQuantityPerPop: 1

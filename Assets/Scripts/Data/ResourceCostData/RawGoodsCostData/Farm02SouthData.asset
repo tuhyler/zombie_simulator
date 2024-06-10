@@ -15,7 +15,7 @@ MonoBehaviour:
   secondaryData:
   - {fileID: 11400000, guid: 2155c81b9dc009b4cb28374da567cb0f, type: 2}
   prefabLoc: ImprovementPrefabs/Farm01South
-  audio: {fileID: 8300000, guid: fd547594fa4d0ec44b52f036d8414a5a, type: 3}
+  audio: {fileID: 8300000, guid: bfad1d1a0ee9b58488affd536c0e12ab, type: 3}
   isSecondary: 0
   isBuilding: 0
   isBuildingImprovement: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 2
     resourceAmount: 5
-  producedResourceTime: 02000000
+  producedResourceTime: 14000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0

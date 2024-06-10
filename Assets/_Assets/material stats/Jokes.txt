@@ -9,24 +9,128 @@ Jokes
 "WHOOA!!"
 
 
-"We're cooking with bacon grease now!"
+"We're running with socks on now!" "We're cooking with bacon grease now!" 
 
+"This is like the meeting of Ben and Jerry!"
 
 Handy Spend Melt !911
 
 
 What, I would never do that. But since you brough it up, what would it be like?
 
+Many before me have failed due to their hubris,  but I am much better than those people. 
+
+People graduate from saying "like" to "you know" or "um/uh". 
+
+*Koa intro*
+K: Ugh... ow! I just fell out of the sky!
+
+K: How did I get here? The last thing I remember is taking a nap on my couch and having a really weird dream about flying through space... and now I'm here!
+
+K: Am I still in America? Or even on Earth? Where am I? I don't see anyone else here, I'll set up camp until I figure out what's going on.
+
+*Scott intro*
+K: Oh hello... who are you?
+
+S: Hi! I'm Scott! Isn't it a glorious day today?
+
+K: Um, yes, it's fine. Where did you come from?
+
+S: I'm from here! I live in that cave over there with my wife, and I saw you setting up over here. Ooh, pretty fire! 
+
+K: So I'm guessing you showed up when you saw I had some food. Say... could you help me get home?
+
+S: "Sure thing! Do you live right around the corner?"
+
+K: No... actually, I don't even know where I am, where am I? Is this planet earth?
+
+S: I don't know what this land is called, it's just where I live. And I don't think we're on a planet called "earth".
+
+K: So this isn't even earth? How am I supposed to get back home? Do I have to build a space rocket?
+
+S: One question, and this probably isn't important, but what's a rocket? Is it made by rubbing sticks together?
+
+K: Um, I guess it's like a tall, metal cylinder? And it flies into space?
+
+S: "Something that FLIES?! How does it work?"
+
+K: "Oh geez, uh, you know, I don't really know how it works... and you clearly don't know much about anything..."
+
+S: "*with a big smile* Nope!"
+
+S: "I don't have a lot of knowledge of how things work, but I'm certainly willing to help you get whatever you need to get back home!"
+
+K: Uh, okay, well, we have a lot of research to do to figure out to build a rocket, so this is kind of a big ask... but could you help me recreate all of human history?
+
+S: Absolutely I will! That shouldn't take long at all! Just let me know what I can do!
+
+
+*Tutorial*
+S: If you'd like, this task could be completed even faster if we get more people. 
+
+K: We can do that? How do we get more people? 
+
+S: It's easy! We can get more people by simply gathering food, shelter, and water, and they will come.
+
+S: Let's start by getting some lumber to build a hut!  
+
+
+*Challenge 2*
+S: Now, will you tell me the one thing that I want to know?
+
+K: Fine, I'll tell you: I'm a Saggitarius. 
+
+S: That's NOT what I... Are you now ready to face me in battle!?
+
 
 Azai
 *Introduction*
-A: What accomplishments do you have that are worth sharing?
+K: Hello, who are you? Another helper for me, I hope?
 
-K: Uh, I have lots of them! Like, I'm a high school graduate *cough* equivalent... I've been to New York City TWICE... um, I can tell the difference between butter and I Can't Believe It's Not Butter...
+A: I am Azai, conqueror of Ximara and former ruler of Tavaria!
 
-K: Do you want me to keep going? Because, I could totally keep going.
+K: Okay, that's a cool name... so you good with grabbing a shovel and...
 
-A: No need! You've said enough for me to know all about you.
+S: *Interrupting* Wow! You were the ruler of Tavaria? What are you doing here?
+
+A: I have taken leave of my position as a noble ruler to encounter new challenges in distant lands. I stopped here because I noticed that you and your people are clearly undertaking a massive task. Is that true? 
+
+K: You have no idea.... 
+
+K: So is that the a reason you came here? To watch? Or were you hoping to add some more adjectives to your name?
+
+A: Many will come to attempt to destroy what you have worked for. Indeed, the harder you work, the harder they will work to tear it all down. Therefore, I will develop your armies to ensure your safey in these lands.
+
+K: Excellent! Yeah, I think there's a few people out there that don't want us wondering around...
+
+A: Verily! Considering the scale of your project, my armies will also help to acquire new resources, jealousy guarded by those that would only waste what has been given them. 
+
+K: You speak like you're an old Oxford professor who hasn't spoken to someone younger than him in his entire life. 
+
+
+*Tutorial - build barracks*
+A: Now that I have joined forces with you, we can now build a barracks in any city. The barracks will serve to build military units, which can be used to protect the aforementioned city, or be sent out to acquire new lands. 
+
+A: When you have acquired enough resources in your city, build a barracks so that we may begin training our infantry. 
+
+
+*tutorial - built warrior*
+A: We have just built our first infantry unit! Select him to deploy him to attack an enemy camp. Keep in mind that support will need to be paid to send out an army. 
+
+K: I can't help but notice he looks exactly like you. Hmm... what's a guy to think...
+
+A: Just because he's also devastatingly handsome, it doesn't mean he looks like me. You need to start noticing differentiating details in one's appearance. 
+
+
+*tutorial - built trader*
+S: We just built our first trader! Now we can start moving resources from one city to the next, or even start automatically buying resources from a nearby trade center. Selected trader to assign him a route.
+
+*tutorial - researched pottery*
+S: We now can build a ceramist! This is a producer that will create a crafted good for which our people will be willing to spend much more money. The more of these we make, the more money can pay to our researchers!
+
+*tutorial - trade*
+S: We can now build a trade depot! Trade depots allow us to build traders and they are a great way to move resources from one city to another. 
+
 
 Haniya:
 *Introduction*
@@ -280,38 +384,46 @@ H: Oh, and before I forget, here's your payment for you help. I do hope you came
 *Quest 5 prompt*
 A: I would be a fool to not ask out Haniya the next chance I get. 
 
-K: All right! We'll come back when 
-S: Is it really 
+K: Yeah, it's about time you got on that. People around here are starting to say that you're too scared to do it...
+
+A: You are lying, of course, because nobody with even a half of a brain would even consider saying something like that about me, but I understand your point. 
+
+S: I think that's a fantastic idea, Azai! When are you going to do it? The next time we return here?
+
+A: *Timidly* The next time? Isn't that a little too soon? Don't you think it would be better if we waited till a few more times, or until we make it through the next winter?
+
+K: Are you hoping she dies of old age first so you don't have to do it? 
+
+A: *Glares*
+
 
 *Quest 5*
-H: Hello again, Koa! I was hopeful you'd return soon, I have another favor to ask of you all. Would you be able to provide me a metal ingot that you can use to form weapons? 
+H: Hello again, Koa! I was hopeful you'd return soon, I have another favor to ask of you all. Would you be able to provide me bronze ingots that you can use to form weapons? I would need 9 of them. 
 
-H: I would need 9 of them. 
-
-K: I think Azai wanted to ask you something, right Azai? 
+K: Yeah we can do that, but before we leave, I think Azai wanted to ask you something, right Azai? 
 
 H: Oh? What is it, Azai?
 
-A: Um, yes, er, well, for what purpose did you intend to use this bronze?
+A: Um, yes, er, well, for what purpose did you intend to use these ingots?
+
+H: Oh, it's not for me, it's something my boyfriend wanted and I wanted to give them to him as a surprise! 
+
+A: ...
+
+H: Was there anything else you wanted? Azai?
+
+A: *Staring straight through her*
+
+H: No? Okay! Well, thanks for stopping by, everyone! 
 
 *Quest 5 completed*
-H: Thank you again! These are very hard to come by so I'm glad you were able to get me this bronze. 
+H: Thank you again! These are very hard to come by so I'm glad you were able to deliver. 
 
-A: For what purpose did you intend to use this bronze?
+A: This bronze will make an excellent gift to the man in your life, who is no doubt a very lucky man. 
 
-H: Actually, they're for my boyfriend!
+K: Wow Azai, that was a very mature response.
 
-K: Wait, they're for your what?
-
-H: My boyfriend! He's really big on forging metals and making weapons, he's going to love this!
-
-K: Oh, they're for your boyfriend...
-
-A: This bronze will make an excellent gift to the man in your life, no doubt a very lucky man. 
-
-K: Well Azai, that was a very mature response.
-
-A: However, it is time for us to depart now. We are surely needed back home to help building a civiliation, fending off enemy invaders, saving kittens stuck in tree, talking about our feelings, and so on.  
+A: *Flexing* However, I must now return to our civiliation, for I am needed to single-handedly fend off all enemy invaders, save multiple kittens stuck in trees, talk about my deepest feelings, and so on.  
 
 K: Ah, there's the Azai I know.
 
@@ -515,3 +627,59 @@ N: The sun dial was built to honor her, the memorial with the statues was for he
 K: Oh, I had no idea, I'm sorry about your loss. Actually, I'm glad we were able to help you out during this trying time.
 
 N: And I am happy you did! For without you and your services, I'm not sure we would ever have been able to give her the proper ceremony she deserved. With that said, here is your reward, and I am tremendously grateful for your help on these tasks!
+
+
+*Sennacherib*
+Se: Greetings! I am Sennacherib, noble warrior and king of the Assyrians! With my mighty armies, I have conquered and destroyed the mighty city of Babylon.
+
+Se: Behold my capital city of Ninevah! Observe these gargantuan city walls and the expanse of the city, all of which were constructed through my leadership.  
+
+Se: And what of your accomplishments? Have you achieved even a fraction of what I have? 
+
+K: Uh, I have lots of accomplishments! Like, I'm a high school graduate *cough* equivalent... I've seen TWO elephants... um, I can tell the difference between real bacon and tofu bacon...
+
+K: Do you want me to keep going? Because, I could totally keep going. Also, what kind of name is Sennacherib? More like, "Snack a rib", am I right? 
+
+Se: ...it is clear to me that I must destroy you now. Your piffling civilization is consuming resources that are rightfully ours, and we are prepared to fight to take them back. 
+
+Se: Return to your houses, and prepare yourselves, for we are coming for you. When birds go silent and dogs cower in fear, that will be the sound of our arrival. 
+
+
+*Challenge 1*
+Se: I have sent vast armies to destroy the great Babylon, but I am not an idle leader who will have his subjects do all of his fighting. I challenge any one of you to a duel at a time of your choosing. 
+
+K: You want to fight me? Is this because of my "snack a rib" joke from earlier? 
+
+A: I think this is a challenge that is more appropriately suited for me. I have received combat training for my entire life to prepare myself for duels such as these. 
+
+K: Are you sure? I think I can take him, I worked out my chest the other day so I'm feeling pretty huge. 
+
+A: I assure you, leave this one to me. 
+
+
+
+*Challenge 2*
+Se: So you return to challenge me again? Have you prepared your soul to face your inevitable defeat? 
+
+*Azai defeated*
+A: He is stronger than what I had previously anticipated. 
+
+K: Do you think you can defeat him? He's just going to keep sending guys at us until you do.
+
+A: Yes, but I will need to be better prepared. I will need to fully recover my health and will most certinaly need a better weapon. Let us return to a nearby city and upgrade the current weapon I have. 
+
+
+*Sennacherib defeated*
+K: Thanks for handling that guy, Azai, although I think I could have taken him if I had a new sword like you have. And if I was taller. And stronger. And knew how to fight. 
+
+A: He was a powerful adversary with a heart filled with destruction. It is better for the planet with him removed. 
+
+S: "For the Angel of Death spread his wings on the blast, and breathed in the face of the foe as he passed, and the eyes of the sleepers waxed deadly and chill, and their hearts but once heaved, and for ever grew still."
+
+S: That's from Lord Byron.
+
+K: How do you know who Lord Byron is?
+
+
+
+

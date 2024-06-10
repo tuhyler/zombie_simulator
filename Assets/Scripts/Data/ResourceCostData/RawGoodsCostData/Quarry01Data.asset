@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Quarry01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Quarry01
   audio: {fileID: 8300000, guid: 380676899f3eecb449c32042adabf3ce, type: 3}
@@ -31,15 +30,11 @@ MonoBehaviour:
   - resourceType: 7
     resourceAmount: 10
   - resourceType: 6
-    resourceAmount: 40
+    resourceAmount: 10
   consumedResources:
   - resourceType: 4
     resourceAmount: 2
-  - resourceType: 6
-    resourceAmount: 20
   consumedResources1:
-  - resourceType: 7
-    resourceAmount: 1
   - resourceType: 4
     resourceAmount: 5
   consumedResources2: []
@@ -47,16 +42,17 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 7
-    resourceAmount: 4
+    resourceAmount: 2
   - resourceType: 26
-    resourceAmount: 4
-  producedResourceTime: 050000000f000000
+    resourceAmount: 2
+  producedResourceTime: 0f0000001e000000
   rawMaterials: 1
   rawResourceType: 3
   isResearch: 0
   terrainType: 5
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
@@ -68,7 +64,7 @@ MonoBehaviour:
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 25
+  buildTime: 60
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 1

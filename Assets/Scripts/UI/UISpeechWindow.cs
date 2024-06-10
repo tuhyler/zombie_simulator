@@ -118,7 +118,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 	public void SetConversation(string conversationTopic)
 	{
 		this.conversationTopic = conversationTopic;
-		conversationItems = Conversations.Instance.conversationDict[conversationTopic];
+		conversationItems = new(Conversations.Instance.conversationDict[conversationTopic]);
 	}
 
 	public void SetSpeakingNPC(Unit speakingNPC)

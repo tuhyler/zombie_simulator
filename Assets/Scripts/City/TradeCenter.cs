@@ -20,8 +20,6 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
     [SerializeField]
     private List<Light> nightLights = new();
     [SerializeField]
-    private GameObject tradeCenterPrefab;
-    [SerializeField]
     public Transform minimapIcon;
     [SerializeField]
     public UnitBuildDataSO tradeCenterRep;
@@ -33,8 +31,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
     public float multiple = 1;
 
     //basic info
-    public string tradeCenterName;
-    public string tradeCenterDisplayName;
+    public string tradeCenterName, tradeCenterDisplayName, tradeCenterPrefabName;
     public int cityPop;
     [HideInInspector]
     public Vector3Int mainLoc;
@@ -105,7 +102,9 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
         gameObject.SetActive(true);
         isDiscovered = true;
         tcRep.gameObject.SetActive(true);
-        tcRep.SetSomethingToSay(tcRep.tradeRepName + "_intro");
+
+        if (world.azaiFollow)
+            tcRep.SetSomethingToSay(tcRep.tradeRepName + "_intro");
 
         foreach (Vector3Int tile in world.GetNeighborsFor(mainLoc, MapWorld.State.EIGHTWAYINCREMENT))
         {
@@ -293,7 +292,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
     {
         TradeCenterData data = new();
         
-        data.name = tradeCenterName;
+        data.name = tradeCenterPrefabName;
         data.mainLoc = mainLoc;
         data.singleBuildDict = singleBuildDict;
         data.rotation = main.rotation;

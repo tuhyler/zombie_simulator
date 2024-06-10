@@ -352,6 +352,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1373487277252491715, guid: 39897835633fd954caa8bfc5f2428842,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2311649316462798009, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}
       propertyPath: m_RootOrder
@@ -473,6 +478,11 @@ PrefabInstance:
       propertyPath: tcMesh.Array.data[0]
       value: 
       objectReference: {fileID: 326455182968483998}
+    - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
+        type: 3}
+      propertyPath: tradeCenterPrefabName
+      value: IndusValley
+      objectReference: {fileID: 0}
     - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}
       propertyPath: nightLights.Array.size

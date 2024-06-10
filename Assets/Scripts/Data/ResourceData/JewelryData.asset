@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Jewelry
   resourceIcon: {fileID: 21300000, guid: 659559ab9e48c0146a1bb37628d551d9, type: 3}
-  ResourceGatheringTime: 20
+  ResourceGatheringTime: 0
   ResourceGatheringAmount: 1
   resourcePrice: 20
   resourceQuantityPerPop: 1

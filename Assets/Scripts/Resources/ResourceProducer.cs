@@ -393,8 +393,11 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             uiTimeProgressBar.SetTime(productionTimer);
         }
 
-        tempLabor = currentLabor;
-        resourceManager.ConsumeResources(consumedResources, currentLabor, producerLoc);
+        if (!load)
+        {
+            tempLabor = currentLabor;
+            resourceManager.ConsumeResources(consumedResources, currentLabor, producerLoc);
+        }
 
         while (productionTimer > 0)
         {

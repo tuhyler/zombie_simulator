@@ -19,7 +19,7 @@ public class Military : Unit
 	[HideInInspector]
 	public Coroutine attackCo/*, waitingCo*/;
 	[HideInInspector]
-	public int idleTime, attackStrength, strengthBonus;
+	public int attackStrength, strengthBonus;
 
 	[HideInInspector]
 	public bool atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, 
@@ -1285,7 +1285,6 @@ public class Military : Unit
 		data.isMoving = isMoving;
 		data.ambush = ambush;
 		data.guard = guard;
-		data.idleTime = idleTime;
 		data.isGuarding = isGuarding;
 		data.atSea = atSea;
 		data.posSet = posSet;
@@ -1359,7 +1358,6 @@ public class Military : Unit
 		//looking = data.looking;
 		ambush = data.ambush;
 		guard = data.guard;
-		idleTime = data.idleTime;
 		isGuarding = data.isGuarding;
 		atSea = data.atSea;
 		posSet = data.posSet;

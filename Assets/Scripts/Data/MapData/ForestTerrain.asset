@@ -19,6 +19,11 @@ MonoBehaviour:
   decors:
   - {fileID: 9073605623283122857, guid: 1f3b57e59352009409dea0709c23dd92, type: 3}
   - {fileID: 9073605623283122857, guid: 2b9d5a51de409ef429065e2f929929ef, type: 3}
+  prefabLocs:
+  - Grassland
+  decorLocs:
+  - ForestConiferousProp
+  - ForestDeciduousProp
   title: Forest
   clearedForestData: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14, type: 2}
   grassland: 1

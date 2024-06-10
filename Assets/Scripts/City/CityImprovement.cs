@@ -487,9 +487,11 @@ public class CityImprovement : MonoBehaviour
 
     public void StopSmokeEmitter()
     {
-        smokeEmitter.Stop();
-        Destroy(smokeEmitter.gameObject);
-        //smokeEmitter.gameObject.SetActive(false);
+        if (smokeEmitter != null)
+        {
+            smokeEmitter.Stop();
+            Destroy(smokeEmitter.gameObject);
+        }
     }
 
     public void BeginImprovementConstructionProcess(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager, bool isHill, bool load)

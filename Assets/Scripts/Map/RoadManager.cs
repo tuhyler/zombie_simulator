@@ -250,26 +250,27 @@ public class RoadManager : MonoBehaviour
         if (world.GetTerrainDataAt(land[1]).isLand && world.GetTerrainDataAt(land[3]).isLand)
             rotation = 90;
 
-        CreateRoad(bridge, roadPosition, Quaternion.Euler(0, rotation, 0), false, highlight, level);
+        CreateRoad(Resources.Load<GameObject>("Prefabs/RoadPrefabs/RoadBridge1"), roadPosition, Quaternion.Euler(0, rotation, 0), false, highlight, level);
 	}
 
     private void CreateRoadSolo(Vector3Int roadPosition, bool hill, bool highlight, int level)
     {
-        GameObject road = hill ? soloHill : solo;
-        CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), false, highlight, level); //solo roads still exists when connecting with straight road
+        string road = hill ? "RoadSoloHill" : "RoadSolo";
+        //solo roads still exists when connecting with straight road
+		CreateRoad(Resources.Load<GameObject>("Prefabs/RoadPrefabs/" + road), roadPosition, Quaternion.Euler(0, 0, 0), false, highlight, level); 
         world.SetSoloRoadLocations(roadPosition);
     }
 
     private void CreateDeadEnd(Vector3Int roadPosition, int[] roads, bool straight, bool hill, bool highlight, int level)
     {
         int index = Array.FindIndex(roads, x => x == 1);
-        GameObject road;
+        string road;
 
         if (hill)
-            road = straight ? deadEndHill : diagDeadEndHill;
+            road = straight ? "RoadDeadEndHill" : "RoadDiagEndHill";
         else
-            road = straight ? deadEnd : diagDeadEnd;
-        CreateRoad(road, roadPosition, Quaternion.Euler(0, index * 90, 0), straight, highlight, level);
+            road = straight ? "RoadDeadEnd" : "RoadDiagEnd";
+        CreateRoad(Resources.Load<GameObject>("Prefabs/RoadPrefabs/" + road), roadPosition, Quaternion.Euler(0, index * 90, 0), straight, highlight, level);
     }
 
     private void CreateTwoWay(Vector3Int roadPosition, int[] roads, bool straight, bool hill, bool highlight, int level)
@@ -288,13 +289,13 @@ public class RoadManager : MonoBehaviour
         if (totalIndex % 2 == 0) //for straight roads
         {
             rotationFactor = index % 2;
-            GameObject road;
+            string road;
 
             if (hill)
-                road = straight ? straightRoadHill : diagonalHill;
+                road = straight ? "RoadStraightHill" : "RoadDiagonalHill";
             else
-                road = straight ? straightRoad : diagonal;
-            CreateRoad(road, roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight, highlight, level);
+                road = straight ? "RoadStraight" : "RoadDiagonal";
+            CreateRoad(Resources.Load<GameObject>("Prefabs/RoadPrefabs/" + road), roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight, highlight, level);
         }
         else //for curves
         {
@@ -302,38 +303,38 @@ public class RoadManager : MonoBehaviour
             if (totalIndex == 3 && index == 3) 
                 rotationFactor = 3;
 
-            GameObject road;
+            string road;
             
             if (hill)
-                road = straight ? curveHill : diagCurveHill;
+                road = straight ? "RoadCurveHill" : "RoadDiagCurveHill";
             else
-                road = straight ? curve : diagCurve;
-            CreateRoad(road, roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight, highlight, level);
+                road = straight ? "RoadCurve" : "RoadDiagCurve";
+            CreateRoad(Resources.Load<GameObject>("Prefabs/RoadPrefabs/" + road), roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight, highlight, level);
         }
     }
 
     private void CreateThreeWay(Vector3Int roadPosition, int[] roads, bool straight, bool hill, bool highlight, int level)
     {
         int index = Array.FindIndex(roads, x => x == 0);
-        GameObject road;
+        string road;
 
         if (hill)
-            road = straight ? threeWayHill : diagThreeWayHill;
+            road = straight ? "RoadThreeWayHill" : "RoadDiagThreeWayHill";
         else
-            road = straight ? threeWay: diagThreeWay;
-        CreateRoad(road, roadPosition, Quaternion.Euler(0, index * 90, 0), straight, highlight, level);
+            road = straight ? "RoadThreeWay" : "RoadDiagThreeWay";
+        CreateRoad(Resources.Load<GameObject>("Prefabs/RoadPrefabs/" + road), roadPosition, Quaternion.Euler(0, index * 90, 0), straight, highlight, level);
     }
 
     private void CreateFourWay(Vector3Int roadPosition, bool straight, bool hill, bool highlight, int level)
     {
-        GameObject road;
+        string road;
 
         if (hill)
-            road = straight ? fourWayHill : diagFourWayHill;
+            road = straight ? "RoadFourWayHill" : "RoadDiagFourWayHill";
         else
-            road = straight ? fourWay : diagFourWay;
+            road = straight ? "RoadFourWay" : "RoadDiagFourWay";
 
-        CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), straight, highlight, level);
+        CreateRoad(Resources.Load<GameObject>("Prefabs/RoadPrefabs/" + road), roadPosition, Quaternion.Euler(0, 0, 0), straight, highlight, level);
     }
 
     public void RemoveRoadAtPosition(Vector3Int tile)
