@@ -18,6 +18,10 @@ MonoBehaviour:
   - {fileID: 7699209488126057301, guid: 0ea3403f37c1d744795c3431abbcb834, type: 3}
   decors:
   - {fileID: 0}
+  prefabLocs:
+  - Sea
+  decorLocs:
+  - 
   title: Sea
   clearedForestData: {fileID: 0}
   grassland: 0

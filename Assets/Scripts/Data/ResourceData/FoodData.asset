@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Food
   resourceIcon: {fileID: 21300000, guid: 136bc68a438e3414f83037321e2a4016, type: 3}
-  ResourceGatheringTime: 1
+  ResourceGatheringTime: 3
   ResourceGatheringAmount: 1
   resourcePrice: 3
   resourceQuantityPerPop: 1

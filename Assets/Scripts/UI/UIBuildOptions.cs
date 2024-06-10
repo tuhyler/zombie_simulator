@@ -555,7 +555,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             }
             else
             {
-                buttonHandler.cityBuilderManager.world.TutorialCheck("Building Building");
+                buttonHandler.cityBuilderManager.world.TutorialCheck("Building " + buildData.improvementName);
                 buttonHandler.PrepareBuild(buildData);
                 buttonHandler.HandleButtonClick();
             }

@@ -18,6 +18,10 @@ MonoBehaviour:
   - {fileID: 608616143501096269, guid: df7ca8ac4304f2d4a8378557df401442, type: 3}
   decors:
   - {fileID: 0}
+  prefabLocs:
+  - DesertHill
+  decorLocs:
+  - 
   title: Hill
   clearedForestData: {fileID: 0}
   grassland: 0

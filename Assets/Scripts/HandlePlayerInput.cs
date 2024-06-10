@@ -18,7 +18,7 @@ public class HandlePlayerInput : MonoBehaviour
     public UnityEvent<Vector3, GameObject> HandleLocationSelection;
     public UnityEvent<Vector3, GameObject> HandleLocationMovementSelection;
     public UnityEvent HandleShiftDown, HandleShiftUp, HandleEsc, HandleR, HandleEnter, HandleC, HandleB, HandleF, HandleG, HandleX, HandleSpace, HandleJ, HandleK, HandleM, HandleN, HandleT, HandleI, HandleZ,
-        HandleCtrlT, Handle1, Handle2, Handle3;
+        HandleCtrlT, Handle1, Handle2, Handle3, HandleTilde;
     //public UnityEvent HandleShiftUp;
     //public UnityEvent HandleR;
 
@@ -142,6 +142,11 @@ public class HandlePlayerInput : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             Handle3?.Invoke();
+        }
+
+        if (Input.GetKeyDown(KeyCode.BackQuote))
+        {
+            HandleTilde.Invoke();
         }
 	}
 

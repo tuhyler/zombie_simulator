@@ -5,12 +5,14 @@ using System.IO;
 using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class MapWorld : MonoBehaviour
 {
     private string version = "0.1";
+    private string consoleInput;
     private DateTime currentTime;
     [HideInInspector]
     public Era currentEra = Era.AncientEra;
@@ -27,17 +29,15 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Texture2D cursorArrow;
     [SerializeField]
-    public Light startingSpotlight;
-    [SerializeField]
     public Water water;
     [SerializeField]
-    public GameObject battleCamera, resourceIcon, treasureChest, campfire, spotlight, dizzyMarker, speechBubble, unexploredTile, uiHelperWindow, mountainMiddle;
+    public GameObject battleCamera, resourceIcon, speechBubble, uiHelperWindow;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas, tcCanvas, mainCanvas;
     [HideInInspector]
-    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched, waterTransport, airTransport;
+    public bool tutorial, hideUI, scottFollow, azaiFollow, bridgeResearched, waterTransport, airTransport;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -97,14 +97,10 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Material transparentMat, atlasMain/*, atlasSemiClear*/;
     [SerializeField]
-    private GameObject enemyCampIcon, buildPanel, wonderBuildPanel, canvasHolder, enemyBorder;
+    private GameObject canvasHolder;
     private GameObject selectionIcon;
     [SerializeField]
     public UnitBuildDataSO laborerData;
-
-    [SerializeField]
-    public ParticleSystem lightBeam, godRays, removeEruption, removeSplash, deathSplash, resourceSplash, posGiftResponse, negGiftResponse, smokeEmitter, smokeSplash, buildingSmokeSplash, heavenHighlight,
-		hellHighlight, lightBullet, fire, fireworks;
 
     [SerializeField]
     public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
@@ -137,7 +133,7 @@ public class MapWorld : MonoBehaviour
     private Vector3Int unloadLoc;
     private Vector3Int finalUnloadLoc;
     private Quaternion rotation;
-    private bool sideways;
+    private bool sideways, showConsole;
     [HideInInspector]
     public List<Wonder> allWonders = new();
     private HashSet<Vector3Int> wonderTiles = new();
@@ -607,6 +603,19 @@ public class MapWorld : MonoBehaviour
             mainPlayer.name = "Koa & co.";
             scottFollow = true;
             azaiFollow = true;
+
+            for (int i = 0; i < allTradeCenters.Count; i++)
+            {
+				if (allTradeCenters[i].isDiscovered)
+                    allTradeCenters[i].tcRep.SetSomethingToSay(allTradeCenters[i].tcRep.tradeRepName + "_intro");
+			}
+
+            foreach (Vector3Int loc in enemyCityDict.Keys)
+            {
+                if (enemyCityDict[loc].enemyCamp.revealed)
+                    enemyCityDict[loc].empire.enemyLeader.SetSomethingToSay(enemyCityDict[loc].empire.enemyLeader.leaderName + "_intro");
+			}
+
 			scott.gameObject.tag = "Player";
             //scott.marker.gameObject.tag = "Player";
             azai.gameObject.tag = "Player";
@@ -781,8 +790,8 @@ public class MapWorld : MonoBehaviour
 			TerrainDataSO terrainData = td.terrainData;
 
 			td.SetData(terrainData);
-
-			if (terrainData.decors[td.decorIndex] != null)
+			
+			if (terrainData.decorLocs[td.decorIndex] != "")
 			{
 				td.SetProp();
 				terrainPropsToModify.Add(td);
@@ -868,8 +877,8 @@ public class MapWorld : MonoBehaviour
             
             TerrainSaveData data = mainMap[position];
             TerrainDataSO terrainData = UpgradeableObjectHolder.Instance.terrainDict[data.name];
-
-            GameObject go = Instantiate(terrainData.prefabs[data.variant], data.tileCoordinates, data.rotation);
+            
+			GameObject go = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + terrainData.prefabLocs[data.variant]), data.tileCoordinates, data.rotation);
             go.transform.SetParent(terrainHolder, false);
             TerrainData td = go.GetComponent<TerrainData>();
             td.LoadData(data);
@@ -899,17 +908,17 @@ public class MapWorld : MonoBehaviour
             
             td.SetData(terrainData);
 
-            if (terrainData.decors[data.decor] != null)
+            if (terrainData.decorLocs[data.decor] != "")
             {
 				if ((terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill) && terrainData.terrainDesc != TerrainDesc.Swamp)
                 {
-					GameObject prop = Instantiate(terrainData.decors[data.decor], Vector3Int.zero, Quaternion.identity);
+					GameObject prop = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPropPrefabs/" + terrainData.decorLocs[data.decor]), Vector3Int.zero, Quaternion.identity);
 					prop.transform.SetParent(td.prop, false);
 					prop.GetComponent<TreeHandler>().propMesh.rotation = data.propRotation;
 					td.SetProp();
 					terrainPropsToModify.Add(td);
 
-					GameObject nonStaticProp = Instantiate(terrainData.decors[data.decor], Vector3.zero, Quaternion.identity);
+					GameObject nonStaticProp = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPropPrefabs/" + terrainData.decorLocs[data.decor]), Vector3.zero, Quaternion.identity);
                     nonStaticProp.transform.SetParent(td.nonstatic, false);
                     td.nonstatic.rotation = data.propRotation;
                     td.SetNonStatic();
@@ -917,7 +926,7 @@ public class MapWorld : MonoBehaviour
 				}
 				else
                 {
-				    GameObject prop = Instantiate(terrainData.decors[data.decor], Vector3.zero, data.propRotation);
+				    GameObject prop = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPropPrefabs/" + terrainData.decorLocs[data.decor]), Vector3.zero, data.propRotation);
                     prop.transform.SetParent(td.prop, false);
                     td.SetProp();
                     terrainPropsToModify.Add(td);
@@ -1013,7 +1022,7 @@ public class MapWorld : MonoBehaviour
     {
         foreach (TradeCenterData centerData in centers.Values)
         {
-            GameObject go = Instantiate(UpgradeableObjectHolder.Instance.tradeCenterDict[centerData.name], centerData.mainLoc, Quaternion.identity);
+            GameObject go = Instantiate(Resources.Load<GameObject>("Prefabs/TradeCenterPrefabs/" + centerData.name), centerData.mainLoc, Quaternion.identity);
             go.transform.SetParent(tradeCenterHolder, false);
             TradeCenter center = go.GetComponent<TradeCenter>();
             center.main.rotation = centerData.rotation;
@@ -1166,9 +1175,9 @@ public class MapWorld : MonoBehaviour
         string[] buildingArray;
 
         if (hasWater)
-            buildingArray = new string[2] { buildingEraDict["Monument"], buildingEraDict["Market"] };
+            buildingArray = new string[3] { buildingEraDict["Monument"], buildingEraDict["Market"], buildingEraDict["Walls"] };
         else
-            buildingArray = new string[3] { buildingEraDict["Monument"], buildingEraDict["Well"], buildingEraDict["Market"] };
+            buildingArray = new string[4] { buildingEraDict["Monument"], buildingEraDict["Well"], buildingEraDict["Market"], buildingEraDict["Walls"] };
 
         for (int i = 0; i < buildingArray.Length; i++)
         {
@@ -1535,6 +1544,7 @@ public class MapWorld : MonoBehaviour
                 newDict["Fishing"] = "FishingBoats-1";
                 newDict["Mine"] = "Mine-1";
                 newDict["Quarry"] = "Quarry-1";
+                newDict["Walls"] = "City Walls-1";
 				break;
         }
 
@@ -2498,9 +2508,9 @@ public class MapWorld : MonoBehaviour
 		}
 	}
 
-	public void AaddGold() //for testing, on a button
+	public void AaddGold(int amount) //for testing, on a button
     {
-        UpdateWorldGold(10);
+		UpdateWorldGold(amount);
 
         //resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
@@ -3065,9 +3075,97 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    public void HandleEsc()
+    public void HandleTilde()
     {
-        if (buildingWonder)
+        showConsole = !showConsole;
+        consoleInput = "";
+    }
+
+	private void OnGUI()
+	{
+		if (!showConsole) { return; }
+
+        float y = 0f;
+
+        //GUI.SetNextControlName("test");
+        GUI.Box(new Rect(0, y, Screen.width, 30), "");
+        GUI.backgroundColor = new Color(0, 0, 0, 0);
+        consoleInput = GUI.TextField(new Rect(10f, y + 5f, Screen.width - 20f, 20f), consoleInput);
+
+        //if (Event.current.isKey && Event.current.Equals(Event.KeyboardEvent("w")))// && GUI.GetNameOfFocusedControl() == "test")
+        //    Debug.Log("Pass");
+	}
+
+    public void GiveToCity(City city, ResourceType type, int amount)
+    {
+        city.resourceManager.AddResource(type, amount);
+    }
+
+    public void HandleReturn()
+    {
+        if (showConsole)
+        {
+            string[] words = consoleInput.Split(" ");
+            
+            if (words.Length > 0)
+            {
+                //"dammi "int"" gives gold
+                if (words[0] == "dammi")
+                {
+                    if (words.Length > 1)
+                    {
+                        if (int.TryParse(words[1], out int amount))
+                            AaddGold(amount);
+                    }
+                }
+                //"tido "ResourceType" "int" "city_name"" gives eresource to city
+                else if (words[0] == "tido")
+                {
+                    if (words.Length > 3)
+                    {
+                        string cityName = "";
+
+                        for (int i = 3; i < words.Length; i++)
+                        {
+                            cityName += words[i];
+
+                            if (i != words.Length - 1)
+                                cityName += " ";
+                        }
+                        
+                        if (tradeStopNameDict.ContainsKey(cityName))
+                        {
+                            City city = tradeStopNameDict[cityName].city;
+                            
+                            if (city != null)
+                            {
+                                if (Enum.TryParse(words[1], out ResourceType type))
+                                {
+                                    if (int.TryParse(words[2], out int amount))
+                                        GiveToCity(city, type, amount);
+                                }
+                            }
+                        }
+                    }
+                }
+                //"mostra tutto" shows all building options
+                else if ( words.Length > 1 && words[0] == "mostra" && words[1] == "tutto")
+                {
+                    showAllBuildOptions = true;
+                }
+            }
+
+            consoleInput = "";
+        }
+    }
+
+	public void HandleEsc()
+    {
+        if (showConsole)
+        {
+            HandleTilde();
+        }
+        else if (buildingWonder)
         {
             CloseBuildingSomethingPanel();
 		}
@@ -7751,7 +7849,7 @@ public class MapWorld : MonoBehaviour
 					tutorialStep = "tutorial5b";
 					break;
                 case "tutorial5b":
-                    if (source != "Building Building")
+                    if (source != "Building Housing")
                         return;
 
                     tutorialStep = "tutorial6";
@@ -7920,26 +8018,14 @@ public class MapWorld : MonoBehaviour
 							break;
                         case "Pottery Research Complete":
 							mainPlayer.conversationHaver.SetSomethingToSay("pottery", scott);
+
+							StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Sell").transform, true));
+							cityBuilderManager.uiCityTabs.GetTab("Sell").isFlashing = true;
 							break;
                         case "Trade Research Complete":
 							mainPlayer.conversationHaver.SetSomethingToSay("trade", scott);
                             break;
-						case "Open Buildings Tab":
-                            if (GameLoader.Instance.gameData.tutorialData.built2ndHouse)
-                                return;
-
-							for (int i = 0; i < cityBuilderManager.uiBuildingBuilder.buildOptions.Count; i++)
-						    {
-							    if (cityBuilderManager.uiBuildingBuilder.buildOptions[i].BuildData.improvementName == "Housing")
-							    {
-								    StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiBuildingBuilder.buildOptions[i].transform, true, true));
-								    cityBuilderManager.uiBuildingBuilder.buildOptions[i].isFlashing = true;
-								    break;
-							    }
-						    }
-
-                            break;
-                        case "Finished Building Housing":
+                        case "Building Housing":
 							if (GameLoader.Instance.gameData.tutorialData.built2ndHouse)
 								return;
 
@@ -8067,7 +8153,12 @@ public class MapWorld : MonoBehaviour
 				}
 				break;
             case "first_labor":
-				if (number == 16)
+				if (number == 0)
+                {
+                    if (tutorial)
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial3b", scott);
+                }
+                else if (number == 15)
 				{
                     RemoveNPCLoc(scott.currentLocation);
                     mainPlayer.gameObject.name = "Koa & co.";
@@ -8102,7 +8193,7 @@ public class MapWorld : MonoBehaviour
 							    break;
 						    }
 					    }
-        
+
                         tutorialStep = "first_labor";
                     }
 				}
@@ -8211,7 +8302,12 @@ public class MapWorld : MonoBehaviour
 				}
                 break;
             case "first_infantry":
-                if (number == 12)
+                if (number == 1)
+                {
+                    if (tutorial)
+						mainPlayer.conversationHaver.SetSomethingToSay("hunting", azai);
+                }
+                else if (number == 11)
                 {
                     RemoveNPCLoc(azai.currentLocation);
                     azaiFollow = true;

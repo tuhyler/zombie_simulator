@@ -24,6 +24,16 @@ MonoBehaviour:
   - {fileID: 2054824714848026540, guid: dd79c5a4aab607847920d65422213e94, type: 3}
   decors:
   - {fileID: 9073605623283122857, guid: b625e4f74d4af944b8a35ced4c90376d, type: 3}
+  prefabLocs:
+  - RiverCurve
+  - RiverEnd
+  - RiverFourway
+  - RiverStraightVar01
+  - RiverStraightVar02
+  - RiverStraightVar03
+  - RiverThreeway
+  decorLocs:
+  - SeaFish
   title: River
   clearedForestData: {fileID: 0}
   grassland: 0

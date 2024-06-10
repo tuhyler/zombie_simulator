@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Clay
   resourceIcon: {fileID: 21300000, guid: 202609d109b3de44695e860e6736f919, type: 3}
-  ResourceGatheringTime: 0
+  ResourceGatheringTime: 5
   ResourceGatheringAmount: 1
   resourcePrice: 2
   resourceQuantityPerPop: 1

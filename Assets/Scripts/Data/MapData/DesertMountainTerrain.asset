@@ -21,6 +21,13 @@ MonoBehaviour:
   - {fileID: 8470281685680461474, guid: e5572845e22316842bf6670039096e46, type: 3}
   decors:
   - {fileID: 0}
+  prefabLocs:
+  - DesertMountainVar02
+  - DesertMountainVar03
+  - DesertMountainVar04
+  - DesertMountainVar05
+  decorLocs:
+  - 
   title: Mountain
   clearedForestData: {fileID: 0}
   grassland: 0

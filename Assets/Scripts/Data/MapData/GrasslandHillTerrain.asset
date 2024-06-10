@@ -19,6 +19,11 @@ MonoBehaviour:
   decors:
   - {fileID: 0}
   - {fileID: 9073605623283122857, guid: f66a1c1de3a1ab441a616e7e76cee684, type: 3}
+  prefabLocs:
+  - GrasslandHill
+  decorLocs:
+  - 
+  - GrasslandHillDecor01
   title: Hill
   clearedForestData: {fileID: 0}
   grassland: 1

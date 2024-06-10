@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Cotton
   resourceIcon: {fileID: 21300000, guid: bb9795a4945c9084d9422d9f885f01d7, type: 3}
-  ResourceGatheringTime: 0
+  ResourceGatheringTime: 20
   ResourceGatheringAmount: 1
   resourcePrice: 2
   resourceQuantityPerPop: 1

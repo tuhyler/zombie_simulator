@@ -6,7 +6,7 @@ using UnityEngine;
 public class BodyGuardData
 {
 	public int unitLevel;
-	public string transportationTarget;
+	public string transportationTarget, duelReport;
 	public bool somethingToSay, toTransport, inTransport, dueling, waiting, dizzy;
 	public List<string> conversationTopics;
 	public Vector3Int forward;

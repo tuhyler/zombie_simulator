@@ -131,7 +131,7 @@ public class CityBuilderManager : MonoBehaviour
 
     [SerializeField]
     public AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, chimeClip, fireClip, smallTownClip, 
-        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen, popGainClip, popLoseClip, alertClip, warningClip, sunBeam, receiveGift, denyGift;
+        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen, popGainClip, popLoseClip, alertClip, warningClip, sunBeam, receiveGift, denyGift, fireworks;
     [SerializeField]
     private AudioClip[] acknowledgements;
     [HideInInspector]
@@ -991,7 +991,7 @@ public class CityBuilderManager : MonoBehaviour
         uiInfoPanelCity.UpdateWater(selectedCity.waterCount);
 		uiInfoPanelCity.UpdatePower(selectedCity.powerCount);
 
-		if (selectedCity.growing)
+		if (world.scottFollow && selectedCity.growing)
         {
             uiLaborAssignment.showPrioritiesButton.SetActive(selectedCity.AutoAssignLabor);
             uiLaborAssignment.ShowUI();
@@ -2197,7 +2197,7 @@ public class CityBuilderManager : MonoBehaviour
 		}
 
 		city.purchaseAmountMultiple += improvementData.purchaseAmountChange;
-        if (uiMarketPlaceManager.activeStatus && uiMarketPlaceManager.city == city)
+        if (improvementData.purchaseAmountChange != 0 && uiMarketPlaceManager.activeStatus && uiMarketPlaceManager.city == city)
             uiMarketPlaceManager.UpdatePurchaseAmounts();
 		//making two objects, this one for the parent mesh
 		GameObject tempObject = Instantiate(emptyGO, cityImprovement.transform.position, cityImprovement.transform.rotation);

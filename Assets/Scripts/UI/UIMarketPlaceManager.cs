@@ -20,11 +20,11 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     //for sorting
     [SerializeField]
-    private Image sortResources, sortPrices, sortAmounts, /*sortTotals,*/ sortSell;
+    private Image sortResources, sortPrices, sortAmounts, sortSell, sortPurchaseAmounts;
     [SerializeField]
     private Sprite buttonUp;
     private Sprite buttonDown;
-    private bool sortResourcesUp, sortPricesUp, sortAmountUp, /*sortTotalsUp,*/ sortSellUp;
+    private bool sortResourcesUp, sortPricesUp, sortAmountUp, sortSellUp, sortPurchaseAmountsUp;
     private Color sortButtonOriginalColor;
 
     [HideInInspector]
@@ -110,8 +110,9 @@ public class UIMarketPlaceManager : MonoBehaviour
 		UIMarketResourcePanel marketResource = marketResourceGO.GetComponent<UIMarketResourcePanel>();
 		marketResource.SetMarketPlaceManager(this);
 		marketResource.SetPrice(resource.resourcePrice);
+        marketResource.SetPurchaseAmount(resource.resourceQuantityPerPop);
         marketResource.sell = resource.sellResource;
-        marketResource.minimumAmount.gameObject.SetActive(marketResource.sell);
+        //marketResource.minimumAmount.gameObject.SetActive(marketResource.sell);
 		marketResource.resourceImage.sprite = resource.resourceIcon;
         marketResource.SetResourceType(resource.resourceType, resource.resourceName);
         resourceNames.Add(resource.resourceName);
@@ -134,9 +135,7 @@ public class UIMarketPlaceManager : MonoBehaviour
     public void UpdatePurchaseAmounts()
     {
         foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
-        {
-
-        }
+            resourcePanel.SetPurchaseAmount(city.purchaseAmountMultiple * ResourceHolder.Instance.GetPurchaseAmount(resourcePanel.resourceType));
 	}
 
     private void SetResourceData()
@@ -146,18 +145,15 @@ public class UIMarketPlaceManager : MonoBehaviour
             ResourceType type = resourcePanel.resourceType;
             
             resourcePanel.SetPrice(city.resourceManager.resourcePriceDict[type]);
-            //resourcePanel.cityPrice.text = city.ResourceManager.resourcePriceDict[type].ToString();
             resourcePanel.SetAmount(city.resourceManager.resourceDict[type]);
-            //resourcePanel.cityAmount.text = city.ResourceManager.ResourceDict[type].ToString();
-            //resourcePanel.total = city.ResourceManager.resourceSellHistoryDict[type];
-            //resourcePanel.cityTotals.text = city.ResourceManager.resourceSellHistoryDict[type].ToString();
+            resourcePanel.SetPurchaseAmount(city.purchaseAmountMultiple * ResourceHolder.Instance.GetPurchaseAmount(type));
 
             bool isOn = city.resourceManager.resourceSellList.Contains(type);
             resourcePanel.sellToggle.isOn = isOn;
-            resourcePanel.minimumAmount.interactable = isOn;
+            //resourcePanel.minimumAmount.interactable = isOn;
 
-            if (isOn)
-                resourcePanel.minimumAmount.text = city.resourceManager.resourceMinHoldDict[type].ToString();
+            //if (isOn)
+            //    resourcePanel.minimumAmount.text = city.resourceManager.resourceMinHoldDict[type].ToString();
 
             int maxHold = city.resourceManager.resourceMaxHoldDict[type];
             resourcePanel.maximumAmount.text = maxHold < 0 ? city.warehouseStorageLimit.ToString(): maxHold.ToString();
@@ -177,18 +173,18 @@ public class UIMarketPlaceManager : MonoBehaviour
         }
     }
 
-    public void SetResourceMinHold(ResourceType type, int minHold, UIMarketResourcePanel panel)
-    {
-        if (minHold >= city.warehouseStorageLimit)
-        {
-            city.resourceManager.resourceMinHoldDict[type] = city.warehouseStorageLimit;
-            panel.minimumAmount.text = city.warehouseStorageLimit.ToString();
-		}
-        else
-        {
-            city.resourceManager.resourceMinHoldDict[type] = minHold;
-        }
-    }
+    //public void SetResourceMinHold(ResourceType type, int minHold, UIMarketResourcePanel panel)
+    //{
+    //    if (minHold >= city.warehouseStorageLimit)
+    //    {
+    //        city.resourceManager.resourceMinHoldDict[type] = city.warehouseStorageLimit;
+    //        panel.minimumAmount.text = city.warehouseStorageLimit.ToString();
+    //    }
+    //    else
+    //    {
+    //        city.resourceManager.resourceMinHoldDict[type] = minHold;
+    //    }
+    //}
 
     public void SetResourceMaxHold(ResourceType type, int maxHold, UIMarketResourcePanel panel)
     {
@@ -211,45 +207,43 @@ public class UIMarketPlaceManager : MonoBehaviour
     //sort button coloring
     private void ChangeSortButtonsColors(string column)
     {
-        if (column == "resources")
+        switch (column)
         {
-            sortResources.color = Color.green;
-            sortPrices.color = sortButtonOriginalColor;
-            sortAmounts.color = sortButtonOriginalColor;
-            //sortTotals.color = sortButtonOriginalColor;
-            sortSell.color = sortButtonOriginalColor;
-        }
-        else if (column == "prices")
-        {
-            sortResources.color = sortButtonOriginalColor;
-            sortPrices.color = Color.green;
-            sortAmounts.color = sortButtonOriginalColor;
-            //sortTotals.color = sortButtonOriginalColor;
-            sortSell.color = sortButtonOriginalColor;
-        }
-        else if (column == "amount")
-        {
-            sortResources.color = sortButtonOriginalColor;
-            sortPrices.color = sortButtonOriginalColor;
-            sortAmounts.color = Color.green;
-            //sortTotals.color = sortButtonOriginalColor;
-            sortSell.color = sortButtonOriginalColor;
-        }
-        else if (column == "total")
-        {
-            sortResources.color = sortButtonOriginalColor;
-            sortPrices.color = sortButtonOriginalColor;
-            sortAmounts.color = sortButtonOriginalColor;
-            //sortTotals.color = Color.green;
-            sortSell.color = sortButtonOriginalColor;
-        }
-        else if (column == "sell")
-        {
-            sortResources.color = sortButtonOriginalColor;
-            sortPrices.color = sortButtonOriginalColor;
-            sortAmounts.color = sortButtonOriginalColor;
-            //sortTotals.color = sortButtonOriginalColor;
-            sortSell.color = Color.green;
+            case "resources":
+                sortResources.color = Color.green;
+                sortPrices.color = sortButtonOriginalColor;
+                sortAmounts.color = sortButtonOriginalColor;
+                sortSell.color = sortButtonOriginalColor;
+                sortPurchaseAmounts.color = sortButtonOriginalColor;
+                break;
+            case "prices":
+                sortResources.color = sortButtonOriginalColor;
+                sortPrices.color = Color.green;
+                sortAmounts.color = sortButtonOriginalColor;
+                sortSell.color = sortButtonOriginalColor;
+				sortPurchaseAmounts.color = sortButtonOriginalColor;
+				break;
+            case "amount":
+                sortResources.color = sortButtonOriginalColor;
+                sortPrices.color = sortButtonOriginalColor;
+                sortAmounts.color = Color.green;
+                sortSell.color = sortButtonOriginalColor;
+				sortPurchaseAmounts.color = sortButtonOriginalColor;
+				break;
+            case "purchaseAmount":
+                sortResources.color = sortButtonOriginalColor;
+                sortPrices.color = sortButtonOriginalColor;
+                sortAmounts.color = sortButtonOriginalColor;
+                sortSell.color = sortButtonOriginalColor;
+				sortPurchaseAmounts.color = Color.green;
+				break;
+            case "sell":
+                sortResources.color = sortButtonOriginalColor;
+                sortPrices.color = sortButtonOriginalColor;
+                sortAmounts.color = sortButtonOriginalColor;
+                sortSell.color = Color.green;
+			    sortPurchaseAmounts.color = sortButtonOriginalColor;
+                break;
         }
     }
 
@@ -260,20 +254,18 @@ public class UIMarketPlaceManager : MonoBehaviour
         sortAmounts.color = sortButtonOriginalColor;
         //sortTotals.color = sortButtonOriginalColor;
         sortSell.color = sortButtonOriginalColor;
+        sortPurchaseAmounts.color = sortButtonOriginalColor;
     }
 
 
 
-    //sorting algos
+    //sorting
     public void SortResources()
     {
         city.world.cityBuilderManager.PlaySelectAudio();
         ChangeSortButtonsColors("resources");
 
-        if (sortResourcesUp)
-            sortResources.sprite = buttonUp;
-        else
-            sortResources.sprite = buttonDown;
+        sortResources.sprite = sortResourcesUp ? buttonUp : buttonDown;
 
         SortResources(sortResourcesUp);
         sortResourcesUp = !sortResourcesUp;
@@ -281,12 +273,9 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     private void SortResources(bool up)
     {
-        //reorder on UI
-        if (up) //ascending
-            marketResourceList = marketResourceList.OrderBy(m => m.resourceName).ToList();
-        else //descending
-            marketResourceList = marketResourceList.OrderByDescending(m => m.resourceName).ToList();
+		marketResourceList = up ? marketResourceList.OrderBy(m => m.resourceName).ToList() : marketResourceList.OrderByDescending(m => m.resourceName).ToList();
 
+        //reorder on UI
 		for (int i = 0; i < marketResourceList.Count; i++)
 			marketResourceList[i].transform.SetSiblingIndex(i);
 	}
@@ -295,11 +284,8 @@ public class UIMarketPlaceManager : MonoBehaviour
     {
 		city.world.cityBuilderManager.PlaySelectAudio();
 		ChangeSortButtonsColors("prices");
-            
-        if (sortPricesUp)
-            sortPrices.sprite = buttonUp;
-        else
-            sortPrices.sprite = buttonDown;
+
+        sortPrices.sprite = sortPricesUp ? buttonUp : buttonDown;
         
         SortPrices(sortPricesUp);
         sortPricesUp = !sortPricesUp;        
@@ -307,10 +293,7 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     private void SortPrices(bool up)
     {
-		if (up) //ascending
-			marketResourceList = marketResourceList.OrderBy(m => m.price).ToList();
-		else //descending
-			marketResourceList = marketResourceList.OrderByDescending(m => m.price).ToList();
+		marketResourceList = up ? marketResourceList.OrderBy(m => m.price).ToList() : marketResourceList.OrderByDescending(m => m.price).ToList();
 
 		//reorder on UI
 		for (int i = 0; i < marketResourceList.Count; i++)
@@ -322,10 +305,7 @@ public class UIMarketPlaceManager : MonoBehaviour
 		city.world.cityBuilderManager.PlaySelectAudio();
 		ChangeSortButtonsColors("amount");
 
-        if (sortAmountUp)
-            sortAmounts.sprite = buttonUp;
-        else
-            sortAmounts.sprite = buttonDown;
+        sortAmounts.sprite = sortAmountUp ? buttonUp : buttonDown;
 
         SortAmounts(sortAmountUp);
         sortAmountUp = !sortAmountUp;
@@ -333,51 +313,38 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     private void SortAmounts(bool up)
     {
-		if (up) //ascending
-			marketResourceList = marketResourceList.OrderBy(m => m.amount).ToList();
-		else //descending
-			marketResourceList = marketResourceList.OrderByDescending(m => m.amount).ToList();
+		marketResourceList = up ? marketResourceList.OrderBy(m => m.amount).ToList() : marketResourceList.OrderByDescending(m => m.amount).ToList();
 
 		//reorder on UI
 		for (int i = 0; i < marketResourceList.Count; i++)
             marketResourceList[i].transform.SetSiblingIndex(i);
     }
 
-  //  public void SortTotals()
-  //  {
-		//city.world.cityBuilderManager.PlaySelectAudio();
-		//ChangeSortButtonsColors("total");
+    public void SortPurchaseAmounts()
+    {
+		city.world.cityBuilderManager.PlaySelectAudio();
+		ChangeSortButtonsColors("purchaseAmount");
 
-  //      if (sortTotalsUp)
-  //          sortTotals.sprite = buttonUp;
-  //      else
-  //          sortTotals.sprite = buttonDown;
+        sortPurchaseAmounts.sprite = sortPurchaseAmountsUp ? buttonUp : buttonDown;
 
-  //      SortTotals(sortTotalsUp);
-  //      sortTotalsUp = !sortTotalsUp;
-  //  }
+        SortPurchaseAmounts(sortPurchaseAmountsUp);
+        sortPurchaseAmountsUp = !sortPurchaseAmountsUp;
+	}
 
-  //  private void SortTotals(bool up)
-  //  {
-		//if (up) //ascending
-		//	marketResourceList = marketResourceList.OrderBy(m => m.total).ToList();
-		//else //descending
-		//	marketResourceList = marketResourceList.OrderByDescending(m => m.total).ToList();
+    public void SortPurchaseAmounts(bool up)
+    {
+        marketResourceList = up ? marketResourceList.OrderBy(m => m.purchaseAmount).ToList() : marketResourceList.OrderByDescending(m => m.purchaseAmount).ToList();
 
-		////reorder on UI
-		//for (int i = 0; i < marketResourceList.Count; i++)
-  //          marketResourceList[i].transform.SetSiblingIndex(i);
-  //  }
+        for (int i = 0; i < marketResourceList.Count; i++)
+            marketResourceList[i].transform.SetSiblingIndex(i);
+    }
 
     public void SortSell()
     {
 		city.world.cityBuilderManager.PlaySelectAudio();
 		ChangeSortButtonsColors("sell");
 
-        if (sortSellUp)
-            sortSell.sprite = buttonUp;
-        else
-            sortSell.sprite = buttonDown;
+        sortSell.sprite = sortSellUp ? buttonUp : buttonDown;
 
         SortSell(sortSellUp);
         sortSellUp = !sortSellUp;
@@ -385,10 +352,7 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     private void SortSell(bool up)
     {
-		if (up) //ascending
-			marketResourceList = marketResourceList.OrderBy(m => m.sell).ToList();
-		else //descending
-			marketResourceList = marketResourceList.OrderByDescending(m => m.sell).ToList();
+		marketResourceList = up ? marketResourceList.OrderBy(m => m.sell).ToList() : marketResourceList.OrderByDescending(m => m.sell).ToList();
 
 		//reorder on UI
 		for (int i = 0; i < marketResourceList.Count; i++)

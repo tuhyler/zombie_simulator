@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Housing01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: BuildingPrefabs/Housing01
   audio: {fileID: 0}
@@ -29,7 +28,7 @@ MonoBehaviour:
   mapIcon: {fileID: 0}
   improvementCost:
   - resourceType: 6
-    resourceAmount: 5
+    resourceAmount: 10
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
@@ -43,6 +42,7 @@ MonoBehaviour:
   terrainType: 0
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 5
   housingIncrease: 1
   cityHousing: 1

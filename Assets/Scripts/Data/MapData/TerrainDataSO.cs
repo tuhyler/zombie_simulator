@@ -9,6 +9,8 @@ public class TerrainDataSO : ScriptableObject
     public string tag;
     public List<GameObject> prefabs;
     public List<GameObject> decors;
+    public List<string> prefabLocs;
+    public List<string> decorLocs;
     public string title;
     public TerrainDataSO clearedForestData; //for clearing a forest
     public bool grassland = false;

@@ -54,14 +54,14 @@ public class UpgradeableObjectHolder : MonoBehaviour
         foreach (TerrainDataSO terrain in allTerrain)
             terrainDict[terrain.name] = terrain;
 
-        foreach (GameObject center in allTradeCenters)
-        {
-            string name = center.GetComponent<TradeCenter>().tradeCenterName;
-            if (name == "")
-                Debug.LogError("Trade Center must be given name");
+   //     foreach (GameObject center in allTradeCenters)
+   //     {
+   //         string name = center.GetComponent<TradeCenter>().tradeCenterName;
+   //         if (name == "")
+   //             Debug.LogError("Trade Center must be given name");
 
-			tradeCenterDict[name] = center;
-        }
+			//tradeCenterDict[name] = center;
+   //     }
 
         foreach (WonderDataSO wonder in allWonders)
             wonderDict[wonder.wonderName] = wonder;

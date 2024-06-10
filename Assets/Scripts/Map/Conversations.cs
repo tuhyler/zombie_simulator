@@ -35,7 +35,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaConfused",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "How did I get here? The last thing I remember is taking a nap on the USS Comet... and now I'm here!"
+			speakerText = "How did I get here? The last thing I remember is taking a nap on my couch and having a really weird dream about flying through space... and now I'm here!"
 		};
 		conversationDict["just_landed"].Add(just_landed2);
 
@@ -44,7 +44,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "And it's cold! I guess I'll build a fire, maybe someone will see the smoke?"
+			speakerText = "Where am I? Am I even on Earth anymore? I need to set up camp until I figure out what's going on."
 		};
 		conversationDict["just_landed"].Add(just_landed3);
 
@@ -57,7 +57,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaSerious",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "Ok, that will keep me warm for like a few seconds. I could go for some food now..."
+			speakerText = "Ok, that will keep me warm for a few seconds. I need to go find some food now..."
 		};
 		conversationDict["tutorial1"].Add(tutorial11);
 
@@ -89,7 +89,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "OK! I can gather some food here."
+			speakerText = "Okay! I can gather some food here."
 		};
 		conversationDict["tutorial2"].Add(tutorial21);
 		#endregion
@@ -134,7 +134,8 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "Oh hello... who are you?"
+			speakerText = "Oh hello... who are you?",
+			action = true
 		};
 		conversationDict["first_labor"].Add(first_labor1);
 
@@ -161,7 +162,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "No clue! But I'm glad to be here and happy to help!"
+			speakerText = "I'm from here! I live in a cave nearby with my wife, and I saw you setting up over here. Ooh, pretty fire!"
 		};
 		conversationDict["first_labor"].Add(first_labor4);
 
@@ -188,7 +189,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaGuilty",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "Well, no, it's actually not on this planet... uh, this is kind of a big ask, but could you help me build a rocket?"
+			speakerText = "Well, no, it's actually not on this planet... I think in order for me to get home, I'm going to have to build a rocket."
 		};
 		conversationDict["first_labor"].Add(first_labor7);
 
@@ -197,7 +198,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Absolutely I will! What do I need to do? Also, and this probably isn't important, but what's a rocket? Is it made by rubbing sticks together? I'm great at that!"
+			speakerText = "I can help with that! What do I need to do? Also, and this probably isn't important, but what's a rocket? Is it made by rubbing sticks together? I'm great at that!"
 		};
 		conversationDict["first_labor"].Add(first_labor8);
 
@@ -242,7 +243,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "We don't have a lot of know-how around here, but if you'd like, we can get more people like me and figure out how to get you what you need!"
+			speakerText = "I don't have a lot of know-how, but if you have any tasks that you say are possible to complete, then I'll help make it happen!"
 		};
 		conversationDict["first_labor"].Add(first_labor13);
 
@@ -251,7 +252,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "Really? You will help me? How do we get more people?"
+			speakerText = "Really? You will help me? Okay, uh, this is kind of a big ask... but could you help me recreate all of human history?"
 		};
 		conversationDict["first_labor"].Add(first_labor14);
 
@@ -260,18 +261,48 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Oh it's easy! Just provide food, housing, and water, and so long as you're around, they'll arrive to help!"
+			speakerText = "Absolutely I will! That shouldn't take long at all! Just let me know what I can do!"
 		};
 		conversationDict["first_labor"].Add(first_labor15);
+		#endregion
+		#region tutorial3b
+		conversationDict["tutorial3b"] = new();
 
-		ConversationItem first_labor16 = new()
+		ConversationItem tutorial3b1 = new()
 		{
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "I can personally help you gather supplies and also build roads! In fact, let's get some lumber to build a hut."
+			speakerText = "If you'd like, this task could be completed even faster if we get more people."
 		};
-		conversationDict["first_labor"].Add(first_labor16);
+		conversationDict["tutorial3b"].Add(tutorial3b1);
+
+		ConversationItem tutorial3b2 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Scott",
+			speakerText = "We can do that? How do we get more people?"
+		};
+		conversationDict["tutorial3b"].Add(tutorial3b2);
+
+		ConversationItem tutorial3b3 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "It's easy! We can get more people by simply gathering food, shelter, and water, and they will come."
+		};
+		conversationDict["tutorial3b"].Add(tutorial3b3);
+
+		ConversationItem tutorial3b4 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "Let's start by getting some lumber to build a hut!"
+		};
+		conversationDict["tutorial3b"].Add(tutorial3b4);
 		#endregion
 		#region tutorial4
 		conversationDict["tutorial4"] = new();
@@ -439,7 +470,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottMad",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "No!! A person's labor is not to be stolen, but rather be purchased so that both parties can benefit!"
+			speakerText = "No!! A person's labor is not to be stolen, but rather be purchased for the benefit of all parties involved!"
 		};
 		conversationDict["tutorial11"].Add(tutorial113);
 
@@ -457,7 +488,8 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "*with a big smile again* No problem! In fact, we're currently in need of more currency, so we'll need to gather more resources that our people can purchase."
+			speakerText = "*smiling again* No problem! In fact, we're currently in need of more currency, so we'll need to gather more resources that our people can purchase. " +
+			"Each camp makes all their purchases at the end of each cycle."
 		};
 		conversationDict["tutorial11"].Add(tutorial115);
 
@@ -538,9 +570,19 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Just researched pottery"
+			speakerText = "We can now build a ceramist! This is a producer that will create a crafted good for which our people will be willing to spend much more money. " +
+			"The more of these we make, the more money we can pay to our researchers!"
 		};
 		conversationDict["pottery"].Add(pottery1);
+
+		ConversationItem pottery2 = new()
+		{
+			speakerImage = "KoaHappy",
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "(Go to a nearby city and camp and click on the \"Sea Market Pricds\" button to learn more about selling prices and quantities.)"
+		};
+		conversationDict["pottery"].Add(pottery2);
 		#endregion
 		#region trade
 		conversationDict["trade"] = new();
@@ -550,7 +592,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "just resesarched trade"
+			speakerText = "We can now build a trade depot! Trade depots allow us to build traders and they are a great way to move resources from one city to another."
 		};
 		conversationDict["trade"].Add(trade1);
 		#endregion
@@ -583,7 +625,8 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "Hello! Who are you? Another helper for me I hope?"
+			speakerText = "Hello! Who are you? Another helper for me I hope?",
+			action = true
 		};
 		conversationDict["first_infantry"].Add(first_infantry1);
 
@@ -592,7 +635,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
-			speakerText = "So you are the one who brought us here... I am Azai, destroyer of nations, harbinger of fear!"
+			speakerText = "I am Azai, conqueror of Ximara and former ruler of Tavaria!"
 		};
 		conversationDict["first_infantry"].Add(first_infantry2);
 
@@ -610,7 +653,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Azai",
-			speakerText = "*interrupting* Hi! I'm Scott! Who are you?"
+			speakerText = "*Interrupting* Wow! You were the ruler of Tavaria? What are you doing here?"
 		};
 		conversationDict["first_infantry"].Add(first_infantry4);
 
@@ -619,72 +662,118 @@ public class Conversations : MonoBehaviour
 			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Scott",
-			speakerText = "I am Azai, destroyer of nations, harbinger of fear!"
+			speakerText = "I have taken leave of my position as a noble ruler to encounter new challenges in distant lands. " +
+			"I stopped here because I noticed that you and your people are clearly undertaking a massive task. Is that true? "
 		};
 		conversationDict["first_infantry"].Add(first_infantry5);
 
 		ConversationItem first_infantry6 = new()
 		{
-			speakerImage = "ScottHappy",
-			speakerName = "Scott",
+			speakerImage = "KoaGuilty",
+			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "Whoa! Cool name!!"
+			speakerText = "You have no idea.... "
 		};
 		conversationDict["first_infantry"].Add(first_infantry6);
 
 		ConversationItem first_infantry7 = new()
 		{
-			speakerImage = "KoaConfused",
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
-			speakerDirection = "Scott",
-			speakerText = "Right, we just said that..."
+			speakerDirection = "Azai",
+			speakerText = "So that's why you're here? To watch? Or were you hoping to add some more adjectives to your name?"
 		};
 		conversationDict["first_infantry"].Add(first_infantry7);
 
 		ConversationItem first_infantry8 = new()
 		{
-			speakerImage = "KoaSerious",
-			speakerName = "Koa",
-			speakerDirection = "Azai",
-			speakerText = "Uh, so, is there a reason you came here? Hoping to add some more adjectives to your name?"
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "Many will come to attempt to destroy what you have worked for. Indeed, the more you labor, the more they will labor in return to tear it all down. " +
+			"Therefore, I will develop your armies to ensure your safety in these lands."
 		};
 		conversationDict["first_infantry"].Add(first_infantry8);
 
 		ConversationItem first_infantry9 = new()
-		{
-			speakerImage = "AzaiSerious",
-			speakerName = "Azai",
-			speakerDirection = "Koa",
-			speakerText = "There will be many who will want to take what you have worked for, I have come to develop your armies and ensure your safey traveling these lands."
-		};
-		conversationDict["first_infantry"].Add(first_infantry9);
-
-		ConversationItem first_infantry10 = new()
 		{
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
 			speakerText = "Excellent! Yeah, I think there's a few people out there that don't want us wondering around..."
 		};
-		conversationDict["first_infantry"].Add(first_infantry10);
+		conversationDict["first_infantry"].Add(first_infantry9);
 
-		ConversationItem first_infantry11 = new()
+		ConversationItem first_infantry10 = new()
 		{
 			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
-			speakerText = "Verily! Now they will leave us be as we wander this magnificent world, but they hide, guard, and waste what should be used for the progress of humanity. I will train our armies to prevent that."
+			speakerText = "Verily! Considering the scale of your project, my armies will also help to acquire new resources, " +
+			"jealousy guarded by those that would only waste what has been given them."
 		};
-		conversationDict["first_infantry"].Add(first_infantry11);
+		conversationDict["first_infantry"].Add(first_infantry10);
 
-		ConversationItem first_infantry12 = new()
+		ConversationItem first_infantry11 = new()
 		{
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "Okay, that's cool man. You can hang out with us I guess, just let me know if you want anything or anything."
+			speakerText = "You know, you speak like someone who is perpetually practicing for a Shakespeare play."
 		};
-		conversationDict["first_infantry"].Add(first_infantry12);
+		conversationDict["first_infantry"].Add(first_infantry11);
+		#endregion
+		#region hunting
+		conversationDict["hunting"] = new();
+
+		ConversationItem hunting1 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "Now that I have joined forces with you, we can build a barracks in any city. " +
+			"The barracks will serve to build military units, which can be used to protect the aforementioned city, or be sent out to acquire new lands."
+		};
+		conversationDict["hunting"].Add(hunting1);
+
+		ConversationItem hunting2 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "When you have acquired enough resources in your city, build a barracks so that we may begin training our infantry."
+		};
+		conversationDict["hunting"].Add(hunting2);
+		#endregion
+		#region first_built_infantry
+		conversationDict["first_built_infantry"] = new();
+
+		ConversationItem first_built_infantry1 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "We have just built our first infantry unit! Select him to deploy him to attack an enemy camp. Keep in mind that support must be provided to send out an army."
+		};
+		conversationDict["first_built_infantry"].Add(first_built_infantry1);
+
+		ConversationItem first_built_infantry2 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "I can't help but notice he looks exactly like you. Hmm... what's a guy to think..."
+		};
+		conversationDict["first_built_infantry"].Add(first_built_infantry2);
+
+		ConversationItem first_built_infantry3 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "Just because he's also devastatingly handsome, it doesn't mean he looks like me. You need to start noticing differentiating details in one's appearance."
+		};
+		conversationDict["first_built_infantry"].Add(first_built_infantry3);
 		#endregion
 		#region first_pop_loss
 		conversationDict["first_pop_loss"] = new();
@@ -736,9 +825,41 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "We just built our first trader"
+			speakerText = "We just built our first trader! Now we can start moving resources from one city to another " +
+			"or even start automatically buying resources from a nearby trade center. Select a trader to assign him a route."
 		};
 		conversationDict["first_trader"].Add(first_trader1);
+		#endregion
+		#region azaidefeat
+		conversationDict["azaidefeat"] = new();
+
+		ConversationItem azaidefeat1 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "He is stronger than what I had previously anticipated."
+		};
+		conversationDict["azaidefeat"].Add(azaidefeat1);
+
+		ConversationItem azaidefeat2 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Do you think you can defeat him? He's just going to keep sending guys at us until you do."
+		};
+		conversationDict["azaidefeat"].Add(azaidefeat2);
+
+		ConversationItem azaidefeat3 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "Yes, but I will need to be better prepared. I will need to fully recover my health and will most certainly need a better weapon. " +
+			"Let us return to a nearby city and upgrade the current weapon I have."
+		};
+		conversationDict["azaidefeat"].Add(azaidefeat3);
 		#endregion
 		#endregion
 
@@ -2710,26 +2831,179 @@ public class Conversations : MonoBehaviour
 		#region intro
 		conversationDict["Sennacherib_intro"] = new();
 
-		ConversationItem sennacherib_intro = new()
+		ConversationItem sennacherib_intro1 = new()
 		{
 			speakerImage = "SennacheribMad",
 			speakerName = "Sennacherib",
 			speakerDirection = "Koa",
-			speakerText = "My name is Sennacherib"
+			speakerText = "Greetings! I am Sennacherib, noble warrior and king of the Assyrians! With my mighty armies, I have conquered and destroyed the mighty city of Babylon."
 		};
-		conversationDict["Sennacherib_intro"].Add(sennacherib_intro);
+		conversationDict["Sennacherib_intro"].Add(sennacherib_intro1);
+
+		ConversationItem sennacherib_intro2 = new()
+		{
+			speakerImage = "SennacheribMad",
+			speakerName = "Sennacherib",
+			speakerDirection = "Koa",
+			speakerText = "Behold my capital city of Ninevah! Observe these gargantuan city walls and the expanse of the city, all of which were constructed through my leadership."
+		};
+		conversationDict["Sennacherib_intro"].Add(sennacherib_intro2);
+
+		ConversationItem sennacherib_intro3 = new()
+		{
+			speakerImage = "SennacheribMad",
+			speakerName = "Sennacherib",
+			speakerDirection = "Koa",
+			speakerText = "And what of your accomplishments? Have you achieved even a fraction of what I have?"
+		};
+		conversationDict["Sennacherib_intro"].Add(sennacherib_intro3);
+
+		ConversationItem sennacherib_intro4 = new()
+		{
+			speakerImage = "KoaGuilty",
+			speakerName = "Koa",
+			speakerDirection = "Sennacherib",
+			speakerText = "Uh, I have lots of accomplishments! Like, I'm a high school graduate *cough* equivalent... I've seen TWO elephants... " +
+			"um, I can tell the difference between real bacon and tofu bacon..."
+		};
+		conversationDict["Sennacherib_intro"].Add(sennacherib_intro4);
+
+		ConversationItem sennacherib_intro5 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Sennacherib",
+			speakerText = "Do you want me to keep going? Because, I could totally keep going. Also, what kind of name is Sennacherib? More like, \"snack a rib\", am I right?"
+		};
+		conversationDict["Sennacherib_intro"].Add(sennacherib_intro5);
+
+		ConversationItem sennacherib_intro6 = new()
+		{
+			speakerImage = "SennacheribMad",
+			speakerName = "Sennacherib",
+			speakerDirection = "Koa",
+			speakerText = "...it is clear to me that I must destroy you now. Your piffling civilization is consuming resources that are rightfully ours, and we are prepared to fight to take them back."
+		};
+		conversationDict["Sennacherib_intro"].Add(sennacherib_intro6);
+
+		ConversationItem sennacherib_intro7 = new()
+		{
+			speakerImage = "SennacheribMad",
+			speakerName = "Sennacherib",
+			speakerDirection = "Koa",
+			speakerText = "Return to your houses, and prepare yourselves, for we are coming for you. When birds go silent and dogs cower in fear, that will be the sound of our arrival."
+		};
+		conversationDict["Sennacherib_intro"].Add(sennacherib_intro7);
 		#endregion
 		#region challenge0
 		conversationDict["Sennacherib_challenge0"] = new();
 
-		ConversationItem sennacherib_challenge0 = new()
+		ConversationItem sennacherib_challenge01 = new()
 		{
 			speakerImage = "SennacheribMad",
 			speakerName = "Sennacherib",
 			speakerDirection = "Koa",
-			speakerText = "I challenge you to a fight"
+			speakerText = "I have sent vast armies to destroy the mighty city of Babylon, but I am not an idle leader who will have his subjects do all of his fighting. " +
+			"I challenge any one of you to a duel at a time of your choosing."
 		};
-		conversationDict["Sennacherib_challenge0"].Add(sennacherib_challenge0);
+		conversationDict["Sennacherib_challenge0"].Add(sennacherib_challenge01);
+
+		ConversationItem sennacherib_challenge02 = new()
+		{
+			speakerImage = "KoaSerious",
+			speakerName = "Koa",
+			speakerDirection = "Sennacherib",
+			speakerText = "You want to fight me? Is this because of my \"snack a rib\" joke from earlier?"
+		};
+		conversationDict["Sennacherib_challenge0"].Add(sennacherib_challenge02);
+
+		ConversationItem sennacherib_challenge03 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "I think this is a challenge that is more appropriately suited for me. I have received combat training for my entire life to prepare myself for duels such as these."
+		};
+		conversationDict["Sennacherib_challenge0"].Add(sennacherib_challenge03);
+
+		ConversationItem sennacherib_challenge04 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Are you sure? I think I can take him, I worked out my chest the other day so I'm feeling pretty huge."
+		};
+		conversationDict["Sennacherib_challenge0"].Add(sennacherib_challenge04);
+
+		ConversationItem sennacherib_challenge05 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "I assure you, leave this one to me."
+		};
+		conversationDict["Sennacherib_challenge0"].Add(sennacherib_challenge05);
+		#endregion
+		#region challenge1
+		conversationDict["Sennacherib_challenge1"] = new();
+
+		ConversationItem sennacherib_challenge11 = new()
+		{
+			speakerImage = "SennacheribMad",
+			speakerName = "Sennacherib",
+			speakerDirection = "Koa",
+			speakerText = "So you return to challenge me again? Have you prepared your soul to face your inevitable defeat?"
+		};
+		conversationDict["Sennacherib_challenge1"].Add(sennacherib_challenge11);
+		#endregion
+		#region 
+		conversationDict["Sennacherib_defeat"] = new();
+
+		ConversationItem sennacherib_defeat1 = new()
+		{
+			speakerImage = "KoaHappy",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Thanks for handling that guy, Azai, although I think I could have taken him if I had a new sword like you have. And if I was taller. And stronger. And knew how to fight."
+		};
+		conversationDict["Sennacherib_defeat"].Add(sennacherib_defeat1);
+
+		ConversationItem sennacherib_defeat2 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "He was a powerful adversary with a heart filled with destruction. It is better for the world with him removed."
+		};
+		conversationDict["Sennacherib_defeat"].Add(sennacherib_defeat2);
+
+		ConversationItem sennacherib_defeat3 = new()
+		{
+			speakerImage = "ScottSerious",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "\"For the Angel of Death spread his wings on the blast, and breathed in the face of the foe as he passed, and the eyes of the sleepers waxed deadly and chill, " +
+			"and their hearts but once heaved, and for ever grew still.\""
+		};
+		conversationDict["Sennacherib_defeat"].Add(sennacherib_defeat3);
+
+		ConversationItem sennacherib_defeat4 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "That's Lord Byron!"
+		};
+		conversationDict["Sennacherib_defeat"].Add(sennacherib_defeat4);
+
+		ConversationItem sennacherib_defeat5 = new()
+		{
+			speakerImage = "KoaConfused",
+			speakerName = "Koa",
+			speakerDirection = "Scott",
+			speakerText = "How do you know who Lord Byron is?"
+		};
+		conversationDict["Sennacherib_defeat"].Add(sennacherib_defeat5);
 		#endregion
 		#endregion
 	}

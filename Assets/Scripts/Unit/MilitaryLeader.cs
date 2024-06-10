@@ -10,11 +10,13 @@ public class MilitaryLeader : Military
 	public string leaderName;
 	public List<UnitBuildDataSO> leaderUnitList;
 	public Dictionary<UnitType, UnitBuildDataSO> leaderUnitDict = new();
-	private int timeWaited = 0;
+	public int challengeGap;
+	private int timeWaited = 0, challenges = 0;
 	[HideInInspector]
 	public bool hasSomethingToSay, defending, dueling;
 	public Color borderColor;
 	public Vector2 colorOne, colorTwo;
+	private Coroutine co;
 
 	private void Awake()
 	{
@@ -56,10 +58,15 @@ public class MilitaryLeader : Military
 		conversationHaver.SetSomethingToSay(conversationTopic);
 	}
 
+	public void ResetTimeWaited()
+	{
+		timeWaited = challengeGap;
+	}
+
 	public void BeginChallengeWait()
 	{
-		timeWaited = 10;
-		StartCoroutine(SetNextChallengeWait());
+		ResetTimeWaited();
+		co = StartCoroutine(SetNextChallengeWait());
 	}
 
 	public IEnumerator SetNextChallengeWait()
@@ -71,11 +78,14 @@ public class MilitaryLeader : Military
 		}
 
 		SetNextChallenge();
+		co = null;
 	}
 
 	public void SetNextChallenge()
-	{;
-		SetSomethingToSay(leaderName + "_challenge" + 0.ToString());
+	{
+		int challengeCount = challenges > 0 ? 1 : 0;
+		SetSomethingToSay(leaderName + "_challenge" + challengeCount.ToString());
+		challenges++;
 	}
 
 	public void CancelApproachingConversation()
@@ -102,6 +112,12 @@ public class MilitaryLeader : Military
 
 	public void PrepForBattle()
 	{
+		if (co != null)
+		{
+			StopCoroutine(co);
+			co = null;
+		}
+		
 		defending = true;
 
 		if (somethingToSay)
@@ -261,6 +277,9 @@ public class MilitaryLeader : Military
 
 		if (currentHealth < buildDataSO.health)
 			healthbar.RegenerateHealth();
+
+		if (timeWaited > 0)
+			co = StartCoroutine(SetNextChallengeWait());
 	}
 
 	public MilitaryLeaderData SaveMilitaryLeaderData()
@@ -273,6 +292,7 @@ public class MilitaryLeader : Military
 		data.hasSomethingToSay = hasSomethingToSay;
 		data.defending = defending;
 		data.dueling = dueling;
+		data.challenges = challenges;
 		if (dueling)
 		{
 			data.forward = enemyCamp.forward;
@@ -297,6 +317,7 @@ public class MilitaryLeader : Military
 		defending = data.leaderData.defending;
 		dueling = data.leaderData.dueling;
 		timeWaited = data.leaderData.timeWaited;
+		challenges = data.leaderData.challenges;
 
 		if (data.leaderData.somethingToSay)
 		{
@@ -320,7 +341,7 @@ public class MilitaryLeader : Military
 
 		if (timeWaited > 0)
 		{
-
+			co = StartCoroutine(SetNextChallengeWait());
 		}
 
 		LoadUnitData(data);

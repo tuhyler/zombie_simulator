@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Iron Ore
   resourceIcon: {fileID: 21300000, guid: 333d35d1975cad64aa17bc4b21803953, type: 3}
-  ResourceGatheringTime: 0
+  ResourceGatheringTime: 5
   ResourceGatheringAmount: 1
   resourcePrice: 2
   resourceQuantityPerPop: 1

@@ -20,6 +20,12 @@ MonoBehaviour:
   - {fileID: 1941623388544208782, guid: c07ada8850d13394cabad60d11421dcb, type: 3}
   - {fileID: 1941623388544208782, guid: 1265c508be199ab42928c357d557b26a, type: 3}
   - {fileID: 1941623388544208782, guid: 56b22681ab7101c4dacf816658aa3e5e, type: 3}
+  prefabLocs:
+  - GrasslandHill
+  decorLocs:
+  - Rocks
+  - Jewels
+  - Gold
   title: Hill
   clearedForestData: {fileID: 0}
   grassland: 1

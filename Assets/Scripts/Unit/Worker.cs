@@ -661,9 +661,11 @@ public class Worker : Unit
 
 	public void GatherResource()
     {
+		if (world.tutorial)
+			world.unitMovement.uiWorkerTask.GetButton("Gather").FlashCheck();
 		//if (world.mainPlayer.inEnemyLines || world.mainPlayer.runningAway)
 		//	return;
-		
+
 		//if (world.moveUnit)
 		world.unitMovement.CancelMove();
 

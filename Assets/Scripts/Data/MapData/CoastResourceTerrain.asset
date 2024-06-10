@@ -24,6 +24,16 @@ MonoBehaviour:
   - {fileID: 8558974081812087695, guid: 3bab5ff1c97f8904a90ffea9b1b62ef4, type: 3}
   decors:
   - {fileID: 9073605623283122857, guid: b625e4f74d4af944b8a35ced4c90376d, type: 3}
+  prefabLocs:
+  - SeaCurve
+  - SeaCurveRiverLeftCoast
+  - SeaCurveRiverRightCoast
+  - SeaStraightCoast
+  - SeaStraightCornerLeftCoast
+  - SeaStraightCornerRightCoast
+  - SeaCurveDiagonal
+  decorLocs:
+  - SeaFish
   title: Coast
   clearedForestData: {fileID: 0}
   grassland: 0

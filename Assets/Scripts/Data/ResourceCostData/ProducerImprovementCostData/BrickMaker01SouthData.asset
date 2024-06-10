@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: BrickMaker01SouthData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/BrickMaker01South
-  audio: {fileID: 8300000, guid: 67e2dcfdb0e95d24e800aa8b53da8ea3, type: 3}
+  audio: {fileID: 8300000, guid: dd626ec4a4c6ab94680ae3af2144b6ab, type: 3}
   isSecondary: 0
   isBuilding: 0
   isBuildingImprovement: 0
@@ -28,29 +27,28 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 27114c27efd435b4c8a464e8be585b47, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
-  - resourceType: 7
-    resourceAmount: 7
   - resourceType: 6
-    resourceAmount: 5
+    resourceAmount: 25
   consumedResources:
-  - resourceType: 6
+  - resourceType: 9
     resourceAmount: 1
   - resourceType: 4
-    resourceAmount: 2
+    resourceAmount: 1
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 6
-    resourceAmount: 6
-  producedResourceTime: 0a000000
+  - resourceType: 31
+    resourceAmount: 1
+  producedResourceTime: 0f000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
   terrainType: 5
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 1
   housingIncrease: 0
   cityHousing: 0

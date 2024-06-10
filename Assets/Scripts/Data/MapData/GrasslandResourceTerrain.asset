@@ -25,6 +25,17 @@ MonoBehaviour:
   - {fileID: 9073605623283122857, guid: 089c553c71de39f449a035372de91ff9, type: 3}
   - {fileID: 9073605623283122857, guid: 6ced5d8e9bd765c4c8e30201d55fa2d7, type: 3}
   - {fileID: 9073605623283122857, guid: fc41f8a57f0f1c94aab2e58d963812cf, type: 3}
+  prefabLocs:
+  - Grassland
+  decorLocs:
+  - Rocks
+  - Jewels
+  - Gold
+  - Clay
+  - GrasslandDecor01
+  - GrasslandCotton
+  - GrasslandSilk
+  - GrasslandWool
   title: Grassland
   clearedForestData: {fileID: 0}
   grassland: 1
@@ -34,6 +45,7 @@ MonoBehaviour:
   isLand: 1
   isSeaCorner: 0
   movementCost: 10
+  terrainAttackBonus: 0
   type: 5
   specificTerrain: 0
   terrainDesc: 0

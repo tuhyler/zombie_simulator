@@ -32,9 +32,15 @@ public class ConversationHaver : MonoBehaviour
 		unit.somethingToSay = true;
 
 		if (alternateSpeaker != null)
-			alternateSpeaker.questionMark.SetActive(true);
+		{
+			if (!alternateSpeaker.sayingSomething)
+				alternateSpeaker.questionMark.SetActive(true);
+		}
 		else
-			unit.questionMark.SetActive(true);
+		{
+			if (!unit.sayingSomething)
+				unit.questionMark.SetActive(true);
+		}
 
 		if (unit.isPlayer && unit.isSelected && !unit.worker.isBusy && !unit.worker.inTransport)
 		{

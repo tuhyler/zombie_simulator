@@ -95,6 +95,8 @@ public class TerrainGenerator : MonoBehaviour
     [Header("Trade Center Prefabs")]
     [SerializeField]
     private List<GameObject> tradeCenters;
+    [SerializeField]
+    private List<string> tradeCenterNames;
 
     [Header("Enemy Leader Prefabs")]
     [SerializeField]
@@ -253,7 +255,7 @@ public class TerrainGenerator : MonoBehaviour
             if (mainMap[position] == ProceduralGeneration.sea)
             {
                 int prefabIndex = 0;
-                GameObject sea = seaSO.prefabs[0];
+                GameObject sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaSO.prefabLocs[0]);
                 Quaternion rotation = Quaternion.identity;
                 int[] neighborDirectTerrainLoc = new int[4] { 0, 0, 0, 0 };
                 int[] neighborTerrainLoc = new int[4] { 0, 0, 0, 0 };
@@ -296,14 +298,14 @@ public class TerrainGenerator : MonoBehaviour
                 {
                     if (riverCount == 0)
                     {
-                        sea = coastSO.prefabs[3];
-                        coastTiles.Add(position);
+                        sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + coastSO.prefabLocs[3]);
+						coastTiles.Add(position);
                         prefabIndex = 3;
 					}
                     else
                     {
-                        sea = seaIntersectionSO.prefabs[2];
-                        prefabIndex = 2;
+                        sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaIntersectionSO.prefabLocs[2]);
+						prefabIndex = 2;
 					}
                     int index = Array.FindIndex(neighborDirectTerrainLoc, x => x == 1);
                     rotation = Quaternion.Euler(0, index * 90, 0);
@@ -320,35 +322,36 @@ public class TerrainGenerator : MonoBehaviour
                         {
                             if (riverCount == 0)
                             {
-                                sea = coastSO.prefabs[4];
+                                sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + coastSO.prefabLocs[4]);
 								coastTiles.Add(position);
 								prefabIndex = 4;
 							}
                             else
                             {
-                                sea = seaIntersectionSO.prefabs[3];
-                                prefabIndex = 3;
+                                sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaIntersectionSO.prefabLocs[3]);
+								prefabIndex = 3;
 							}
                         }
                         else if (neighborTerrainLoc[cornerTwo] == 1)
                         {
                             if (riverCount == 0)
                             {
-                                sea = coastSO.prefabs[5];
+                                sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + coastSO.prefabLocs[5]);
 								coastTiles.Add(position);
 								prefabIndex = 5;
 							}
                             else
                             {
-                                sea = seaIntersectionSO.prefabs[4];
-                                prefabIndex = 4;
+                                sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaIntersectionSO.prefabLocs[4]);
+
+								prefabIndex = 4;
 							}
                         }
                     }
                 }
                 else if (directNeighborCount == 2)
                 {
-                    sea = coastSO.prefabs[0];
+                    sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + coastSO.prefabLocs[0]);
 					coastTiles.Add(position);
 					prefabIndex = 0;
 					int[] holder = new int[2];
@@ -372,13 +375,13 @@ public class TerrainGenerator : MonoBehaviour
                         {
                             if (max - min == 1)
                             {
-                                sea = coastSO.prefabs[1];
+                                sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + coastSO.prefabLocs[1]);
 								coastTiles.Add(position);
 								prefabIndex = 1;
 							}
                             else
                             {
-                                sea = coastSO.prefabs[2];
+                                sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + coastSO.prefabLocs[2]);
 								coastTiles.Add(position);
 								prefabIndex = 2;
 							}
@@ -387,13 +390,13 @@ public class TerrainGenerator : MonoBehaviour
                         {
                             if (max - min == 1)
                             {
-                                sea = coastSO.prefabs[2];
+                                sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + coastSO.prefabLocs[2]);
 								coastTiles.Add(position);
 								prefabIndex = 2;
 							}
                             else
                             {
-                                sea = coastSO.prefabs[1];
+                                sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + coastSO.prefabLocs[1]);
 								coastTiles.Add(position);
 								prefabIndex = 1;
 							}
@@ -401,19 +404,19 @@ public class TerrainGenerator : MonoBehaviour
                     }
                     else if (riverCount == 2)
                     {
-                        sea = seaIntersectionSO.prefabs[5];
+                        sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaIntersectionSO.prefabLocs[5]);
 						prefabIndex = 5;
 					}
                 }
                 else if (directNeighborCount == 3)
                 {
-                    sea = seaSO.prefabs[0];
+                    sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaSO.prefabLocs[0]); 
 					prefabIndex = 0;
 					rotation = Quaternion.identity;
                 }
                 else if (directNeighborCount == 4)
                 {
-                    sea = seaSO.prefabs[0];
+                    sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaSO.prefabLocs[0]);
 					prefabIndex = 0;
 					rotation = Quaternion.identity;
                 }
@@ -421,22 +424,22 @@ public class TerrainGenerator : MonoBehaviour
                 {
                     if (neighborCount == 1)
                     {
-                        sea = seaIntersectionSO.prefabs[0];
+                        sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaIntersectionSO.prefabLocs[0]);
 						prefabIndex = 0;
 						int index = Array.FindIndex(neighborTerrainLoc, x => x == 1);
                         rotation = Quaternion.Euler(0, index * 90, 0);
                     }
                     else if (neighborCount == 2)
                     {
-                        sea = seaIntersectionSO.prefabs[1];
+                        sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaIntersectionSO.prefabLocs[1]);
 						prefabIndex = 1;
 						int index = Array.FindIndex(neighborTerrainLoc, x => x == 1);
                         rotation = Quaternion.Euler(0, index * 90, 0);
                     }
                     else if (neighborCount == 3)
                     {
-                        sea = seaSO.prefabs[0];
-                        prefabIndex = 0;
+                        sea = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + seaSO.prefabLocs[0]);
+						prefabIndex = 0;
                         int index = Array.FindIndex(neighborTerrainLoc, x => x == 0);
                         rotation = Quaternion.Euler(0, index * 90, 0);
                     }
@@ -450,18 +453,18 @@ public class TerrainGenerator : MonoBehaviour
             else if (mainMap[position] == ProceduralGeneration.grasslandHill)
             {
                 landLocs.Add(position);
-                GenerateTile(grasslandHillSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+                GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandHillSO.prefabLocs[0]), position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
             }
             else if (mainMap[position] == ProceduralGeneration.desertHill)
             {
 				landLocs.Add(position);
-				GenerateTile(desertHillSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + desertHillSO.prefabLocs[0]), position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
             }
             else if (mainMap[position] == ProceduralGeneration.forestHill)
             {
 				landLocs.Add(position);
-				GameObject forestHill = grasslandHillSO.prefabs[0];
-                TerrainData td = GenerateTile(forestHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				GameObject forestHill = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandHillSO.prefabLocs[0]);
+				TerrainData td = GenerateTile(forestHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.gameObject.tag = "Forest Hill";
                 td.terrainData = forestHillSO;
                 td.resourceAmount = -1;
@@ -470,8 +473,8 @@ public class TerrainGenerator : MonoBehaviour
             else if (mainMap[position] == ProceduralGeneration.jungleHill)
             {
 				landLocs.Add(position);
-				GameObject jungleHill = grasslandHillSO.prefabs[0];
-                TerrainData td = GenerateTile(jungleHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				GameObject jungleHill = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandHillSO.prefabLocs[0]);
+				TerrainData td = GenerateTile(jungleHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.gameObject.tag = "Forest Hill";
                 td.terrainData = jungleHillSO;
                 td.resourceAmount = -1;
@@ -480,36 +483,36 @@ public class TerrainGenerator : MonoBehaviour
             else if (mainMap[position] == ProceduralGeneration.grasslandMountain)
             {
                 mountainTiles.Add(position);
-				int prefabIndex = random.Next(0, grasslandMountainSO.prefabs.Count);
-				GameObject grasslandMountain = grasslandMountainSO.prefabs[prefabIndex];
+				int prefabIndex = random.Next(0, grasslandMountainSO.prefabLocs.Count); 
+				GameObject grasslandMountain = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandMountainSO.prefabLocs[prefabIndex]);
 				GenerateTile(grasslandMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex);
             }
             else if (mainMap[position] == ProceduralGeneration.desertMountain)
             {
                 mountainTiles.Add(position);
-                int prefabIndex = random.Next(0, desertMountainSO.prefabs.Count);
-				GameObject desertMountain = desertMountainSO.prefabs[prefabIndex];
+                int prefabIndex = random.Next(0, desertMountainSO.prefabLocs.Count);
+				GameObject desertMountain = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + desertMountainSO.prefabLocs[prefabIndex]);
 				GenerateTile(desertMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex);
             }
             else if (mainMap[position] == ProceduralGeneration.grassland)
             {
 				landLocs.Add(position);
-				TerrainData td = GenerateTile(grasslandSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
 				//propTiles.Add(td);
 				grasslandTiles.Add(position);
 			}
             else if (mainMap[position] == ProceduralGeneration.desert)
             {
 				landLocs.Add(position);
-				TerrainData td = GenerateTile(desertSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + desertSO.prefabLocs[0]), position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
 				propTiles.Add(td);
                 desertTiles.Add(position);
 			}
             else if (mainMap[position] == ProceduralGeneration.forest)
             {
 				landLocs.Add(position);
-				GameObject forest = grasslandSO.prefabs[0];
-                TerrainData td = GenerateTile(forest, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				GameObject forest = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]);
+				TerrainData td = GenerateTile(forest, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.gameObject.tag = "Forest";
                 td.terrainData = forestSO;
                 td.resourceAmount = -1;
@@ -518,8 +521,8 @@ public class TerrainGenerator : MonoBehaviour
             else if (mainMap[position] == ProceduralGeneration.jungle)
             {
 				landLocs.Add(position);
-				GameObject jungle = grasslandSO.prefabs[0];
-                TerrainData td = GenerateTile(jungle, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				GameObject jungle = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]);
+				TerrainData td = GenerateTile(jungle, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.gameObject.tag = "Forest";
                 td.terrainData = jungleSO;
                 td.resourceAmount = -1;
@@ -528,7 +531,7 @@ public class TerrainGenerator : MonoBehaviour
             else if (mainMap[position] == ProceduralGeneration.swamp)
             {
 				landLocs.Add(position);
-				TerrainData td = GenerateTile(swampSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + swampSO.prefabLocs[0]), position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
 				td.gameObject.tag = "Forest";
 				td.terrainData = swampSO;
                 td.resourceAmount = -1;
@@ -546,15 +549,15 @@ public class TerrainGenerator : MonoBehaviour
                 if (riverInt == 9999)
                 {
                     skipRiver = true;
-                    river = grasslandSO.prefabs[0];
-                    riverInt = 0;
+                    river = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]);
+					riverInt = 0;
                     landLocs.Add(position);
                     grasslandTiles.Add(position);
                 }
                 else
                 {
-                    river = riverSO.prefabs[riverInt];
-                }
+                    river = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + riverSO.prefabLocs[riverInt]);
+				}
 
                 TerrainData td = GenerateTile(river, position, rotation, riverInt, true);
                 if (riverInt == 2)
@@ -565,21 +568,21 @@ public class TerrainGenerator : MonoBehaviour
             else if (mainMap[position] == ProceduralGeneration.grasslandFloodPlain)
             {
 				landLocs.Add(position);
-				TerrainData td = GenerateTile(grasslandFloodPlainsSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandFloodPlainsSO.prefabLocs[0]), position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.resourceAmount = -1;
 				propTiles.Add(td);
 			}
             else if (mainMap[position] == ProceduralGeneration.desertFloodPlain)
             {
 				landLocs.Add(position);
-				TerrainData td = GenerateTile(desertFloodPlainsSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + desertFloodPlainsSO.prefabLocs[0]), position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.resourceAmount = -1;
                 propTiles.Add(td);
 			}
             else
             {
 				landLocs.Add(position);
-				GenerateTile(grasslandSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+				GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 grasslandTiles.Add(position);
             }
         }
@@ -707,7 +710,7 @@ public class TerrainGenerator : MonoBehaviour
 
             bool swamp = propTiles[i].terrainData.terrainDesc == TerrainDesc.Swamp;
             bool forest = propTiles[i].CompareTag("Forest") || propTiles[i].CompareTag("Forest Hill");
-            AddProp(random, propTiles[i], propTiles[i].terrainData.decors, swamp, forest);
+            AddProp(random, propTiles[i], propTiles[i].terrainData.decorLocs, swamp, forest);
         }
 
         for (int i = 0; i < foodLocs.Count; i++)
@@ -827,7 +830,7 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-    private void AddProp(System.Random random, TerrainData td, List<GameObject> propArray, bool swamp, bool forest)
+    private void AddProp(System.Random random, TerrainData td, List<string> propArray, bool swamp, bool forest)
     {
         Quaternion rotation;
         if (swamp)
@@ -868,12 +871,12 @@ public class TerrainGenerator : MonoBehaviour
                 }
 			}
 
-			GameObject newProp = Instantiate(propArray[propInt], Vector3Int.zero, Quaternion.identity);
+			GameObject newProp = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPropPrefabs/" + propArray[propInt]), Vector3Int.zero, Quaternion.identity);
 			newProp.transform.SetParent(td.prop, false);
 			newProp.GetComponent<TreeHandler>().propMesh.rotation = rotation;
             td.SkinnedMeshCheck(); //probably not necessary
 
-			GameObject nonStaticProp = Instantiate(td.terrainData.decors[td.decorIndex], Vector3.zero, Quaternion.identity);
+			GameObject nonStaticProp = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPropPrefabs/" + td.terrainData.decorLocs[td.decorIndex]), Vector3.zero, Quaternion.identity);
 			nonStaticProp.transform.SetParent(td.nonstatic, false);
 			td.nonstatic.rotation = rotation;
 			td.SetNonStatic();
@@ -883,9 +886,9 @@ public class TerrainGenerator : MonoBehaviour
 			int propInt = random.Next(0, propArray.Count);
 			td.decorIndex = propInt;
 
-            if (propArray[propInt] != null)
+            if (propArray[propInt] != "")
             {
-			    GameObject newProp = Instantiate(propArray[propInt], Vector3Int.zero, rotation);
+			    GameObject newProp = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPropPrefabs/" + propArray[propInt]), Vector3Int.zero, rotation);
 			    newProp.transform.SetParent(td.prop, false);
 				td.SkinnedMeshCheck();
 			}
@@ -897,9 +900,9 @@ public class TerrainGenerator : MonoBehaviour
 		Quaternion rotation = Quaternion.Euler(0, random.Next(0, 4) * 90, 0);
         int index = td.decorIndex;
 
-		if (td.terrainData.decors[index] != null)
+		if (td.terrainData.decorLocs[index] != "")
 		{
-			GameObject newProp = Instantiate(td.terrainData.decors[index], Vector3Int.zero, rotation);
+			GameObject newProp = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPropPrefabs/" + td.terrainData.decorLocs[index]), Vector3Int.zero, rotation);
 			newProp.transform.SetParent(td.prop, false);
             td.SkinnedMeshCheck();
 
@@ -908,7 +911,7 @@ public class TerrainGenerator : MonoBehaviour
 
 			if (td.isHill && td.rawResourceType == RawResourceType.Rocks)
 			{
-                GameObject nonStaticProp = Instantiate(td.terrainData.decors[index], Vector3.zero, Quaternion.identity);
+                GameObject nonStaticProp = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPropPrefabs/" + td.terrainData.decorLocs[index]), Vector3.zero, Quaternion.identity);
 				nonStaticProp.transform.SetParent(td.nonstatic, false);
                 nonStaticProp.transform.rotation = rotation;
 				//td.nonstatic.rotation = rotation;
@@ -1153,7 +1156,7 @@ public class TerrainGenerator : MonoBehaviour
 
 					this.propTiles.Remove(terrainDict[tile]);
 					DestroyImmediate(terrainDict[tile].gameObject);
-					GenerateTile(grasslandFloodPlainsSO.prefabs[0], tile, Quaternion.identity, 0);
+					GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandFloodPlainsSO.prefabLocs[0]), tile, Quaternion.identity, 0);
 					mountainTiles.Remove(tile);
                     potentialMountainTiles.Remove(tile);
 					floodPlainTiles.Add(tile);
@@ -1164,7 +1167,7 @@ public class TerrainGenerator : MonoBehaviour
 
 					this.propTiles.Remove(terrainDict[tile]);
 					DestroyImmediate(terrainDict[tile].gameObject);
-                    GenerateTile(grasslandFloodPlainsSO.prefabs[0], tile, Quaternion.identity, 0);
+                    GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandFloodPlainsSO.prefabLocs[0]), tile, Quaternion.identity, 0);
                     hillTiles.Remove(tile);
                     potentialHillTiles.Remove(tile);
                     floodPlainTiles.Add(tile);
@@ -1175,7 +1178,7 @@ public class TerrainGenerator : MonoBehaviour
 
 					this.propTiles.Remove(terrainDict[tile]);
 					DestroyImmediate(terrainDict[tile].gameObject);
-				    GenerateTile(grasslandFloodPlainsSO.prefabs[0], tile, Quaternion.identity, 0);
+				    GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandFloodPlainsSO.prefabLocs[0]), tile, Quaternion.identity, 0);
 				    forestTiles.Remove(tile);
                     potentialForestTiles.Remove(tile);
 				    floodPlainTiles.Add(tile);
@@ -1200,7 +1203,7 @@ public class TerrainGenerator : MonoBehaviour
 			Vector3Int mountain = mountainTiles[random.Next(0, mountainTiles.Count)];
 			this.propTiles.Remove(terrainDict[mountain]);
 			DestroyImmediate(terrainDict[mountain].gameObject);
-			GenerateTile(grasslandHillSO.prefabs[0], mountain, Quaternion.identity, 0);
+			GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandHillSO.prefabLocs[0]), mountain, Quaternion.identity, 0);
             hillTiles.Add(mountain);
             mountainTiles.Remove(mountain);
 		}
@@ -1210,7 +1213,7 @@ public class TerrainGenerator : MonoBehaviour
 			Vector3Int mountain = mountainTiles[random.Next(0, mountainTiles.Count)];
 			this.propTiles.Remove(terrainDict[mountain]);
 			DestroyImmediate(terrainDict[mountain].gameObject);
-			TerrainData td = GenerateTile(grasslandSO.prefabs[0], mountain, Quaternion.identity, 0);
+			TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), mountain, Quaternion.identity, 0);
             td.gameObject.tag = "Flatland";
             grasslandTiles.Add(mountain);
             mountainTiles.Remove(mountain);
@@ -1231,7 +1234,7 @@ public class TerrainGenerator : MonoBehaviour
                 {
 					this.propTiles.Remove(terrainDict[newForest]);
 					DestroyImmediate(terrainDict[newForest].gameObject);
-					GenerateTile(grasslandHillSO.prefabs[0], newForest, Quaternion.identity, 0);
+					GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandHillSO.prefabLocs[0]), newForest, Quaternion.identity, 0);
 				}
 
                 data = forestHillSO;
@@ -1243,7 +1246,7 @@ public class TerrainGenerator : MonoBehaviour
 				newForest = mountainTiles[random.Next(0, mountainTiles.Count)];
 				this.propTiles.Remove(terrainDict[newForest]);
 				DestroyImmediate(terrainDict[newForest].gameObject);
-				GenerateTile(grasslandHillSO.prefabs[0], newForest, Quaternion.identity, 0);
+				GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandHillSO.prefabLocs[0]), newForest, Quaternion.identity, 0);
 				data = forestHillSO;
 				tag = "Forest Hill";
 				mountainTiles.Remove(newForest);
@@ -1260,7 +1263,7 @@ public class TerrainGenerator : MonoBehaviour
                 newForest = flatlandTiles[random.Next(0, flatlandTiles.Count)];
 				this.propTiles.Remove(terrainDict[newForest]);
 				DestroyImmediate(terrainDict[newForest].gameObject);
-				GenerateTile(grasslandSO.prefabs[0], newForest, Quaternion.identity, 0);
+				GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), newForest, Quaternion.identity, 0);
 				flatlandTiles.Remove(newForest);
 			}
 
@@ -1277,8 +1280,8 @@ public class TerrainGenerator : MonoBehaviour
 			newCloth = flatlandTiles[random.Next(0, flatlandTiles.Count)];
             FloodPlainCheck(newCloth);
 			this.propTiles.Remove(terrainDict[newCloth]);
-			DestroyImmediate(terrainDict[newCloth].gameObject);
-			GenerateTile(grasslandSO.prefabs[0], newCloth, Quaternion.identity, 0);
+			DestroyImmediate(terrainDict[newCloth].gameObject); 
+			GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), newCloth, Quaternion.identity, 0);
 		}
         else
         {
@@ -1309,7 +1312,7 @@ public class TerrainGenerator : MonoBehaviour
 				this.propTiles.Remove(terrainDict[newClay]);
 				TerrainDataSO data = grassland ? grasslandSO : desertSO;
                 DestroyImmediate(terrainDict[newClay].gameObject);
-				GenerateTile(data.prefabs[0], newClay, Quaternion.identity, 0);
+				GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + data.prefabLocs[0]), newClay, Quaternion.identity, 0);
 			}
 		}
         else
@@ -1357,13 +1360,14 @@ public class TerrainGenerator : MonoBehaviour
 
 			DestroyImmediate(terrainDict[newStone].gameObject);
 
-            GameObject newTerrain;
+            string newTerrainName;
 
             if (isHill)
-                newTerrain = stoneGrassland ? grasslandHillSO.prefabs[0] : desertHillSO.prefabs[0];
+                newTerrainName = stoneGrassland ? grasslandHillSO.prefabLocs[0] : desertHillSO.prefabLocs[0];
             else
-                newTerrain = stoneGrassland ? grasslandSO.prefabs[0] : desertSO.prefabs[0];
+                newTerrainName = stoneGrassland ? grasslandSO.prefabLocs[0] : desertSO.prefabLocs[0];
 
+            GameObject newTerrain = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + newTerrainName);
 			TerrainData td = GenerateTile(newTerrain, newStone, Quaternion.identity, 0);
 			td.gameObject.tag = isHill ? "Hill" : "Flatland";
 
@@ -1392,7 +1396,7 @@ public class TerrainGenerator : MonoBehaviour
 				    Vector3Int mountain = mountainTiles[random.Next(0, mountainTiles.Count)];
 					this.propTiles.Remove(terrainDict[mountain]);
 					DestroyImmediate(terrainDict[mountain].gameObject);
-				    TerrainData td = GenerateTile(grasslandSO.prefabs[0], mountain, Quaternion.identity, 0);
+				    TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), mountain, Quaternion.identity, 0);
                     td.gameObject.tag = "Flatland";
                     grasslandTiles.Add(mountain);
                     mountainTiles.Remove(mountain);
@@ -1402,7 +1406,7 @@ public class TerrainGenerator : MonoBehaviour
 				    Vector3Int hill = hillTiles[random.Next(0, hillTiles.Count)];
 					this.propTiles.Remove(terrainDict[hill]);
 					DestroyImmediate(terrainDict[hill].gameObject);
-				    TerrainData td = GenerateTile(grasslandSO.prefabs[0], hill, Quaternion.identity, 0);
+				    TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), hill, Quaternion.identity, 0);
 				    td.gameObject.tag = "Flatland";
 				    grasslandTiles.Add(hill);
                     hillTiles.Remove(hill);
@@ -1424,7 +1428,7 @@ public class TerrainGenerator : MonoBehaviour
                         {
 							this.propTiles.Remove(terrainDict[flatland]);
 							DestroyImmediate(terrainDict[flatland].gameObject);
-				            GenerateTile(grasslandSO.prefabs[0], flatland, Quaternion.identity, 0);
+				            GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), flatland, Quaternion.identity, 0);
 					        grasslandTiles.Add(flatland);
                             flatlandTiles.Remove(flatland);
 				        }
@@ -1435,7 +1439,7 @@ public class TerrainGenerator : MonoBehaviour
 					Vector3Int forest = forestTiles[random.Next(0, forestTiles.Count)];
                     this.propTiles.Remove(terrainDict[forest]);
                     DestroyImmediate(terrainDict[forest].gameObject);
-					TerrainData td = GenerateTile(grasslandSO.prefabs[0], forest, Quaternion.identity, 0);
+					TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), forest, Quaternion.identity, 0);
 					td.gameObject.tag = "Flatland";
 					grasslandTiles.Add(forest);
                     forestTiles.Remove(forest);
@@ -2127,7 +2131,7 @@ public class TerrainGenerator : MonoBehaviour
 		{
             propTiles.Remove(terrainDict[tile]);
 			DestroyImmediate(terrainDict[tile].gameObject);
-			TerrainData td = GenerateTile(grasslandSO.prefabs[0], tile, Quaternion.identity, 0);
+			TerrainData td = GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), tile, Quaternion.identity, 0);
             td.gameObject.tag = "Flatland";
 		}
 	}
@@ -2139,7 +2143,7 @@ public class TerrainGenerator : MonoBehaviour
             propTiles.Remove(terrainDict[tile]);
             TerrainDataSO data = terrainDict[tile].terrainData.grassland ? grasslandSO : desertSO;
 			DestroyImmediate(terrainDict[tile].gameObject);
-			GenerateTile(data.prefabs[0], tile, Quaternion.identity, 0);
+			GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + data.prefabLocs[0]), tile, Quaternion.identity, 0);
 		}
 	}
 
@@ -2150,7 +2154,7 @@ public class TerrainGenerator : MonoBehaviour
 			propTiles.Remove(terrainDict[tile]);
 			TerrainDataSO data = terrainDict[tile].isHill ? grasslandHillSO : grasslandSO;
 			DestroyImmediate(terrainDict[tile].gameObject);
-			GenerateTile(data.prefabs[0], tile, Quaternion.identity, 0);
+			GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + data.prefabLocs[0]), tile, Quaternion.identity, 0);
 		}
     }
 
@@ -2392,7 +2396,7 @@ public class TerrainGenerator : MonoBehaviour
             {
                 propTiles.Remove(terrainDict[empireCities[i]]);
                 DestroyImmediate(terrainDict[empireCities[i]].gameObject);
-				GenerateTile(grasslandHillSO.prefabs[0], empireCities[i], Quaternion.identity, 0);
+				GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandHillSO.prefabLocs[0]), empireCities[i], Quaternion.identity, 0);
 			}
             else if (!terrainDict[empireCities[i]].terrainData.grassland)
             {
@@ -2403,7 +2407,7 @@ public class TerrainGenerator : MonoBehaviour
                 else
                     data = grasslandSO;
                 DestroyImmediate(terrainDict[empireCities[i]].gameObject);
-                GenerateTile(data.prefabs[0], empireCities[i], Quaternion.identity, 0);
+                GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + data.prefabLocs[0]), empireCities[i], Quaternion.identity, 0);
 			}
 
             SwampCheck(empireCities[i]);
@@ -2417,7 +2421,7 @@ public class TerrainGenerator : MonoBehaviour
                 {
 					propTiles.Remove(terrainDict[tile]);
 					DestroyImmediate(terrainDict[tile].gameObject);
-					GenerateTile(grasslandSO.prefabs[0], tile, Quaternion.identity, 0);
+					GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandSO.prefabLocs[0]), tile, Quaternion.identity, 0);
 				}
 
                 /*if (terrainDict[tile].CompareTag("Flatland"))
@@ -2435,7 +2439,7 @@ public class TerrainGenerator : MonoBehaviour
 					propTiles.Remove(terrainDict[tile]);
                     TerrainDataSO data = grasslandSO;
 				    DestroyImmediate(terrainDict[tile].gameObject);
-				    GenerateTile(data.prefabs[0], tile, Quaternion.identity, 0);
+				    GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + data.prefabLocs[0]), tile, Quaternion.identity, 0);
                 }
 			}
 		}
@@ -2601,7 +2605,7 @@ public class TerrainGenerator : MonoBehaviour
 				propTiles.Remove(terrainDict[tile]);
 				TerrainDataSO newData = grasslandSO;
 				DestroyImmediate(terrainDict[tile].gameObject);
-				GenerateTile(newData.prefabs[0], tile, Quaternion.identity, 0);
+				GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + newData.prefabLocs[0]), tile, Quaternion.identity, 0);
                 desertTiles.Remove(tile);
                 flatlandTiles.Add(tile);
                 flatlandCount++;
@@ -2614,7 +2618,7 @@ public class TerrainGenerator : MonoBehaviour
                 propTiles.Remove(terrainDict[tile]);
 				TerrainDataSO newData = grasslandSO;
 				DestroyImmediate(terrainDict[tile].gameObject);
-				GenerateTile(newData.prefabs[0], tile, Quaternion.identity, 0);
+				GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + newData.prefabLocs[0]), tile, Quaternion.identity, 0);
                 hillTiles.Remove(tile);
                 flatlandTiles.Add(tile);
                 flatlandCount++;
@@ -2719,7 +2723,7 @@ public class TerrainGenerator : MonoBehaviour
 					propTiles.Remove(terrainDict[tile]);
 					TerrainDataSO newData = terrainDict[tile].terrainData.grassland ? grasslandSO : desertSO;
 					DestroyImmediate(terrainDict[tile].gameObject);
-					GenerateTile(newData.prefabs[0], tile, Quaternion.identity, 0);
+					GenerateTile(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + newData.prefabLocs[0]), tile, Quaternion.identity, 0);
 				}
 			}
 		}
@@ -2879,7 +2883,7 @@ public class TerrainGenerator : MonoBehaviour
 				terrainDict[tradeCenterLocs[i]].prop.gameObject.SetActive(false);
 				terrainDict[tradeCenterLocs[i]].showProp = false;
 				Quaternion rotation = Quaternion.Euler(0, index * 90, 0);
-				GameObject tradeCenterGO = Instantiate(tradeCenters[i], tradeCenterLocs[i], Quaternion.identity);
+				GameObject tradeCenterGO = Instantiate(Resources.Load<GameObject>("Prefabs/TradeCenterPrefabs/" + tradeCenterNames[i]), tradeCenterLocs[i], Quaternion.identity);
 				tradeCenterGO.transform.SetParent(tradeCenterHolder, false);
 				Quaternion miniRotation = Quaternion.Euler(90, 0, 0);
 				TradeCenter center = tradeCenterGO.GetComponent<TradeCenter>();
@@ -3099,8 +3103,9 @@ public class TerrainGenerator : MonoBehaviour
                 {
                     Vector3Int mountainTile = mountainTiles[random.Next(0, mountainTiles.Count)];
                     mountainTiles.Remove(mountainTile);
-                    GameObject prefab = terrainDict[mountainTile].terrainData.grassland ? grasslandHillSO.prefabs[0] : desertHillSO.prefabs[0];
-                    DestroyImmediate(terrainDict[mountainTile].gameObject);
+                    string prefabName = terrainDict[mountainTile].terrainData.grassland ? grasslandHillSO.prefabLocs[0] : desertHillSO.prefabLocs[0];
+                    GameObject prefab = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + prefabName);
+					DestroyImmediate(terrainDict[mountainTile].gameObject);
 				    GenerateTile(prefab, mountainTile, Quaternion.identity, 0);
                 }
 			}

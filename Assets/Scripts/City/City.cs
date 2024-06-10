@@ -284,9 +284,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             fire.Stop();
             Destroy(fire.gameObject);
-            //cityBase.SetActive(false);
-            Destroy(cityBase);
         }
+
+        if (cityBase != null)
+            Destroy(cityBase);
     }
 
     //public void DestroyFire()
@@ -984,7 +985,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		{
 			CityGrowthProgressBarSetActive(true);
 			world.cityBuilderManager.abandonCityButton.interactable = false;
-			world.cityBuilderManager.uiLaborAssignment.ShowUI(/*this, world.cityBuilderManager.placesToWork*/);
+
+            if (world.scottFollow)
+    			world.cityBuilderManager.uiLaborAssignment.ShowUI(/*this, world.cityBuilderManager.placesToWork*/);
 		}
 
 		if (!load)
@@ -1790,7 +1793,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             empire.enemyLeader.gameObject.SetActive(true);
             //empire.enemyLeader.outline.ToggleOutline(true);
-			empire.enemyLeader.SetSomethingToSay(empire.enemyLeader.leaderName + "_intro");
+
+            if (world.azaiFollow)
+    			empire.enemyLeader.SetSomethingToSay(empire.enemyLeader.leaderName + "_intro");
 		}
 
         if (world.deployingArmy)

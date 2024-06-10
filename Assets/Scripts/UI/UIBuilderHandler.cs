@@ -346,6 +346,9 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 
                 SetProducedNumbers(resourceManager, buildOptions[i]);
 
+                if (!cityBuilderManager.world.azaiFollow && itemType == SingleBuildType.Barracks)
+                    hide = true;
+
                 if (resourceManager.city.singleBuildList.Contains(itemType) || (buildOptions[i].BuildData.improvementName == "Housing" && resourceManager.city.housingLocsAtMax))
                     hide = true;
 			}

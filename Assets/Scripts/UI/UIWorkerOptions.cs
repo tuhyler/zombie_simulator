@@ -35,7 +35,7 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
                     ToggleColor(true);
             }
 
-            FlashCheck();
+            //FlashCheck();
         }
     }
 
