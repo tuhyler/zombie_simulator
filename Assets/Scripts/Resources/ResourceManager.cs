@@ -1086,7 +1086,7 @@ public enum ResourceType
     Stone,
     CopperOre,
     Clay,
-    CoilPottery,
+    Coal,
     Pottery,
     Sculpture,
     Copper,

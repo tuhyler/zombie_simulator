@@ -12,7 +12,7 @@ public class UpgradeableObjectHolder : MonoBehaviour
     public List<UnitBuildDataSO> allEnemyLeaders = new();
     public List<UnitBuildDataSO> allEnemyUnits = new();
     public List<TerrainDataSO> allTerrain = new();
-    public List<GameObject> allTradeCenters = new();
+    //public List<GameObject> allTradeCenters = new();
     public List<WonderDataSO> allWonders = new();
     public List<UtilityCostSO> allUtilities = new();
 
@@ -75,8 +75,8 @@ public class UpgradeableObjectHolder : MonoBehaviour
         }
 
         //converation task creation
-        conversationTaskDict["Tutorial"] = "Finish tutorial by completing the following: " +
-							"\n\n - Make camp \n\n - Build a hut \n\n - Build research \n\n - Build a farm";
+       // conversationTaskDict["Tutorial"] = "Finish tutorial by completing the following: " +
+							//"\n\n - Make camp \n\n - Build a hut \n\n - Build research \n\n - Build a farm";
 
     }
 }

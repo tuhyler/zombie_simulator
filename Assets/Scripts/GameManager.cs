@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 		SceneManager.UnloadSceneAsync((int)SceneIndexes.MANAGER);
 	}
 
-	public void NewGame(string starting, string landType, string resource, /*string mountains,*/string enemy, string mapSize, bool tutorial)
+	public void NewGame(string starting, string landType, string resource, /*string mountains,*/string enemy, string mapSize, bool tutorial, int seed)
 	{
 		loadingScreen.SetActive(true);
 		loadingBackground.sprite = Resources.Load<Sprite>("MyLoadingImages/" + loadingScreenImages[Random.Range(0, loadingScreenImages.Count)]);
@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
 		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
 		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN, LoadSceneMode.Additive));
-		StartCoroutine(GetSceneLoadProgress(true, "", starting, landType, resource, /*mountains,*/enemy, mapSize, tutorial));
+		StartCoroutine(GetSceneLoadProgress(true, "", starting, landType, resource, /*mountains,*/enemy, mapSize, tutorial, seed));
 	}
 
 	public void LoadGame(string loadName)
@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	public IEnumerator GetSceneLoadProgress(bool newGame, string loadName = "", string starting = "", string landType = "", string resource = "", /*string mountains = "",*/string enemy = "", string mapSize = "", bool tutorial = false)
+	public IEnumerator GetSceneLoadProgress(bool newGame, string loadName = "", string starting = "", string landType = "", string resource = "", /*string mountains = "",*/string enemy = "", string mapSize = "", bool tutorial = false, int seed = 0)
 	{
 		for (int i = 0; i < scenesLoading.Count; i++)
 		{
@@ -111,7 +111,7 @@ public class GameManager : MonoBehaviour
 
 		if (newGame)
 		{
-			GameLoader.Instance.NewGame(starting, landType, resource, enemy, mapSize, tutorial);
+			GameLoader.Instance.NewGame(starting, landType, resource, enemy, mapSize, tutorial, seed);
 			StartCoroutine(GetNewGameProgress());
 			//loadingScreen.SetActive(false);
 			//scenesLoading.Clear();

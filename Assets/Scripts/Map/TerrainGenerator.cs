@@ -13,11 +13,11 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private Era newEra;
     [SerializeField]
-    private Region newRegion;
+    public Region newRegion;
 
     [Header("General Map Parameters")]
     [SerializeField]
-    private int seed = 4;
+    public int seed = 4;
     [SerializeField]
     public int width = 50, height = 50, yCoord = 3, landMassLimit = 1, totalLandLimit = 400, desertPerc = 30, forestAndJunglePerc = 70, mountainPerc = 10, mountainousPerc = 80, 
         mountainRangeLength = 20, equatorDist = 10, equatorPos = 25,/*riverPerc = 5, */riverCountMin = 10, oceanRingDepth = 2, startingSpotGrasslandCountMin = 5, startingSpotGrasslandCountMax = 20,

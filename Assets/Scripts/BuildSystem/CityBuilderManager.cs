@@ -92,8 +92,8 @@ public class CityBuilderManager : MonoBehaviour
     //trade center management
     private TradeCenter selectedTradeCenter;
 
-    [SerializeField]
-    private GameObject upgradeQueueGhost;
+    //[SerializeField]
+    //private GameObject upgradeQueueGhost;
 
     //for object pooling of labor numbers
     private Queue<CityLaborTileNumber> laborNumberQueue = new(); //the pool in object pooling
@@ -1075,7 +1075,7 @@ public class CityBuilderManager : MonoBehaviour
     public void CreateQueuedArrow(QueueItem item, ImprovementDataSO improvementData, Vector3Int tempBuildLocation, bool isBuilding)
     {
         //setting up ghost
-        GameObject arrowGhost = Instantiate(upgradeQueueGhost, tempBuildLocation, Quaternion.Euler(0, 90f, 0));
+        GameObject arrowGhost = Instantiate(Resources.Load<GameObject>("Prefabs/ImprovementPrefabs/ArrowUp"), tempBuildLocation, Quaternion.Euler(0, 90f, 0));
         arrowGhost.layer = LayerMask.NameToLayer("Text");
         //for tweening
         Vector3 goScale = arrowGhost.transform.localScale;

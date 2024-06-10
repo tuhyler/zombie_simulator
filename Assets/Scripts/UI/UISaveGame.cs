@@ -9,6 +9,9 @@ using UnityEngine.UI;
 public class UISaveGame : MonoBehaviour
 {
     [SerializeField]
+    private TitleScreen titleScreen;
+    
+    [SerializeField]
     private MapWorld world;
     
     [SerializeField]
@@ -119,40 +122,6 @@ public class UISaveGame : MonoBehaviour
         Resources.UnloadUnusedAssets();
 	}
 
- //   private void PopulateSaveNames()
- //   {
-	//	List<UISaveItem> saveItems = new();
-
-	//	foreach (string fullSavedName in Directory.GetFiles(Application.persistentDataPath, "*.save"))
-	//	{
-	//		string[] saveBreaks = fullSavedName.Split("\\");
-	//		string fileName = "/" + saveBreaks[saveBreaks.Length - 1];
-	//		string saveName = fileName.Substring(1, fileName.Length - 6);
-
-	//		currentSaves.Add(saveName);
-
-	//		GameObject item = Instantiate(uiSaveItemGO);
-	//		UISaveItem uiSaveItem = item.GetComponent<UISaveItem>();
-	//		uiSaveItem.SetSaveGameMenu(this);
-
-	//		uiSaveItem.fileName = fileName;
-	//		uiSaveItem.saveName = saveName;
-	//		uiSaveItem.saveItemText.text = saveName;
-	//		saveItems.Add(uiSaveItem);
-	//	}
-
-	//	List<UISaveItem> newSaveItems = saveItems.OrderByDescending(s => s.dateTime).ToList();
-
-	//	for (int i = 0; i < newSaveItems.Count; i++)
-	//	{
-	//		newSaveItems[i].transform.SetParent(saveHolder, false);
-	//		saveItemList.Add(newSaveItems[i]);
-	//	}
-
-	//	//populated = true;
-	//	Resources.UnloadUnusedAssets();
-	//}
-
 	public void ToggleVisibility(bool v, bool load = false)
     {
         if (activeStatus == v)
@@ -216,7 +185,12 @@ public class UISaveGame : MonoBehaviour
 
     public void CloseSaveGameButton()
     {
-        ToggleVisibility(false);
+		if (world != null)
+			world.cityBuilderManager.PlayCloseAudio();
+		else
+			titleScreen.PlayCloseAudio();
+
+		ToggleVisibility(false);
     }
 
     public void SelectItem(UISaveItem uiSaveItem)
@@ -257,7 +231,12 @@ public class UISaveGame : MonoBehaviour
 
     public void ConfirmWarning()
     {
-        if (load)
+		if (world != null)
+			world.cityBuilderManager.PlaySelectAudio();
+		else
+			titleScreen.PlaySelectAudio();
+
+		if (load)
             DeleteGame();
         else
             ConfirmOverWrite();
@@ -279,6 +258,11 @@ public class UISaveGame : MonoBehaviour
 
 	public void SaveGameCheck()
     {
+        if (world != null)
+            world.cityBuilderManager.PlaySelectAudio();
+        else
+            titleScreen.PlaySelectAudio();
+        
         if (load)
         {
             if (selectedSaveItem == null)

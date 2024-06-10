@@ -42,143 +42,146 @@ public class GameLoader : MonoBehaviour
 		Instance = this;
 	}
 
-	public void NewGame(string starting, string landType, string resource, /*string mountains,*/string enemy, string mapSize, bool tutorial)
+	public void NewGame(string starting, string landType, string resource, /*string mountains,*/string enemy, string mapSize, bool tutorial, int seed)
 	{
 		GameManager.Instance.ResetProgress();
 		world.ClearMap();
 
-		//if (starting == "NorthToggle")
-		//{
-		//	terrainGenerator.startingRegion = Region.North;
-		//	terrainGenerator.desertPerc = 5;
-		//	terrainGenerator.forestAndJunglePerc = 95;
+		//all are south right now
+		starting = "SouthToggle";
 
-		//	if (mapSize == "SmallToggle")
-		//	{
-		//		terrainGenerator.width = 20;
-		//		terrainGenerator.height = 20;
-		//	}
-		//	else if (mapSize == "MediumToggle")
-		//	{
-		//		terrainGenerator.width = 25;
-		//		terrainGenerator.height = 25;
-		//	}
-		//	else if (mapSize == "LargeToggle")
-		//	{
-		//		terrainGenerator.width = 30;
-		//		terrainGenerator.height = 30;
-		//	}
+		if (starting == "NorthToggle")
+		{
+			terrainGenerator.newRegion = Region.North;
+			terrainGenerator.desertPerc = 5;
+			terrainGenerator.forestAndJunglePerc = 95;
 
-		//	terrainGenerator.equatorDist = 2;
-		//	terrainGenerator.equatorPos = 6; //bottom of map
-		//}
-		//else if (starting == "SouthToggle")
-		//{
-		//	terrainGenerator.startingRegion = Region.South;
-		//	terrainGenerator.desertPerc = 90;
-		//	terrainGenerator.forestAndJunglePerc = 10;
+			if (mapSize == "SmallToggle")
+			{
+				terrainGenerator.width = 20;
+				terrainGenerator.height = 20;
+			}
+			else if (mapSize == "MediumToggle")
+			{
+				terrainGenerator.width = 25;
+				terrainGenerator.height = 25;
+			}
+			else if (mapSize == "LargeToggle")
+			{
+				terrainGenerator.width = 30;
+				terrainGenerator.height = 30;
+			}
 
-		//	if (mapSize == "SmallToggle")
-		//	{
-		//		terrainGenerator.width = 20;
-		//		terrainGenerator.height = 20;
-		//	}
-		//	else if (mapSize == "MediumToggle")
-		//	{
-		//		terrainGenerator.width = 25;
-		//		terrainGenerator.height = 25;
-		//	}
-		//	else if (mapSize == "LargeToggle")
-		//	{
-		//		terrainGenerator.width = 30;
-		//		terrainGenerator.height = 30;
-		//	}
+			terrainGenerator.equatorDist = 2;
+			terrainGenerator.equatorPos = 6; //bottom of map
+		}
+		else if (starting == "SouthToggle")
+		{
+			terrainGenerator.newRegion = Region.South;
+			terrainGenerator.desertPerc = 90;
+			terrainGenerator.forestAndJunglePerc = 10;
 
-		//	terrainGenerator.equatorDist = 5;
-		//	terrainGenerator.equatorPos = terrainGenerator.height * 3 * 3 / 4;
-		//}
-		//else if (starting == "EastToggle")
-		//{
-		//	terrainGenerator.startingRegion = Region.East;
-		//	terrainGenerator.desertPerc = 20;
-		//	terrainGenerator.forestAndJunglePerc = 80;
+			if (mapSize == "SmallToggle")
+			{
+				terrainGenerator.width = 20;
+				terrainGenerator.height = 20;
+			}
+			else if (mapSize == "MediumToggle")
+			{
+				terrainGenerator.width = 25;
+				terrainGenerator.height = 25;
+			}
+			else if (mapSize == "LargeToggle")
+			{
+				terrainGenerator.width = 30;
+				terrainGenerator.height = 30;
+			}
 
-		//	if (mapSize == "SmallToggle")
-		//	{
-		//		terrainGenerator.width = 20;
-		//		terrainGenerator.height = 20;
-		//	}
-		//	else if (mapSize == "MediumToggle")
-		//	{
-		//		terrainGenerator.width = 25;
-		//		terrainGenerator.height = 25;
-		//	}
-		//	else if (mapSize == "LargeToggle")
-		//	{
-		//		terrainGenerator.width = 30;
-		//		terrainGenerator.height = 30;
-		//	}
+			terrainGenerator.equatorDist = 3;
+			terrainGenerator.equatorPos = terrainGenerator.height * 3 * 3 / 4;
+		}
+		else if (starting == "EastToggle")
+		{
+			terrainGenerator.newRegion = Region.East;
+			terrainGenerator.desertPerc = 20;
+			terrainGenerator.forestAndJunglePerc = 80;
 
-		//	terrainGenerator.equatorDist = 4;
-		//	terrainGenerator.equatorPos = terrainGenerator.height * 3 * 2 / 5;
-		//}
-		//else if (starting == "WestToggle")
-		//{
-		//	terrainGenerator.startingRegion = Region.West;
-		//	terrainGenerator.desertPerc = 40;
-		//	terrainGenerator.forestAndJunglePerc = 60;
+			if (mapSize == "SmallToggle")
+			{
+				terrainGenerator.width = 20;
+				terrainGenerator.height = 20;
+			}
+			else if (mapSize == "MediumToggle")
+			{
+				terrainGenerator.width = 25;
+				terrainGenerator.height = 25;
+			}
+			else if (mapSize == "LargeToggle")
+			{
+				terrainGenerator.width = 30;
+				terrainGenerator.height = 30;
+			}
 
-		//	if (mapSize == "SmallToggle")
-		//	{
-		//		terrainGenerator.width = 20;
-		//		terrainGenerator.height = 20;
-		//	}
-		//	else if (mapSize == "MediumToggle")
-		//	{
-		//		terrainGenerator.width = 25;
-		//		terrainGenerator.height = 25;
-		//	}
-		//	else if (mapSize == "LargeToggle")
-		//	{
-		//		terrainGenerator.width = 30;
-		//		terrainGenerator.height = 30;
-		//	}
+			terrainGenerator.equatorDist = 4;
+			terrainGenerator.equatorPos = terrainGenerator.height * 3 * 2 / 5;
+		}
+		else if (starting == "WestToggle")
+		{
+			terrainGenerator.newRegion = Region.West;
+			terrainGenerator.desertPerc = 40;
+			terrainGenerator.forestAndJunglePerc = 60;
 
-		//	terrainGenerator.equatorDist = 7;
-		//	terrainGenerator.equatorPos = terrainGenerator.height * 3 * 2 / 5;
-		//}
+			if (mapSize == "SmallToggle")
+			{
+				terrainGenerator.width = 20;
+				terrainGenerator.height = 20;
+			}
+			else if (mapSize == "MediumToggle")
+			{
+				terrainGenerator.width = 25;
+				terrainGenerator.height = 25;
+			}
+			else if (mapSize == "LargeToggle")
+			{
+				terrainGenerator.width = 30;
+				terrainGenerator.height = 30;
+			}
 
-		//if (landType == "IslandsToggle")
-		//{
-		//	terrainGenerator.iterations = 2;
-		//	terrainGenerator.landMassLimit = 20;
-		//	terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 4 + (terrainGenerator.width * terrainGenerator.height / 8);
-		//	terrainGenerator.totalLandLimit = 0;
-		//	terrainGenerator.continentsFlag = 0;
-		//}
-		//else if (landType == "ContinentsToggle")
-		//{
-		//	terrainGenerator.iterations = 15;
-		//	terrainGenerator.landMassLimit = 2;
-		//	terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 2;
-		//	terrainGenerator.continentsFlag = 1;
-		//}
+			terrainGenerator.equatorDist = 7;
+			terrainGenerator.equatorPos = terrainGenerator.height * 3 * 2 / 5;
+		}
 
-		//if (resource == "ScarceToggle")
-		//{
-		//	terrainGenerator.resourceFrequency = 5;
-		//	terrainGenerator.resourceFlag = 0;
-		//}
-		//else if (resource == "PlentyToggle")
-		//{
-		//	terrainGenerator.resourceFrequency = 4;
-		//	terrainGenerator.resourceFlag = 1;
-		//}
-		//else if (resource == "AbundantToggle")
-		//{
-		//	terrainGenerator.resourceFrequency = 3;
-		//	terrainGenerator.resourceFlag = 2;
-		//}
+		if (landType == "IslandsToggle")
+		{
+			terrainGenerator.iterations = 2;
+			terrainGenerator.landMassLimit = 20;
+			terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 4 + (terrainGenerator.width * terrainGenerator.height / 8);
+			terrainGenerator.totalLandLimit = 0;
+			terrainGenerator.continentsFlag = 0;
+		}
+		else if (landType == "ContinentsToggle")
+		{
+			terrainGenerator.iterations = 15;
+			terrainGenerator.landMassLimit = 2;
+			terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 2;
+			terrainGenerator.continentsFlag = 1;
+		}
+
+		if (resource == "ScarceToggle")
+		{
+			terrainGenerator.resourceFrequency = 5;
+			terrainGenerator.resourceFlag = 0;
+		}
+		else if (resource == "PlentyToggle")
+		{
+			terrainGenerator.resourceFrequency = 4;
+			terrainGenerator.resourceFlag = 1;
+		}
+		else if (resource == "AbundantToggle")
+		{
+			terrainGenerator.resourceFrequency = 3;
+			terrainGenerator.resourceFlag = 2;
+		}
 
 		//if (mountains == "FlatToggle")
 		//{
@@ -196,14 +199,16 @@ public class GameLoader : MonoBehaviour
 		//	terrainGenerator.mountainousPerc = 70;
 		//}
 
-		//if (enemy == "WeakToggle")
-		//	terrainGenerator.enemyCountDifficulty = 1;
-		//else if (enemy == "ModerateToggle")
-		//	terrainGenerator.enemyCountDifficulty = 2;
-		//else if (enemy == "StrongToggle")
-		//	terrainGenerator.enemyCountDifficulty = 3;
+		if (enemy == "WeakToggle")
+			terrainGenerator.enemyCountDifficulty = 1;
+		else if (enemy == "ModerateToggle")
+			terrainGenerator.enemyCountDifficulty = 2;
+		else if (enemy == "StrongToggle")
+			terrainGenerator.enemyCountDifficulty = 3;
 
 		terrainGenerator.SetYCoord(0);
+		world.seed = seed;
+		terrainGenerator.seed = seed;
 		terrainGenerator.RunProceduralGeneration(true);
 		terrainGenerator.SetMainPlayerLoc();
 		world.NewGamePrep(true, terrainGenerator.terrainDict, terrainGenerator.enemyEmpires, terrainGenerator.enemyRoadLocs, tutorial);
@@ -220,6 +225,7 @@ public class GameLoader : MonoBehaviour
 		gameData.saveName = saveName;
 		gameData.savePlayTime += playTime;
 		gameData.saveVersion = version;
+		gameData.seed = world.seed;
 		//gameData.saveScreenshot = screenshot;
 		gameData.currentEra = world.currentEra;
 		gameData.startingRegion = world.startingRegion;
@@ -396,7 +402,8 @@ public class GameLoader : MonoBehaviour
 
 		world.currentEra = gameData.currentEra;
 		world.startingRegion = gameData.startingRegion;
-		world.tutorial = gameData.tutorial; 
+		world.tutorial = gameData.tutorial;
+		world.seed = gameData.seed;
 		world.GenerateMap(gameData.allTerrain);
 		world.resourceDiscoveredList = new(gameData.resourceDiscoveredList);
 		world.LoadDiscoveredResources();

@@ -13,6 +13,8 @@ public class MapWorld : MonoBehaviour
 {
     private string version = "0.1";
     private string consoleInput;
+    [HideInInspector]
+    public int seed;
     private DateTime currentTime;
     [HideInInspector]
     public Era currentEra = Era.AncientEra;
@@ -31,7 +33,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Water water;
     [SerializeField]
-    public GameObject battleCamera, resourceIcon, speechBubble, uiHelperWindow;
+    public GameObject battleCamera, /*resourceIcon, */speechBubble/*, uiHelperWindow*/;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
@@ -411,7 +413,7 @@ public class MapWorld : MonoBehaviour
         GameLoader.Instance.gameData.tutorial = tutorial;
 		if (tutorial)
 		{
-			GameObject helperWindow = Instantiate(uiHelperWindow);
+			GameObject helperWindow = Instantiate(Resources.Load<GameObject>("Prefabs/UIPrefabs/HelperWindow"));
 			helperWindow.transform.SetParent(mainCanvas.transform, false);
 			cityBuilderManager.uiHelperWindow = helperWindow.GetComponent<UIHelperWindow>();
 		}
@@ -857,7 +859,7 @@ public class MapWorld : MonoBehaviour
     {
 		if (tutorial)
 		{
-			GameObject helperWindow = Instantiate(uiHelperWindow);
+			GameObject helperWindow = Instantiate(Resources.Load<GameObject>("Prefabs/UIPrefabs/HelperWindow"));
 			helperWindow.transform.SetParent(mainCanvas.transform, false);
 			cityBuilderManager.uiHelperWindow = helperWindow.GetComponent<UIHelperWindow>();
 		}

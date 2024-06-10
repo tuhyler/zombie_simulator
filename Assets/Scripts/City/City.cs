@@ -91,10 +91,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public int waterCount, powerCount;
 
     //resource info
-    public float workEthic = 1f;
-    public float improvementWorkEthic;
-    public float wonderWorkEthic;
-    public float purchaseAmountMultiple = 1f;
+    [HideInInspector]
+    public float workEthic = 1f, improvementWorkEthic, wonderWorkEthic, purchaseAmountMultiple = 1f;
     public int warehouseStorageLimit = 200;
     
     //stop info
