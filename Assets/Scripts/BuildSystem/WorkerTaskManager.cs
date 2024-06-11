@@ -433,7 +433,8 @@ public class WorkerTaskManager : MonoBehaviour
             unitMovement.ClearBuildRoad();
 			uiBuildingSomething.ToggleVisibility(false);
 			unitMovement.ResetOrderFlags();
-            unitMovement.uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
+            if (world.scottFollow)
+                unitMovement.uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
         }
 
         if (world.mainPlayer.isBusy)

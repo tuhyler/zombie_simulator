@@ -49,6 +49,7 @@ public class GameLoader : MonoBehaviour
 
 		//all are south right now
 		starting = "SouthToggle";
+		Vector3 auroraBorealisLoc = Vector3.zero;
 
 		if (starting == "NorthToggle")
 		{
@@ -99,6 +100,8 @@ public class GameLoader : MonoBehaviour
 
 			terrainGenerator.equatorDist = 3;
 			terrainGenerator.equatorPos = terrainGenerator.height * 3 * 3 / 4;
+
+			auroraBorealisLoc = new Vector3(0, 4, 5);
 		}
 		else if (starting == "EastToggle")
 		{
@@ -211,6 +214,9 @@ public class GameLoader : MonoBehaviour
 		terrainGenerator.seed = seed;
 		terrainGenerator.RunProceduralGeneration(true);
 		terrainGenerator.SetMainPlayerLoc();
+
+		if (terrainGenerator.newRegion == Region.South || terrainGenerator.newRegion == Region.North)
+			terrainGenerator.SetAuroraBorealis(auroraBorealisLoc);
 		world.NewGamePrep(true, terrainGenerator.terrainDict, terrainGenerator.enemyEmpires, terrainGenerator.enemyRoadLocs, tutorial);
 		terrainGenerator.Clear();
 		Cursor.visible = true;

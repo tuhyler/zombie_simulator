@@ -922,7 +922,8 @@ public class UnitMovement : MonoBehaviour
 			    selectedUnit = world.mainPlayer;
 
 			    uiPersonalResourceInfoPanel.SetTitleInfo(world.mainPlayer.name, world.mainPlayer.personalResourceManager.resourceStorageLevel, world.mainPlayer.personalResourceManager.resourceStorageLimit);
-			    uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
+                if (world.scottFollow)
+    			    uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
 
 			    if (world.mainPlayer.isBusy)
 				    uiCancelTask.ToggleVisibility(true);

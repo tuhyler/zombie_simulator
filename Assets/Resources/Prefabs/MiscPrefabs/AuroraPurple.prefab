@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2587932970109854699}
   - component: {fileID: 1510204952164222161}
   m_Layer: 0
-  m_Name: Aurora
+  m_Name: AuroraPurple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24,7 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3733748348029411530}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -32,7 +32,7 @@ Transform:
   - {fileID: 6371277305752345014}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &1510204952164222161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,7 +117,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1a066bf71b568a14ab33e7710ffee5ed, type: 2}
+      objectReference: {fileID: 2100000, guid: f1cbed6450ea42942bd8117e4f1cd748, type: 2}
     - target: {fileID: 919132149155446097, guid: 8960ca7b79c72904399a63cb47eb8a44,
         type: 3}
       propertyPath: m_Name
