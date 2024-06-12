@@ -1604,6 +1604,8 @@ public class Worker : Unit
 						unitInTheWay.SpeakingCheck();
 						if (unitInTheWay.buildDataSO.npc)
 							world.uiSpeechWindow.SetSpeakingNPC(unitInTheWay);
+						else
+							world.ToggleCharacterConversationCam(true);
 					}
 
 					bool leader = unitInTheWay.military && unitInTheWay.military.leader;

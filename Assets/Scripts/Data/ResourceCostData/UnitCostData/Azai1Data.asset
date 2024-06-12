@@ -34,7 +34,7 @@ MonoBehaviour:
   regenerationRate: 0.1
   baseAttackStrength: 8
   baseAttackSpeed: 1
-  movementSpeed: 1
+  movementSpeed: 2
   trainTime: 0
   cargoCapacity: 0
   goldDropRange: {x: 0, y: 0}

@@ -10,7 +10,7 @@ public class MilitaryLeader : Military
 	public string leaderName;
 	public List<UnitBuildDataSO> leaderUnitList;
 	public Dictionary<UnitType, UnitBuildDataSO> leaderUnitDict = new();
-	public int challengeGap, startingUnitCount;
+	public int challengeGap, startingUnitCount, researchLevelIncreaseCount;
 	private int timeWaited = 0, challenges = 0;
 	[HideInInspector]
 	public bool hasSomethingToSay, defending, dueling;

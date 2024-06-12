@@ -46,7 +46,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, highlighted, isNamed, growing, attacked;
     [HideInInspector]
-    public int lostPop, currentPop, unusedLabor, usedLabor;
+    public int lostPop, currentPop, unusedLabor, usedLabor, attackBonus;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
@@ -984,15 +984,17 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
             int suggestedTime = Mathf.RoundToInt((dist - 5) / (world.maxDistance - 5f) * world.waitTillAttackTime);
 
-            if (!enemyCamp.growing && co != null && countDownTimer > suggestedTime)
+            if (co == null)
             {
                 countDownTimer = suggestedTime;
-            }
-            else
-            {
                 Debug.Log("starting send attack wait at " + cityLoc);
                 co = StartCoroutine(SendAttackWait());
             }
+            else
+            {
+                if (!enemyCamp.growing && countDownTimer > suggestedTime)
+                    countDownTimer = suggestedTime;
+			}
         }
     }
 
@@ -1226,17 +1228,22 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             countDownTimer = world.enemyUnitGrowthTime;
 
         enemyCamp.growing = true;
-		world.GetCityDevelopment(singleBuildDict[SingleBuildType.Barracks]).PlaySmokeEmitter(singleBuildDict[SingleBuildType.Barracks], countDownTimer, false);
+
+        Vector3Int barracksLoc = singleBuildDict[SingleBuildType.Barracks];
+        if (world.GetTerrainDataAt(barracksLoc).isDiscovered)
+    		world.GetCityDevelopment(barracksLoc).PlaySmokeEmitter(barracksLoc, countDownTimer, false);
 		co = StartCoroutine(SpawnCycleCoroutine());
     }
 
     //for spawning enemy units in enemy cities
     private IEnumerator SpawnCycleCoroutine()
     {
+        Debug.Log("growth time at " + cityLoc + " is " + countDownTimer);
         while (countDownTimer > 0)
         {
             yield return foodConsumptionWait;
             countDownTimer--;
+            Debug.Log("timer at " + cityLoc + " is " + countDownTimer);
         }
 
 		world.GetCityDevelopment(singleBuildDict[SingleBuildType.Barracks]).StopSmokeEmitter();
@@ -1244,6 +1251,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		if (enemyCamp != null)
         {
             AddEnemyUnit(enemyCamp, world.GetTerrainDataAt(singleBuildDict[SingleBuildType.Barracks]).isDiscovered);
+            Debug.Log("Added unit at " + cityLoc);
 
             if (enemyCamp.campCount < empire.empireUnitCount)
             {
@@ -1252,7 +1260,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             else
             {
                 enemyCamp.growing = false;
-                StartSendAttackWait();
+                co = null;
+
+                if (empire.attackingCity == cityLoc)
+                    StartSendAttackWait();
             }
         }
     }
@@ -1324,6 +1335,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 			unitEnemy.minimapIcon.gameObject.SetActive(false);
             enemyGO.SetActive(false);
 		}
+        else
+        {            
+            unitEnemy.PlayLightBeam();
+        }
 
 		Vector3Int unitLoc = world.RoundToInt(unitEnemy.transform.position);
 		if (!world.unitPosDict.ContainsKey(world.RoundToInt(unitLoc))) //just in case dictionary was missing any
@@ -1332,7 +1347,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		enemyGO.name = unitEnemy.buildDataSO.nationalityAdjective + " " + unitEnemy.buildDataSO.unitDisplayName;
 		unitEnemy.military.barracksBunk = newSpot;
 
-        unitEnemy.PlayLightBeam();
 		//Vector3 spawnSpot = newSpot;
 		//spawnSpot.y += 0.07f;
 		//unitEnemy.lightBeam.transform.position = spawnSpot;
@@ -1715,8 +1729,11 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         RevealUnitsInCamp();
 
-        if (world.enemyAttackBegin && empire.CanAttackCheck(cityLoc))
-            StartSendAttackWait();
+        if (enemyCamp.growing)
+            world.GetCityDevelopment(singleBuildDict[SingleBuildType.Barracks]).PlaySmokeEmitter(singleBuildDict[SingleBuildType.Barracks], countDownTimer, true);
+
+        //if (world.enemyAttackBegin && empire.CanAttackCheck(cityLoc))
+        //    StartSendAttackWait();
 
         if (world.IsNPCThere(cityLoc))
         {

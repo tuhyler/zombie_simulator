@@ -532,34 +532,6 @@ public class Unit : MonoBehaviour
 		{
             laborer.NextStepCheck(endPosition, endPositionInt);
 		}
-
-		//if (pathPositions.Count > 0)
-  //      {
-  //          if (trader)
-  //          {
-  //          }
-		//	else if (isPlayer)
-		//	{
-                
-		//	}
-		//	else if (ambush && pathPositions.Count == 1) //for going to attack in ambush
-  //          {
-
-  //          }
-		//	else if (worker)
-		//	{
-		//	}
-		//	else
-		//	{
-  //              prevTile = endPositionInt;
-  //          }
-
-  //          GoToNextStepInPath();
-  //      }
-  //      else
-  //      {
-  //          FinishMoving(endPosition);
-  //      }
     }
 
     public void GoToNextStepInPath()

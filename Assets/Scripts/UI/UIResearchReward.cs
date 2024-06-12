@@ -39,8 +39,9 @@ public class UIResearchReward : MonoBehaviour
             produces = improvementData.producedResources;
             produceTime = improvementData.producedResourceTime;
 
-            if (produces.Count > 0 || consumes.Count > 0)
+            if (produces.Count > 0 || consumes.Count > 0 || improvementData.improvementCost.Count > 0)
                 resourcesUnlocked = new();
+
 			for (int i = 0; i < produces.Count; i++)
 			{
                 if (produces[i].resourceType == ResourceType.None)
@@ -60,7 +61,15 @@ public class UIResearchReward : MonoBehaviour
                 }
             }
 
-            rewardIcon.sprite = improvementData.image;
+			for (int i = 0; i < improvementData.improvementCost.Count; i++)
+			{
+				if (improvementData.improvementCost[i].resourceType == ResourceType.None)
+					continue;
+
+				resourcesUnlocked.Add(improvementData.improvementCost[i].resourceType);
+			}
+
+			rewardIcon.sprite = improvementData.image;
 		}
 		else if (unitData != null)
         {
@@ -75,7 +84,34 @@ public class UIResearchReward : MonoBehaviour
 
             consumes.Add(unitData.cycleCost);
             rewardIcon.sprite = unitData.image;
-        }
+
+			if (unitData.cycleCost.Count > 0 || unitData.unitCost.Count > 0 || unitData.battleCost.Count > 0)
+				resourcesUnlocked = new();
+
+            for (int i = 0; i < unitData.cycleCost.Count; i++)
+            {
+				if (unitData.cycleCost[i].resourceType == ResourceType.None)
+					continue;
+
+				resourcesUnlocked.Add(unitData.cycleCost[i].resourceType);
+			}
+
+			for (int i = 0; i < unitData.unitCost.Count; i++)
+			{
+				if (unitData.unitCost[i].resourceType == ResourceType.None)
+					continue;
+
+				resourcesUnlocked.Add(unitData.unitCost[i].resourceType);
+			}
+
+			for (int i = 0; i < unitData.battleCost.Count; i++)
+			{
+				if (unitData.battleCost[i].resourceType == ResourceType.None)
+					continue;
+
+				resourcesUnlocked.Add(unitData.battleCost[i].resourceType);
+			}
+		}
         else if (wonderData != null)
         {
             ResourceValue cost;
@@ -95,7 +131,18 @@ public class UIResearchReward : MonoBehaviour
 			produces.Add(value);
 			produceTime.Add(wonderData.buildTimePerPercent);
             rewardIcon.sprite = wonderData.image;
-        }
+
+            if (wonderData.wonderCost.Count > 0)
+                resourcesUnlocked = new();
+
+			for (int i = 0; i < wonderData.wonderCost.Count; i++)
+			{
+				if (wonderData.wonderCost[i].resourceType == ResourceType.None)
+					continue;
+
+				resourcesUnlocked.Add(wonderData.wonderCost[i].resourceType);
+			}
+		}
         else if (utilityData != null)
         {
 			if (utilityData.bridgeCost.Count > 0)
@@ -109,7 +156,26 @@ public class UIResearchReward : MonoBehaviour
 
 			consumes.Add(utilityData.bridgeCost);
             rewardIcon.sprite = utilityData.image;
-        }
+
+            if (utilityData.utilityCost.Count > 0 || utilityData.bridgeCost.Count > 0)
+                resourcesUnlocked = new();
+
+			for (int i = 0; i < utilityData.utilityCost.Count; i++)
+			{
+				if (utilityData.utilityCost[i].resourceType == ResourceType.None)
+					continue;
+
+				resourcesUnlocked.Add(utilityData.utilityCost[i].resourceType);
+			}
+
+			for (int i = 0; i < utilityData.bridgeCost.Count; i++)
+			{
+				if (utilityData.bridgeCost[i].resourceType == ResourceType.None)
+					continue;
+
+				resourcesUnlocked.Add(utilityData.bridgeCost[i].resourceType);
+			}
+		}
 
         originalSprite = rewardBackground.sprite;
     }

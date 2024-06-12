@@ -234,11 +234,14 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 world.SetUpgradeableObjectMaxLevel(data.utilityType.ToString(), data.utilityLevel);
 			}
 
-            foreach (ResourceType type in researchReward.resourcesUnlocked)
+            if (researchReward.resourcesUnlocked != null)
             {
-				if (!world.ResourceCheck(type))
-					world.DiscoverResource(type);
-			}
+                foreach (ResourceType type in researchReward.resourcesUnlocked)
+                {
+				    if (!world.ResourceCheck(type))
+					    world.DiscoverResource(type);
+			    }
+            }
         }
 
         //unlocking research items down further in tree
@@ -255,7 +258,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         if (!world.enemyAttackBegin && researchLevel == world.enemyStartAttackLevel)
             world.StartAttacks();
 
-        if (researchLevel < world.maxResearchLevel)
+        if (researchLevel > world.maxResearchLevel)
         {
             world.maxResearchLevel = researchLevel;
 
@@ -367,45 +370,48 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 return;
             }
 
-            if (researchTree.isQueueing)
+            if (!completed)
             {
-                if (!isSelected && !researchTree.QueueContainsCheck(this))
+                if (researchTree.isQueueing)
                 {
-				    researchTree.world.cityBuilderManager.PlaySelectAudio();
-
-				    if (!researchTree.IsResearching() && !locked)
+                    if (!isSelected && !researchTree.QueueContainsCheck(this))
                     {
-                        SelectResearchItem();
-                        return;
-                    }
+				        researchTree.world.cityBuilderManager.PlaySelectAudio();
 
-                    bool canBeQueued = true;
-
-                    for (int i = 0; i < researchDependent.Count; i++)
-                    {
-                        if (!researchDependent[i].isSelected && !researchDependent[i].completed &&!researchTree.QueueContainsCheck(researchDependent[i]))
+				        if (!researchTree.IsResearching() && !locked)
                         {
-                            canBeQueued = false;
-                            break;
+                            SelectResearchItem();
+                            return;
                         }
-                    }
 
-                    if (canBeQueued)
-                        AddToQueue();
-			    }
-            }
-            else if (locked)
-            {
-			    researchTree.world.cityBuilderManager.PlaySelectAudio();
-                QueueToItem();
-		    }
-            else
-            {
-			    researchTree.world.cityBuilderManager.PlaySelectAudio();
+                        bool canBeQueued = true;
 
-			    if (researchTree.QueueCount() > 0)
-                    researchTree.EndQueue();
-                SelectResearchItem();
+                        for (int i = 0; i < researchDependent.Count; i++)
+                        {
+                            if (!researchDependent[i].isSelected && !researchDependent[i].completed &&!researchTree.QueueContainsCheck(researchDependent[i]))
+                            {
+                                canBeQueued = false;
+                                break;
+                            }
+                        }
+
+                        if (canBeQueued)
+                            AddToQueue();
+			        }
+                }
+                else if (locked)
+                {
+			        researchTree.world.cityBuilderManager.PlaySelectAudio();
+                    QueueToItem();
+		        }
+                else
+                {
+			        researchTree.world.cityBuilderManager.PlaySelectAudio();
+
+			        if (researchTree.QueueCount() > 0)
+                        researchTree.EndQueue();
+                    SelectResearchItem();
+                }
             }
         }
     }
@@ -434,13 +440,13 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             int queuedCount = 0;
             int dependentCount = nextItem.researchDependent.Count;
 			for (int i = 0; i < dependentCount; i++)
-            {            
+            {
                 if (nextItem.researchDependent[i].isSelected || researchTree.QueueContainsCheck(nextItem.researchDependent[i]))
                 {
                     queuedCount++;
                     continue;
                 }
-                else if (nextItem.researchDependent[i].locked)
+                else if (nextItem.researchDependent[i].locked && !nextItem.researchDependent[i].completed)
                 {
                     if (firstItem)
                     {
@@ -454,18 +460,21 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 }
                 else
                 {
-					if (!nextItem.researchDependent[i].isSelected)
+					if (!nextItem.researchDependent[i].completed)
                     {
-					    if (firstSelection)
+                        if (!nextItem.researchDependent[i].isSelected)
                         {
-                            nextItem.researchDependent[i].SelectResearchItem();
-                            firstSelection = false;
-                        }
-                        else
-                        {
-                            nextItem.researchDependent[i].AddToQueue();
-                        }
+					        if (firstSelection)
+                            {
+                                nextItem.researchDependent[i].SelectResearchItem();
+                                firstSelection = false;
+                            }
+                            else
+                            {
+                                nextItem.researchDependent[i].AddToQueue();
+                            }
     
+                        }
                     }
 
                     firstItem = false;

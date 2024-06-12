@@ -499,7 +499,6 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 		else
 		{
-			
 			if (unit.leader)
 				unit.repositioning = false;
 			else
