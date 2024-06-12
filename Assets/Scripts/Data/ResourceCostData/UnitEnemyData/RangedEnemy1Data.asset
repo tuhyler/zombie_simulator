@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: RangedEnemy1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 8452152117669528733, guid: af2b68cd7dcd60840b0e7ac54b865141, type: 3}
-  secondaryPrefab: {fileID: 0}
   prefabLoc: UnitEnemyPrefabs/ranged_1_enemy
   secondaryPrefabLoc: 
   nationalityAdjective: Bandit
@@ -32,9 +30,9 @@ MonoBehaviour:
   unitType: 2
   unitDescription: 
   availableInitially: 0
-  health: 50
+  health: 8
   regenerationRate: 16
-  baseAttackStrength: 6
+  baseAttackStrength: 2
   baseAttackSpeed: 2
   movementSpeed: 2
   trainTime: 0

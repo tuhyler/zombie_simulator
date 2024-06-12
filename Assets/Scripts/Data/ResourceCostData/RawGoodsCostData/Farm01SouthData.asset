@@ -23,7 +23,7 @@ MonoBehaviour:
   improvementDisplayName: Farm
   improvementLevel: 1
   improvementNameAndLevel: Farm-1
-  improvementDescription: Double yield on flood plains
+  improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: dd87c432979319f4a832f52e78dcf6d1, type: 3}
   mapIcon: {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}

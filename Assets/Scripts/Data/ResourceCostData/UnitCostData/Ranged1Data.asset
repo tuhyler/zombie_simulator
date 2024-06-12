@@ -38,9 +38,9 @@ MonoBehaviour:
   unitType: 2
   unitDescription: Ranged unit with low health
   availableInitially: 0
-  health: 50
+  health: 8
   regenerationRate: 2
-  baseAttackStrength: 6
+  baseAttackStrength: 2
   baseAttackSpeed: 2
   movementSpeed: 1
   trainTime: 3

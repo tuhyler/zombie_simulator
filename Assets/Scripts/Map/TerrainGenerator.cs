@@ -3263,10 +3263,13 @@ public class TerrainGenerator : MonoBehaviour
 
     public void SetAuroraBorealis(Vector3 loc)
     {
-        GameObject aurora1 = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/AuroraGreen"), loc, Quaternion.identity);
+        Quaternion rotation = Quaternion.Euler(0, 90, 0);
+        GameObject aurora1 = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/AuroraGreen"), loc, rotation);
+        aurora1.GetComponent<AuroraBorealis>().SetCam(world.mainCam.transform);
         aurora1.transform.SetParent(world.transform, false);
         loc.y += 0.6f;
-		GameObject aurora2 = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/AuroraPurple"), loc, Quaternion.identity);
+		GameObject aurora2 = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/AuroraPurple"), loc, rotation);
+        aurora2.GetComponent<AuroraBorealis>().SetCam(world.mainCam.transform);
         aurora2.transform.SetParent(world.transform, false);
 	}
 

@@ -24,10 +24,7 @@ public class ResourceHolder : MonoBehaviour
     public void PopulateDict()
     {
         foreach (var resource in allStorableResources.Concat(allWorldResources))
-        {
             resourceDict[resource.resourceType] = resource;
-
-        }
     }
 
     public ResourceIndividualSO GetData(ResourceType resourceType)
@@ -49,11 +46,6 @@ public class ResourceHolder : MonoBehaviour
     {
         return resourceDict[resourceType].requirement;
     }
-
-    //public int GetDemandAmount(ResourceType resourceType)
-    //{
-    //    return resourceDict[resourceType].resourceQuantityPerPop;
-    //}
 
     public string GetName(ResourceType resourceType)
     {

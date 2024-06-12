@@ -22,7 +22,7 @@ MonoBehaviour:
   improvementDisplayName: Jewel Smith
   improvementLevel: 1
   improvementNameAndLevel: Smith-1
-  improvementDescription: This does this and this and that
+  improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 0642efe80fd504b4cbb346b525c3235f, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}

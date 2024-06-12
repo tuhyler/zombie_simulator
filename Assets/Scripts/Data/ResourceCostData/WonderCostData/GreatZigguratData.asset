@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f09b9cc3a2a7dc4f82acc0a521a0fdd, type: 3}
   m_Name: GreatZigguratData
   m_EditorClassIdentifier: 
+  wonderPrefab: {fileID: 0}
   wonderPrefabName: GreatZiggurat
   wonderName: Wonder - Great Ziggurat
   wonderDisplayName: Great Ziggurat
@@ -27,8 +28,8 @@ MonoBehaviour:
   - resourceType: 21
     resourceAmount: 1000
   - resourceType: 6
-    resourceAmount: 200
-  - resourceType: 10
+    resourceAmount: 50
+  - resourceType: 11
     resourceAmount: 50
   terrainType: 5
   wonderBenefitChange: 0.1

@@ -46,7 +46,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, highlighted, isNamed, growing, attacked;
     [HideInInspector]
-    public int lostPop;
+    public int lostPop, currentPop, unusedLabor, usedLabor;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
@@ -67,9 +67,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     [HideInInspector]
     public ResourceManager resourceManager;
-
-    [HideInInspector]
-    public int currentPop, unusedLabor, usedLabor;
 
     //foodConsumed info
     public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60, growthFood = 3; //how much foodConsumed one unit eats per turn
@@ -167,18 +164,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		audioSource.PlayOneShot(clip);
 	}
 
-	//public void PlayPopGainAudio()
-	//{
-	//	audioSource.clip = world.cityBuilderManager.popGainClip;
-	//	audioSource.Play();
-	//}
-
-	//public void PlayPopLossAudio()
-	//{
-	//	audioSource.clip = world.cityBuilderManager.popLoseClip;
-	//	audioSource.Play();
-	//}
-
 	public void SetWorld(MapWorld world, bool enemy = false)
     {
         this.world = world;
@@ -201,42 +186,12 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         }
     }
 
-    public void InstantiateParticleSystems()
-    {
-        //bool isHill = world.GetTerrainDataAt(cityLoc).isHill;
-        
-        //Vector3 pos = transform.position;
-        //pos.y = isHill ? .8f : .2f;
-        ////resourceSplash = Instantiate(resourceSplash, pos, Quaternion.Euler(-90, 0, 0));
-        ////resourceSplash.transform.parent = transform;
-        ////resourceSplash.Pause();
-        //pos.y = 8f;
-        //lightBullet = Instantiate(lightBullet, pos, Quaternion.Euler(90, 0, 0));
-        //lightBullet.transform.SetParent(world.psHolder, false);
-        //lightBullet.Pause();
-        //pos.y = isHill ? 3.6f : 3f;
-        //heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
-        //heavenHighlight.transform.SetParent(world.psHolder, false);
-        //heavenHighlight.Pause();
-        //hellHighlight = Instantiate(hellHighlight, pos, Quaternion.identity);
-        //hellHighlight.transform.SetParent(world.psHolder, false);
-        //hellHighlight.Pause();
-
-    }
-
     public void LightFire(bool isHill)
     {
         Vector3 loc = cityLoc;
         loc.y += 0.2f;
         loc.z += -0.6f;
         Vector3 cityBaseLoc = cityBase.transform.localPosition;
-
-        //if (world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3)))
-        //{
-        //    loc.y += 0.1f;
-        //    cityBaseLoc.y += 0.1f;
-        //    cityBase.transform.localPosition = cityBaseLoc;
-        //}
 
         if (isHill)
         {
@@ -250,32 +205,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         fire.Play();
     }
 
-    //private void ReigniteFire()
-    //{
-    //    bool alreadyRoad = fire.transform.position.y == 0.2f || fire.transform.position.y == 0.8f; 
-    //    fire.Play();
-    //    cityBase.gameObject.SetActive(true);
-
-    //    if (!alreadyRoad && world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3))) //in case road was added since growth
-    //    {
-    //        Vector3 fireLoc = fire.transform.position;
-    //        fireLoc.y += 0.1f;
-    //        fire.transform.position = fireLoc;
-    //        Vector3 cityBaseLoc = cityBase.transform.localPosition;
-    //        cityBaseLoc.y += 0.1f;
-    //        cityBase.transform.localPosition = cityBaseLoc;
-    //    }
-    //    else if (alreadyRoad && !world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3))) //in case road was deleted since growth
-    //    {
-    //        Vector3 fireLoc = fire.transform.position;
-    //        fireLoc.y -= 0.1f;
-    //        fire.transform.position = fireLoc;
-    //        Vector3 cityBaseLoc = cityBase.transform.localPosition;
-    //        cityBaseLoc.y -= 0.1f;
-    //        cityBase.transform.localPosition = cityBaseLoc;
-    //    }
-    //}
-    
     public void ExtinguishFire()
     {
         if (fire != null)
@@ -287,28 +216,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         if (cityBase != null)
             Destroy(cityBase);
     }
-
-    //public void DestroyFire()
-    //{
-    //    Destroy(fire.gameObject);
-    //}
-
-    //public void RepositionFire()
-    //{
-    //    Vector3 cityBaseLoc = cityBase.transform.localPosition;
-    //    Vector3 fireLoc = fire.transform.position;
-    //    cityBaseLoc.y += 0.1f;
-    //    if (world.GetTerrainDataAt(cityLoc).isHill)
-    //    {
-    //        cityBaseLoc.y += 0.1f;
-    //        fireLoc.y += 0.1f;
-    //    }
-
-    //    fireLoc.y += 0.1f;
-    //    cityBase.transform.localPosition = cityBaseLoc;
-    //    fire.transform.position = fireLoc;
-    //    //CombineFire();
-    //}
 
     public void AddToMeshFilterList(GameObject go, MeshFilter[] meshFilter, bool building, Vector3Int loc, string name = "")
     {
@@ -445,11 +352,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         }
 
         UpdateCityName(cityName);
-        //cityNameMap.GetComponentInChildren<TMP_Text>().text = cityName;
-        //SetCityNameFieldSize(cityName);
-        //SetCityName(cityName);
         SetCityPop();
-        //AddCityNameToWorld();
     }
 
     private void SetCityNameFieldSize(string cityName)
@@ -464,22 +367,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         cityNameField.SetCityName(cityName);
     }
 
-    //public void AddCityNameToWorld()
-    //{
-    //    //world.AddCityName(cityName, cityLoc);
-    //    //world.AddStop(cityLoc, this);
-    //    //world.AddTradeLoc(cityLoc, cityName);
-    //}
-
     private void SetCityPop()
     {
         cityNameField.SetCityPop(currentPop);
     }
-
-    //public void RemoveCityName()
-    //{
-    //    world.RemoveCityName(cityLoc);
-    //}
 
     public void UpdateCityName(string newCityName)
     {
@@ -675,6 +566,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
                     if (activeCity)
     					world.cityBuilderManager.uiInfoPanelCity.UpdateCityName(newName);
+
+                    if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.newCity)
+                        world.TutorialCheck("New City");
 				}
 
                 cityNameField.ToggleVisibility(true);
@@ -1068,9 +962,37 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     {
 		if (SendAttackCheck())
         {
-		    countDownTimer = world.waitTillAttackTime;
-            Debug.Log("starting send attack wait at " + cityLoc);
-            co = StartCoroutine(SendAttackWait());
+            //Finding closest city
+			List<City> cityList = world.cityDict.Values.ToList();
+            int dist = 0;
+            for (int i = 0; i < cityList.Count; i++)
+            {
+                if (i == 0)
+                {
+                    dist = Math.Abs(cityList[i].cityLoc.x - cityLoc.x) + Math.Abs(cityList[i].cityLoc.z - cityLoc.z);
+                    continue;
+                }
+
+                int newDist = Math.Abs(cityList[i].cityLoc.x - cityLoc.x) + Math.Abs(cityList[i].cityLoc.z - cityLoc.z);
+
+                if (newDist < dist)
+                    dist = newDist;
+			}
+
+            if (dist >= world.maxDistance)
+                return;
+
+            int suggestedTime = Mathf.RoundToInt((dist - 5) / (world.maxDistance - 5f) * world.waitTillAttackTime);
+
+            if (!growing && co != null && countDownTimer > suggestedTime)
+            {
+                countDownTimer = suggestedTime;
+            }
+            else
+            {
+                Debug.Log("starting send attack wait at " + cityLoc);
+                co = StartCoroutine(SendAttackWait());
+            }
         }
     }
 
@@ -1129,10 +1051,13 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         bool firstOne = true;
         for (int i = 0; i < cityList.Count; i++)
         {
+            if (Math.Abs(cityList[i].cityLoc.x - cityLoc.z) + MathF.Abs(cityList[i].cityLoc.z - cityLoc.z) > world.maxDistance)
+                continue;
+            
             if (cityList[i].attacked) //can't attack the same city mroe than once
                 continue;
             
-            if (cityList[i].currentPop < 4 && (!cityList[i].singleBuildDict.ContainsKey(SingleBuildType.Barracks) || cityList[i].army.UnitsInArmy.Count == 0))
+            if (cityList[i].currentPop < 2 && (!cityList[i].singleBuildDict.ContainsKey(SingleBuildType.Barracks) || cityList[i].army.UnitsInArmy.Count == 0))
             {
                 smallCityLocList.Add(i);
                 continue;
@@ -1784,7 +1709,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         RevealUnitsInCamp();
 
-        if (empire.CanAttackCheck(cityLoc))
+        if (world.enemyAttackBegin && empire.CanAttackCheck(cityLoc))
             StartSendAttackWait();
 
         if (world.IsNPCThere(cityLoc))

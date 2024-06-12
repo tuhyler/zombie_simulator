@@ -335,11 +335,6 @@ public class ResourceManager : MonoBehaviour
 		bool destroy = false;
 
 		resourceCount = 0;
-        //int newResourceAmount = CalculateResourceProductionAmount(producedResource, currentLabor, improvement);
-		//int newResourceAmount = CalculateResourceGeneration(producedResource.resourceAmount, currentLabor, producedResource.resourceType);
-
-		//if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0 && improvement.td.resourceAmount < newResourceAmount)
-		//	newResourceAmount = improvement.td.resourceAmount;
 
 		int resourceAmount = AddResource(producedResource.resourceType, newResourceAmount);
 
@@ -693,18 +688,19 @@ public class ResourceManager : MonoBehaviour
 			{
                 int totalDemand = Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop * city.purchaseAmountMultiple);
                 int demandDiff = resourceDict[data.resourceType] - totalDemand;
-                int sellAmount;
+                int currentPrice = resourcePriceDict[data.resourceType];
+				int sellAmount;
 
                 if (demandDiff < 0)
                     sellAmount = resourceDict[data.resourceType];
                 else
                     sellAmount = totalDemand;
 
-				goldAdded += resourcePriceDict[data.resourceType] * sellAmount;
+				goldAdded += currentPrice * sellAmount;
 				resourceSellHistoryDict[data.resourceType] += sellAmount;
 				SubtractResource(data.resourceType, sellAmount);
 
-                SetNewPrice(data.resourceType, demandDiff, totalDemand, data.resourcePrice);
+                SetNewPrice(data.resourceType, demandDiff, totalDemand, data.resourcePrice, currentPrice);
 
 				Vector3 cityLoc = city.cityLoc;
 				cityLoc.y += length * 0.4f;
@@ -721,39 +717,10 @@ public class ResourceManager : MonoBehaviour
             InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldAdded, ResourceHolder.Instance.GetIcon(ResourceType.Gold), city.world);
         }
 
-        //SetPrices();
-
         return goldAdded;
     }
 
-    //private void SetPrices()
-    //{
-    //    int currentPop = city.cityPop.CurrentPop;
-    //    float populationFactor = 0.2f; //ratio of how much a new pop increases prices
-    //    float cycleAttrition = 0.02f; //ratio of how many cycles to burn through resourceQuantityePerPop
-    //    float abundanceRatio = 0.5f; //how many purchases of resources by current pop to reduce the price in half. 
-
-    //    foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources)
-    //    {
-    //        ResourceType resourceType = resourceData.resourceType;
-    //        int resourceQuantityPerPop = resourceData.resourceQuantityPerPop;
-
-    //        if (currentPop > 0)
-    //        {
-    //            float priceByPop = (1 + (currentPop-1) * populationFactor);
-    //            float abundanceWithAttrition = resourceQuantityPerPop * cycleAttrition * cycleCount * currentPop;
-    //            float abundanceFactor = 1 - ((resourceSellHistoryDict[resourceType] - abundanceWithAttrition) / currentPop) * 1 / resourceQuantityPerPop * abundanceRatio;
-    //            resourcePriceDict[resourceType] = Mathf.Max((int)Math.Round(resourceData.resourcePrice * priceByPop * abundanceFactor, MidpointRounding.AwayFromZero),1);
-    //            //resourcePriceDict[resourceType] = Mathf.Max(Mathf.FloorToInt(resourceData.resourcePrice * priceByPop * abundanceFactor), 1);
-    //        }
-    //        else //no price if no one there to purchase
-    //        {
-    //            resourcePriceDict[resourceType] = 0;
-    //        }
-    //    }
-    //}
-
-    private void SetNewPrice(ResourceType type, int demandDiff, int originalDemand, int originalPrice)
+    private void SetNewPrice(ResourceType type, int demandDiff, int originalDemand, int originalPrice, int currentPrice)
     {
         float demandRatio = (float)demandDiff / originalDemand;
         
@@ -761,33 +728,51 @@ public class ResourceManager : MonoBehaviour
         {
             if (demandRatio <= -0.5f)
             {
-                resourcePriceDict[type] = originalPrice;
+                resourcePriceDict[type] = currentPrice;
             }
-            else if (demandRatio > -0.1f)
+            else
             {
-				resourcePriceDict[type] *= Mathf.CeilToInt(resourcePriceDict[type] * 1.2f);
-			}
-            else if (demandRatio > -0.5f)
-            {
-                resourcePriceDict[type] *= Mathf.CeilToInt(resourcePriceDict[type] * 1.1f); 
+                resourcePriceDict[type] = Mathf.Min(currentPrice++, originalPrice * 3);
             }
+            
+   //         if (demandRatio <= -0.5f)
+   //         {
+   //             resourcePriceDict[type] = originalPrice;
+   //         }
+   //         else if (demandRatio > -0.1f)
+   //         {
+			//	resourcePriceDict[type] *= Mathf.CeilToInt(resourcePriceDict[type] * 1.2f);
+			//}
+   //         else if (demandRatio > -0.5f)
+   //         {
+   //             resourcePriceDict[type] *= Mathf.CeilToInt(resourcePriceDict[type] * 1.1f); 
+   //         }
         }
         else
         {
-            if (demandRatio < 3f)
+            if (demandRatio < 2f)
             {
-                resourcePriceDict[type] = originalPrice;
+                resourcePriceDict[type] = currentPrice;
             }
-            else if (demandRatio > 10)
+            else
             {
-                int newPrice = Mathf.FloorToInt(resourcePriceDict[type] * .8f);
-				resourcePriceDict[type] = Mathf.Clamp(resourcePriceDict[type], 1, newPrice);
-			}
-            else if (demandRatio > 5)
-            {
-				int newPrice = Mathf.FloorToInt(resourcePriceDict[type] * .9f);
-				resourcePriceDict[type] = Mathf.Clamp(resourcePriceDict[type], 1, newPrice);
-			}
+                resourcePriceDict[type] = Mathf.Max(1, currentPrice--);
+            }
+            
+   //         if (demandRatio < 3f)
+   //         {
+   //             resourcePriceDict[type] = originalPrice;
+   //         }
+   //         else if (demandRatio > 10)
+   //         {
+   //             int newPrice = Mathf.FloorToInt(resourcePriceDict[type] * .8f);
+			//	resourcePriceDict[type] = Mathf.Clamp(resourcePriceDict[type], 1, newPrice);
+			//}
+   //         else if (demandRatio > 5)
+   //         {
+			//	int newPrice = Mathf.FloorToInt(resourcePriceDict[type] * .9f);
+			//	resourcePriceDict[type] = Mathf.Clamp(resourcePriceDict[type], 1, newPrice);
+			//}
         }
     }
 

@@ -13,6 +13,7 @@ public class MapWorld : MonoBehaviour
 {
     private string version = "0.1";
     private string consoleInput;
+    public string startingAttackResearch;
     [HideInInspector]
     public int seed;
     private DateTime currentTime;
@@ -33,7 +34,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Water water;
     [SerializeField]
-    public GameObject battleCamera, /*resourceIcon, */speechBubble/*, uiHelperWindow*/;
+    public GameObject mainCam, battleCamera, /*resourceIcon, */speechBubble/*, uiHelperWindow*/;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
@@ -225,7 +226,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
     public Dictionary<Vector3Int, EnemyAmbush> enemyAmbushDict = new();
     public Dictionary<Vector3Int, City> enemyCityDict = new();
-    public int waitTillAttackTime = 600, enemyUnitGrowthTime = 20, ambushProb;
+    public int waitTillAttackTime = 600, maxDistance, enemyUnitGrowthTime = 20, ambushProb;
     [HideInInspector]
     public HashSet<Vector3Int> militaryStationLocs = new(); //for traveling around barracks
     public Dictionary<Vector3Int, TreasureChest> treasureLocs = new();
@@ -238,7 +239,7 @@ public class MapWorld : MonoBehaviour
     private static int increment = 3;
 
     [HideInInspector]
-    public bool moveUnit, unitOrders, buildingWonder, tooltip, somethingSelected, /*showingMap, */citySelected, cityUnitSelected;
+    public bool moveUnit, unitOrders, buildingWonder, tooltip, somethingSelected, /*showingMap, */citySelected, cityUnitSelected, enemyAttackBegin;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for tracking stats
@@ -3154,6 +3155,12 @@ public class MapWorld : MonoBehaviour
                 else if ( words.Length > 1 && words[0] == "mostra" && words[1] == "tutto")
                 {
                     showAllBuildOptions = true;
+
+                    foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+                    {
+                        if (!ResourceCheck(resource.resourceType))
+                            DiscoverResource(resource.resourceType);
+                    }
                 }
             }
 
@@ -4485,6 +4492,60 @@ public class MapWorld : MonoBehaviour
 
         return false;
 	}
+
+    public void EnemyAttackCheck()
+    {
+        if (enemyAttackBegin)
+        {
+            foreach (City city in enemyCityDict.Values)
+            {
+                if (city.empire.attackingCity == new Vector3Int(0, -10, 0))
+                {
+                    StartAttacks();
+                    break;
+                }
+                    
+                if (city.empire.attackingCity == city.cityLoc)
+                    city.StartSendAttackWait();
+            }
+        }
+    }
+
+    //begin attacks
+    public void StartAttacks()
+    {
+        enemyAttackBegin = true;
+        if (enemyCityDict.Count > 0 && cityDict.Count > 0)
+        {
+            List<City> enemyCityList = enemyCityDict.Values.ToList();
+            List<City> cityList = cityDict.Values.ToList();
+            int dist = 0;
+            City enemyCity = enemyCityList[0];
+
+            for (int i = 0; i < enemyCityList.Count; i++)
+            {
+                for (int j = 0; j < cityList.Count; j++)
+                {
+                    if (j == 0 && i == 0)
+                    {
+                        enemyCity = enemyCityList[i];
+                        dist = Math.Abs(cityList[j].cityLoc.x - enemyCityList[i].cityLoc.x) + Math.Abs(cityList[j].cityLoc.z - enemyCityList[i].cityLoc.z);
+                        continue;
+                    }
+
+                    int newDist = Math.Abs(cityList[j].cityLoc.x - enemyCityList[i].cityLoc.x) + Math.Abs(cityList[j].cityLoc.z - enemyCityList[i].cityLoc.z);
+                    if (newDist < dist)
+                    {
+                        enemyCity = enemyCityList[i];
+                        dist = newDist;
+                    }
+                }
+            }
+
+            if (dist < maxDistance)
+                enemyCity.StartSendAttackWait();
+        }
+    }
 
 	//ambush logic
 	public void SetUpAmbush(Vector3Int loc, Unit unitTrader)
@@ -8068,6 +8129,10 @@ public class MapWorld : MonoBehaviour
 							mainPlayer.conversationHaver.SetSomethingToSay("first_pop_loss", scott);
                             GameLoader.Instance.gameData.tutorialData.hadPopLoss = true;
 							break;
+                        case "New City":
+							mainPlayer.conversationHaver.SetSomethingToSay("new_city", scott);
+							GameLoader.Instance.gameData.tutorialData.newCity = true;
+                            break;
                     }
 
                     break;

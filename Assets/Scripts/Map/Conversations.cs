@@ -252,7 +252,8 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "Really? You will help me? Okay, uh, this is kind of a big ask... but could you help me recreate all of human history?"
+			speakerText = "Really? You will help me? Well, I need to make a rocket, the peak of human accomplishments, and you and I currently don't know how to make anything... " +
+			"so, uh, this is kind of a big ask... but could you help me recreate all of human history?"
 		};
 		conversationDict["first_labor"].Add(first_labor14);
 
@@ -261,7 +262,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Absolutely I will! That shouldn't take long at all! Just let me know what I can do!"
+			speakerText = "Absolutely I will! That doesn't sound like it will take very long! Just let me know what I can do!"
 		};
 		conversationDict["first_labor"].Add(first_labor15);
 		#endregion
@@ -829,6 +830,19 @@ public class Conversations : MonoBehaviour
 			"or even start automatically buying resources from a nearby trade center. Select a trader to assign him a route."
 		};
 		conversationDict["first_trader"].Add(first_trader1);
+		#endregion
+		#region new_city
+		conversationDict["new_city"] = new();
+
+		ConversationItem new_city1 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "One of our camps just becamse a city! If a camp reaches the pop amount of four or more, then it becomes a city with a new name displayed overhead. " +
+			"Traders will then recognize that city under its new name for their stops on their route."
+		};
+		conversationDict["new_city"].Add(new_city1);
 		#endregion
 		#region azaidefeat
 		conversationDict["azaidefeat"] = new();

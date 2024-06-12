@@ -22,4 +22,9 @@ public class AuroraBorealis : MonoBehaviour
 	{
         mat = GetComponentInChildren<MeshRenderer>().sharedMaterial; //shared material so they all disappear. Otherwise leaves a weird shadow on mesh
 	}
+
+    public void SetCam(Transform mainCamera)
+    {
+        this.mainCamera = mainCamera;
+    }
 }
