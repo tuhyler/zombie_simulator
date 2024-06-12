@@ -167,6 +167,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: ecf24c4972cea574c9d2b97d6cafb9e5, type: 3}
   - {fileID: 21300000, guid: 24ee2f493f480714ab8ff397f7f71c0b, type: 3}
   - {fileID: 21300000, guid: 582da869dd2205a41bc0788c0d17b213, type: 3}
+  - {fileID: 21300000, guid: 6d624e6916e23a24fa193dad1143bac0, type: 3}
   - {fileID: 21300000, guid: 5529a4a93e971f54fbe83c3da0146264, type: 3}
   - {fileID: 21300000, guid: 6e5466c9305c2e545bd04514bf524718, type: 3}
   - {fileID: 21300000, guid: 910eb3d9676ddda4bb1e087077168c0f, type: 3}
@@ -377,6 +378,7 @@ SpriteAtlas:
   - button_unload
   - icon_seige_enemy
   - panel_lighterblue
+  - button_tradedepot
   - tab_gold
   - icon_transport
   - circle_red_x

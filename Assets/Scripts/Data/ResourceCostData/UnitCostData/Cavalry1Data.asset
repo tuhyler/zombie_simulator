@@ -36,9 +36,9 @@ MonoBehaviour:
   unitType: 3
   unitDescription: Fast unit
   availableInitially: 0
-  health: 50
+  health: 12
   regenerationRate: 2
-  baseAttackStrength: 10
+  baseAttackStrength: 3
   baseAttackSpeed: 0.5
   movementSpeed: 2
   trainTime: 10

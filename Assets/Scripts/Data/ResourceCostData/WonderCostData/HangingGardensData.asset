@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f09b9cc3a2a7dc4f82acc0a521a0fdd, type: 3}
   m_Name: HangingGardensData
   m_EditorClassIdentifier: 
+  wonderPrefab: {fileID: 0}
   wonderPrefabName: HangingGardens
   wonderName: Wonder - Hanging Gardens
   wonderDisplayName: Hanging Gardens
@@ -27,7 +28,7 @@ MonoBehaviour:
   - resourceType: 21
     resourceAmount: 600
   - resourceType: 6
-    resourceAmount: 400
+    resourceAmount: 200
   - resourceType: 16
     resourceAmount: 100
   - resourceType: 11

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f09b9cc3a2a7dc4f82acc0a521a0fdd, type: 3}
   m_Name: GreatLighthouseData
   m_EditorClassIdentifier: 
+  wonderPrefab: {fileID: 0}
   wonderPrefabName: GreatLighthouse
   wonderName: Wonder - Great Lighthouse
   wonderDisplayName: Great Lighthouse
@@ -24,11 +25,11 @@ MonoBehaviour:
   unloadLoc: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: c03f2dbf53bf46f46ad2e22bbc580b43, type: 3}
   wonderCost:
-  - resourceType: 7
-    resourceAmount: 100
+  - resourceType: 21
+    resourceAmount: 400
   - resourceType: 6
     resourceAmount: 100
-  - resourceType: 15
+  - resourceType: 14
     resourceAmount: 100
   terrainType: 1
   wonderBenefitChange: 0.25

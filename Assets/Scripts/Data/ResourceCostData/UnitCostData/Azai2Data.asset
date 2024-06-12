@@ -32,9 +32,9 @@ MonoBehaviour:
   unitType: 1
   unitDescription: BuildCities and Roads
   availableInitially: 0
-  health: 50
+  health: 100
   regenerationRate: 0.1
-  baseAttackStrength: 3
+  baseAttackStrength: 10
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 0

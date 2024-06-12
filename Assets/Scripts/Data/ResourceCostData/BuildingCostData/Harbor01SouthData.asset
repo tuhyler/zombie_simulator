@@ -22,7 +22,7 @@ MonoBehaviour:
   improvementDisplayName: Harbor
   improvementLevel: 1
   improvementNameAndLevel: Harbor-1
-  improvementDescription: Creates trade stop and builds ancient era boat raders
+  improvementDescription: Creates trade stop and builds ancient era boat traders
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: c9e7115fad1ea3e4687e9291c0eba821, type: 3}
   mapIcon: {fileID: 21300000, guid: a4ab15b5ffbfb554cbf20f939e4de92d, type: 3}

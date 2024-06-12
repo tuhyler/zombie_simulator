@@ -38,13 +38,13 @@ MonoBehaviour:
   unitType: 5
   unitDescription: Transports cargo on land, holds more
   availableInitially: 0
-  health: 14
+  health: 5
   regenerationRate: 2
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 0.5
-  trainTime: 2
-  cargoCapacity: 200
+  trainTime: 20
+  cargoCapacity: 40
   goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0

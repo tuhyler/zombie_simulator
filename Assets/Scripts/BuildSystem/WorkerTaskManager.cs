@@ -364,6 +364,7 @@ public class WorkerTaskManager : MonoBehaviour
         city.waterCount = city.hasFreshWater ? 9999 : 0;
         world.AddCityBuildingDict(workerTile);
         world.TutorialCheck("Build City");
+        world.EnemyAttackCheck();
         unitMovement.ShowIndividualCityButtonsUI();
     }
 

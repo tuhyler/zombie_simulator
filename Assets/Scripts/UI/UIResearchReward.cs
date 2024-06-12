@@ -17,7 +17,7 @@ public class UIResearchReward : MonoBehaviour
     public WonderDataSO wonderData;
     public UtilityCostSO utilityData;
     [HideInInspector]
-    public List<ResourceType> resourcesUnlocked;
+    public HashSet<ResourceType> resourcesUnlocked;
 
     private UIResearchItem researchItem;
     private List<List<ResourceValue>> consumes = new();
@@ -39,6 +39,8 @@ public class UIResearchReward : MonoBehaviour
             produces = improvementData.producedResources;
             produceTime = improvementData.producedResourceTime;
 
+            if (produces.Count > 0 || consumes.Count > 0)
+                resourcesUnlocked = new();
 			for (int i = 0; i < produces.Count; i++)
 			{
                 if (produces[i].resourceType == ResourceType.None)
@@ -46,6 +48,17 @@ public class UIResearchReward : MonoBehaviour
                 
 				resourcesUnlocked.Add(produces[i].resourceType);
 			}
+
+            for (int i = 0; i < consumes.Count; i++)
+            {
+                for (int j = 0; j < consumes[i].Count; j++)
+                {
+                    if (consumes[i][j].resourceType == ResourceType.None)
+                        continue;
+
+                    resourcesUnlocked.Add(consumes[i][j].resourceType);
+                }
+            }
 
             rewardIcon.sprite = improvementData.image;
 		}

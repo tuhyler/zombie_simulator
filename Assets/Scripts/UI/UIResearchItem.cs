@@ -256,11 +256,11 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 world.SetUpgradeableObjectMaxLevel(data.utilityType.ToString(), data.utilityLevel);
 			}
 
-			for (int i = 0; i < researchReward.resourcesUnlocked.Count; i++)
+            foreach (ResourceType type in researchReward.resourcesUnlocked)
             {
-                if (!world.ResourceCheck(researchReward.resourcesUnlocked[i]))
-                    world.DiscoverResource(researchReward.resourcesUnlocked[i]);
-            }
+				if (!world.ResourceCheck(type))
+					world.DiscoverResource(type);
+			}
         }
 
         //unlocking research items down further in tree
@@ -272,6 +272,10 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         GameLoader.Instance.gameData.completedResearch.Add(ResearchName);
 
         world.GameCheck(researchName + " Research Complete");
+
+        //start attacks when smelting is researched
+        if (!world.enemyAttackBegin && (researchName == world.startingAttackResearch))
+            world.StartAttacks();
 
         if (world.tutorial)
         {

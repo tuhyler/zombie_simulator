@@ -12,9 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Laborer1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 8266383177558337226, guid: cb350d5765272fc44b256dd944294073, type: 3}
-  secondaryPrefab: {fileID: 8266383177558337226, guid: deea346bcc32ad1469f6e06830ec36f0,
-    type: 3}
   prefabLoc: UnitPrefabs/laborer_1
   secondaryPrefabLoc: UnitPrefabs/laborer_1a
   nationalityAdjective: 
@@ -35,7 +32,7 @@ MonoBehaviour:
   unitType: 9
   unitDescription: Labor for wonders or other cities
   availableInitially: 1
-  health: 10
+  health: 5
   regenerationRate: 2
   baseAttackStrength: 0
   baseAttackSpeed: 0.5

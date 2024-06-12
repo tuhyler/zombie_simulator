@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   utilityName: Road
   utilityDisplayName: Bridge
+  utilityType: 0
   image: {fileID: 21300000, guid: f1e980d0099328649a9eb3a2dbf8b972, type: 3}
   utilityMaterial: {fileID: 0}
   utilityDescription: Allows roads to be built on straight river tiles
@@ -21,7 +22,7 @@ MonoBehaviour:
   movementSpeed: 10
   utilityCost:
   - resourceType: 7
-    resourceAmount: 10
+    resourceAmount: 20
   bridgeCost: []
   bridgePrefab: {fileID: 5101276599224808569, guid: 8160c12be0d78bc4bbfac43a2cd24fc1,
     type: 3}
