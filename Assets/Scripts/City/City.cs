@@ -113,10 +113,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     //resource priorities
     //[HideInInspector]
     //public bool autoGrow;
-    private bool autoAssignLabor;
-    public bool AutoAssignLabor { get { return autoAssignLabor; } set { autoAssignLabor = value; } }
-    private List<ResourceType> resourcePriorities = new();
-    public List<ResourceType> ResourcePriorities { get { return resourcePriorities; } set { resourcePriorities = value; } }
+    [HideInInspector]
+    public bool autoAssignLabor;
+    [HideInInspector]
+    public List<ResourceType> resourcePriorities = new();
 
     //for upgrading traders
     [HideInInspector]
@@ -984,7 +984,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
             int suggestedTime = Mathf.RoundToInt((dist - 5) / (world.maxDistance - 5f) * world.waitTillAttackTime);
 
-            if (!growing && co != null && countDownTimer > suggestedTime)
+            if (!enemyCamp.growing && co != null && countDownTimer > suggestedTime)
             {
                 countDownTimer = suggestedTime;
             }
@@ -1014,12 +1014,18 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             !enemyCamp.prepping && !enemyCamp.attackReady && !enemyCamp.returning;
 	}
 
+    public bool PauseForGrowthCheck()
+    {
+        return co == null;
+    }
+
     private IEnumerator SendAttackWait()
     {
         while (countDownTimer > 0)
         {
             yield return foodConsumptionWait;
             countDownTimer--;
+            Debug.Log(countDownTimer);
         }
 
         co = null;
@@ -1239,7 +1245,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             AddEnemyUnit(enemyCamp, world.GetTerrainDataAt(singleBuildDict[SingleBuildType.Barracks]).isDiscovered);
 
-            if (enemyCamp.campCount < 9)
+            if (enemyCamp.campCount < empire.empireUnitCount)
             {
                 StartSpawnCycle(true);
             }
@@ -1414,7 +1420,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             return;
 
         //Going through resource priorities first
-        foreach (ResourceType resourceType in ResourcePriorities)
+        foreach (ResourceType resourceType in resourcePriorities)
         {
             List<Vector3Int> laborTiles = new(laborLocs);
             

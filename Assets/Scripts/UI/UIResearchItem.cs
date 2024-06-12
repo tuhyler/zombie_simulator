@@ -29,14 +29,14 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     public UIResearchTreePanel researchTree;
 
     //private string researchName;
-    private string researchName;
-    public string ResearchName { get { return researchName; } }
+    [HideInInspector]
+    public string researchName;
 
-    private int researchReceived;
-    public int ResearchReceived { get { return researchReceived; } set { researchReceived = value; } }
+    [HideInInspector]
+    public int researchReceived;
 
     //ResearchItem preferences
-    public int totalResearchNeeded = 100;
+    public int researchLevel, totalResearchNeeded = 100;
     public bool locked = true;
     public List<UIResearchItem> researchUnlocked = new();
     public List<UIResearchItem> researchDependent = new();
@@ -190,10 +190,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         queueNumberHolderImage.sprite = completedCircle;
 		queueNumberCheck.sprite = completedCheck;
 
-		//foreach (Image arrow in arrows)
-  //          arrow.color = completedColor;
-        //canvasGroup.alpha = 0.5f;
-
         //unlocking all research rewards
         foreach (UIResearchReward researchReward in researchRewardList)
         {
@@ -208,19 +204,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 else
                     tabName = "Producers";
 
-        //        if (!data.isBuilding || data.improvementLevel == 1)
-        //        {
-        //            world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
-				    ////world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.improvementNameAndLevel, false);
-
-        //            //relocking previous versions of improvement
-        //            //if (data.improvementLevel > 1)
-        //            //{
-        //            //    string prevNameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
-        //            //    //world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
-        //            //}
-        //        }
-
 				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
 				world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
 			}
@@ -229,11 +212,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 UnitBuildDataSO data = researchReward.unitData;
                 string tabName = "Units";
 				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.unitNameAndLevel, true, true);
-                //world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
-
-                //relocking previous versions of unit
-                //if (data.unitLevel > 1)
-                //	world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
 
                 string unitName = data.unitType.ToString();
                 if (data.unitDisplayName == "Azai")
@@ -269,13 +247,21 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
         world.BuilderHandlerCheck();
         world.SetResearchBackground(true);
-        GameLoader.Instance.gameData.completedResearch.Add(ResearchName);
+        GameLoader.Instance.gameData.completedResearch.Add(researchName);
 
         world.GameCheck(researchName + " Research Complete");
 
         //start attacks when smelting is researched
-        if (!world.enemyAttackBegin && (researchName == world.startingAttackResearch))
+        if (!world.enemyAttackBegin && researchLevel == world.enemyStartAttackLevel)
             world.StartAttacks();
+
+        if (researchLevel < world.maxResearchLevel)
+        {
+            world.maxResearchLevel = researchLevel;
+
+            if (world.enemyAttackBegin)
+                world.IncreaseEnemyUnitCount();
+        }
 
         if (world.tutorial)
         {
@@ -322,20 +308,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 				else
 					tabName = "Producers";
 
-				//if (!data.isBuilding || data.improvementLevel == 1)
-				//{
-				//	if (world.newUnitsAndImprovements.Contains(data.improvementNameAndLevel))
-    //                    world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
-				//	//world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.improvementNameAndLevel, false);
-
-				//	//relocking previous versions of improvement
-				//	//if (data.improvementLevel > 1)
-				//	//{
-				//	//	string prevNameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
-				//	//	//world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
-				//	//}
-				//}
-
 				if (world.newUnitsAndImprovements.Contains(data.improvementNameAndLevel))
 					world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
 				world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
@@ -347,11 +319,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
                 if (world.newUnitsAndImprovements.Contains(data.unitNameAndLevel))
     				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.unitNameAndLevel, true ,true);
-				//world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
-
-				//relocking previous versions of unit
-				//if (data.unitLevel > 1)
-				//	world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
 
 				world.SetUpgradeableObjectMaxLevel(data.unitType.ToString(), data.unitLevel);
 			}

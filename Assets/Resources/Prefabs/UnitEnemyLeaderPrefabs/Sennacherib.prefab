@@ -256,6 +256,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
         type: 3}
+      propertyPath: startingUnitCount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
+        type: 3}
       propertyPath: attacks.Array.size
       value: 3
       objectReference: {fileID: 0}
