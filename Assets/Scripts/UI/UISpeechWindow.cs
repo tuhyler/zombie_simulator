@@ -233,13 +233,13 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 
 	public void FinishText(bool dueling)
 	{
-
 		if (co != null)
 		{
 			StopCoroutine(co);
 			co = null;
 		}
 		showingText = false;
+		world.ConversationActionCheck(conversationTopic, conversationPlace);
 
 		if (!dueling)
 		{
@@ -263,7 +263,6 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		world.speechBubble.SetActive(false);
 		conversationItems.Clear();
 
-		world.ConversationActionCheck(conversationTopic, conversationPlace);
 		conversationPlace = 0;
 
 		bool shiftMinimap = true;
@@ -277,8 +276,10 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		unitsSpeaking.Clear();
 		if (speakingNPC)
 			world.ToggleConversationCam(false, speakingNPC.currentLocation, false);
-		speakingNPC = null;
+		else
+			world.ToggleCharacterConversationCam(false);
 
+		speakingNPC = null;
 		conversationTopic = "";
 	}
 

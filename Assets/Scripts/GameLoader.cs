@@ -621,7 +621,7 @@ public class GameLoader : MonoBehaviour
 
 		foreach (City city in attackingEnemyCitiesList)
 		{
-			if ((city.enemyCamp.inBattle && !city.enemyCamp.retreat) || city.enemyCamp.prepping || city.enemyCamp.attackReady)
+			if ((city.enemyCamp.inBattle && !city.enemyCamp.retreat) /*|| city.enemyCamp.prepping || city.enemyCamp.attackReady*/)
 				world.ToggleBattleCam(city.cityLoc, city.enemyCamp.attackingArmy.city.cityLoc, true);
 			//if (city.enemyCamp.inBattle && !city.enemyCamp.retreat)
 			//	world.ToggleForestsInBattleClear(city.enemyCamp.attackingArmy.enemyTarget, city.enemyCamp.attackingArmy.attackZone, true);

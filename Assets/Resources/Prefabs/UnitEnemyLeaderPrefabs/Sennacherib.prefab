@@ -286,6 +286,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
         type: 3}
+      propertyPath: researchLevelIncreaseCount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
+        type: 3}
       propertyPath: leaderUnitList.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: 886b44483066afa488c79253f9c7ea1e,

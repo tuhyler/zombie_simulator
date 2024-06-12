@@ -238,6 +238,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2614813712085874646, guid: 013afee511b36094bb50d0bccfae8ca5,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1060
+      objectReference: {fileID: 0}
     - target: {fileID: 6952333474158448493, guid: 013afee511b36094bb50d0bccfae8ca5,
         type: 3}
       propertyPath: m_Name
@@ -251,7 +256,17 @@ PrefabInstance:
     - target: {fileID: 7703120966999846265, guid: 013afee511b36094bb50d0bccfae8ca5,
         type: 3}
       propertyPath: m_text
-      value: Don't juggle hand grenades near an open flame
+      value: Set resource max hold amounts to better manage city inventory level
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703120966999846265, guid: 013afee511b36094bb50d0bccfae8ca5,
+        type: 3}
+      propertyPath: m_fontSize
+      value: 26
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703120966999846265, guid: 013afee511b36094bb50d0bccfae8ca5,
+        type: 3}
+      propertyPath: m_fontSizeBase
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 8050448297037748850, guid: 013afee511b36094bb50d0bccfae8ca5,
         type: 3}

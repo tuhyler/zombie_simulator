@@ -1052,9 +1052,12 @@ public class Army : MonoBehaviour
         }
 
         //world.AddToBattleAreas(cavalryRange);
-        if (!targetCamp.isCity)
-            world.ToggleBattleCam(targetCamp.loc,city.cityLoc,true);
-        world.DisableBattleHighlight(attackZone, enemyTarget);
+        //if (!targetCamp.isCity)
+        world.ToggleBattleCam(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, true);
+   //     else
+			//world.ToggleBattleCam(targetCamp.loc, city.cityLoc, true);
+
+		world.DisableBattleHighlight(attackZone, enemyTarget);
         world.CheckMainPlayerLoc(enemyTarget, attackZone);
 
 		if (!inBattle)
@@ -1074,9 +1077,12 @@ public class Army : MonoBehaviour
                 world.unitMovement.uiCancelTask.ToggleVisibility(false);
 
             unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
-            
-            if (world.CompletedImprovementCheck(world.GetClosestTerrainLoc(unit.currentLocation)))
-                unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(world.GetClosestTerrainLoc(unit.currentLocation)).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
+
+            Vector3Int terrainLoc = world.GetClosestTerrainLoc(unit.currentLocation);
+            if (world.CompletedImprovementCheck(terrainLoc))
+                unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(terrainLoc).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
+            else if (world.IsCityOnTile(terrainLoc))
+                unit.strengthBonus += Mathf.RoundToInt(world.GetCity(terrainLoc).attackBonus * 0.01f * unit.attackStrength);
 
 			if (unit.isSelected)
 				world.unitMovement.infoManager.UpdateStrengthBonus(unit.strengthBonus);

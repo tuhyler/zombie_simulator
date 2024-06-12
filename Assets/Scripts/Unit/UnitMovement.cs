@@ -2277,23 +2277,37 @@ public class UnitMovement : MonoBehaviour
                 attackZoneBonus += world.GetCityDevelopment(tile).GetImprovementData.attackBonus;
                 world.GetCityDevelopment(tile).EnableHighlight(Color.green);
             }
+            else if (world.IsCityOnTile(tile))
+            {
+                attackZoneBonus += world.GetCity(tile).attackBonus;
+			}
+
             if (attackZoneBonus != 0)
             {
                 attackBonusText[i].gameObject.SetActive(true);
-                SetAttackBonusText(attackBonusText[i], tile, attackZoneBonus);
+                SetAttackBonusText(attackBonusText[i], tile, attackZoneBonus, false);
                 i++;
             }
         }
 
         int enemyAttackZoneBonus = world.GetTerrainDataAt(potentialAttackLoc).terrainData.terrainAttackBonus;
-        if (isCity && world.CompletedImprovementCheck(potentialAttackLoc))
-            enemyAttackZoneBonus += world.GetCityDevelopment(potentialAttackLoc).GetImprovementData.attackBonus;
+        if (isCity)
+        {
+            if (world.CompletedImprovementCheck(potentialAttackLoc))
+                enemyAttackZoneBonus += world.GetCityDevelopment(potentialAttackLoc).GetImprovementData.attackBonus;
+            else if (world.IsEnemyCityOnTile(potentialAttackLoc))
+                enemyAttackZoneBonus += world.GetEnemyCity(potentialAttackLoc).attackBonus;
+        }
         else if (world.CompletedImprovementCheck(barracksLoc))
+        {
             enemyAttackZoneBonus += world.GetCityDevelopment(barracksLoc).GetImprovementData.attackBonus;
+        }
+
 		if (enemyAttackZoneBonus != 0)
         {
-			attackBonusText[i].gameObject.SetActive(true);
-			SetAttackBonusText(attackBonusText[i], loc, enemyAttackZoneBonus);
+            attackBonusText[i].gameObject.SetActive(true);
+			SetAttackBonusText(attackBonusText[i], loc, enemyAttackZoneBonus, true);
+            i++;
 		}
 
         if (isCity)
@@ -2313,28 +2327,46 @@ public class UnitMovement : MonoBehaviour
 		int attackZoneBonus = world.GetTerrainDataAt(attackZone).terrainData.terrainAttackBonus;
         if (world.CompletedImprovementCheck(attackZone))
             attackZoneBonus += world.GetCityDevelopment(attackZone).GetImprovementData.attackBonus;
+        else if (world.IsCityOnTile(attackZone))
+            attackZoneBonus += world.GetCity(attackZone).attackBonus;
+        else if (world.IsEnemyCityOnTile(attackZone))
+            attackZoneBonus += world.GetEnemyCity(attackZone).attackBonus;
 
 		if (attackZoneBonus != 0)
         {
             attackBonusText[0].gameObject.SetActive(true);
-		    SetAttackBonusText(attackBonusText[0], attackZone, attackZoneBonus);
+		    SetAttackBonusText(attackBonusText[0], attackZone, attackZoneBonus, false);
         }
 
 		int enemyTargetBonus = world.GetTerrainDataAt(enemyTarget).terrainData.terrainAttackBonus;
-		if (world.CompletedImprovementCheck(enemyTarget))
-			enemyTargetBonus += world.GetCityDevelopment(enemyTarget).GetImprovementData.attackBonus;
+        if (world.CompletedImprovementCheck(enemyTarget))
+            enemyTargetBonus += world.GetCityDevelopment(enemyTarget).GetImprovementData.attackBonus;
+        else if (world.IsCityOnTile(enemyTarget))
+            enemyTargetBonus += world.GetCity(enemyTarget).attackBonus;
+        else if (world.IsEnemyCityOnTile(enemyTarget))
+            enemyTargetBonus += world.GetEnemyCity(enemyTarget).attackBonus;
+
 		if (enemyTargetBonus != 0)
 		{
 			attackBonusText[1].gameObject.SetActive(true);
-			SetAttackBonusText(attackBonusText[1], enemyTarget, enemyTargetBonus);
+			SetAttackBonusText(attackBonusText[1], enemyTarget, enemyTargetBonus, true);
 		}
 	}
 
-	private void SetAttackBonusText(AttackBonusHandler text, Vector3Int loc, int bonus)
+	private void SetAttackBonusText(AttackBonusHandler text, Vector3Int loc, int bonus, bool enemyLoc)
 	{
 		text.transform.position = loc;
 
-		if (bonus > 0)
+        if (enemyLoc)
+        {
+            if (bonus > 0)
+                text.text.text = "+" + bonus.ToString() + "%";
+            else
+				text.text.text = bonus.ToString() + "%";
+
+			text.text.color = Color.white;
+		}
+		else if (bonus > 0)
 		{
 			text.text.text = "+" + bonus.ToString() + "%";
 			text.text.color = Color.green;

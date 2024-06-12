@@ -253,6 +253,12 @@ public class EnemyCamp
 
 			if (removedUnit != null)
 			{
+				if (removedUnit.isSelected)
+				{
+					world.somethingSelected = false;
+					world.unitMovement.ClearSelection();
+				}
+				
 				removedUnit.benched = true;
 				removedUnit.gameObject.SetActive(false);
 				benchedUnit = removedUnit;
@@ -433,7 +439,7 @@ public class EnemyCamp
 		{
 			attackingArmy.inBattle = false;
 			if (isCity)
-				world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, false);
+				world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, false, false);
 		}
 		retreat = false;
 		inBattle = false;
@@ -453,12 +459,18 @@ public class EnemyCamp
 	{
 		inBattle = true;
 
+		if (!world.enemyAttackBegin)
+			world.StartAttacks();
+
 		foreach (Military unit in unitsInCamp)
 		{
 			unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
 
-			if (world.CompletedImprovementCheck(world.GetClosestTerrainLoc(unit.currentLocation)))
-				unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(world.GetClosestTerrainLoc(unit.currentLocation)).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
+			Vector3Int terrainLoc = world.GetClosestTerrainLoc(unit.currentLocation);
+			if (world.CompletedImprovementCheck(terrainLoc))
+				unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(terrainLoc).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
+			else if (world.IsEnemyCityOnTile(terrainLoc))
+				unit.strengthBonus += Mathf.RoundToInt(world.GetEnemyCity(terrainLoc).attackBonus * 0.01f * unit.attackStrength);
 
 			if (unit.isSelected)
 				world.unitMovement.infoManager.UpdateStrengthBonus(unit.strengthBonus);
@@ -1267,7 +1279,7 @@ public class EnemyCamp
 				}
 
 				forward = (attackingArmy.attackZone - fieldBattleLoc) / 3;
-				world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, true);
+				//world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, true);
 				BattleStations(fieldBattleLoc, forward);
 			}
 			else

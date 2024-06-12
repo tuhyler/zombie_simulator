@@ -1790,6 +1790,8 @@ public class CityBuilderManager : MonoBehaviour
 				city.reachedWaterLimit = false;
 		}
 
+        city.attackBonus += buildingData.attackBonus;
+
         //for tweening
         Vector3 goScale = new Vector3(1.5f, 1.5f, 1.5f);
         building.transform.localScale = Vector3.zero;
@@ -1857,6 +1859,7 @@ public class CityBuilderManager : MonoBehaviour
         city.workEthic -= data.workEthicChange;
 		city.purchaseAmountMultiple -= data.purchaseAmountChange;
 		city.improvementWorkEthic -= data.workEthicChange;
+        city.attackBonus -= data.attackBonus;
 
 		if (data.waterIncrease > 0)
         {

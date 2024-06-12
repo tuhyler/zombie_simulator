@@ -1438,10 +1438,10 @@ public class MapWorld : MonoBehaviour
 			if (!td.isDiscovered)
                 city.subTransform.gameObject.SetActive(false); //necessary if one of improvements is showing but not city
 
+            city.enemyCamp.LoadCityEnemyCamp();
+
 			if (city.enemyCamp.growing && !city.enemyCamp.prepping && !city.enemyCamp.attackReady && !city.enemyCamp.inBattle)
             {
-                city.enemyCamp.LoadCityEnemyCamp();
-
                 if (city.empire.capitalCity != city.cityLoc || !city.empire.enemyLeader.dueling)
 				    city.StartSpawnCycle(false);
             }
@@ -1624,6 +1624,8 @@ public class MapWorld : MonoBehaviour
         building.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 		
         city.HousingCount += buildingData.housingIncrease;
+
+        city.attackBonus += buildingData.attackBonus;
 
 		cityBuilderManager.CombineMeshes(city, city.subTransform, false);
 		improvement.SetInactive();
@@ -4497,6 +4499,9 @@ public class MapWorld : MonoBehaviour
     {
         for (int i = 0; i < allEnemyLeaders.Count; i++)
         {
+            if (allEnemyLeaders[i].researchLevelIncreaseCount > maxResearchLevel)
+                continue;
+            
             if (allEnemyLeaders[i].IncreaseUnitCount())
             {
                 for (int j = 0; j < allEnemyLeaders[i].empire.empireCities.Count; j++)
@@ -4506,14 +4511,27 @@ public class MapWorld : MonoBehaviour
                     if (enemyCity.enemyCamp.growing)
                         continue;
 
-					if (enemyCity.PauseForGrowthCheck())
+                    if (enemyCity.cityLoc == enemyCity.empire.attackingCity)
                     {
-                        enemyCity.enemyCamp.growing = true;
+
+					    if (enemyCity.PauseForGrowthCheck())
+                        {
+                            enemyCity.enemyCamp.growing = true;
+                        }
+                        else
+                        {
+                            enemyCity.CancelSendAttackWait();
+
+							if (!GetTerrainDataAt(enemyCity.cityLoc).isDiscovered)
+								enemyCity.ActivateButHideCity();
+							enemyCity.StartSpawnCycle(true);
+                        }
                     }
                     else
                     {
-                        enemyCity.CancelSendAttackWait();
-                        enemyCity.StartSpawnCycle(true);
+						if (!GetTerrainDataAt(enemyCity.cityLoc).isDiscovered)
+							enemyCity.ActivateButHideCity();
+						enemyCity.StartSpawnCycle(true);
                     }
 				}
             }
@@ -4570,7 +4588,12 @@ public class MapWorld : MonoBehaviour
             }
 
             if (dist < maxDistance)
-                enemyCity.StartSendAttackWait();
+            {
+                enemyCity.empire.attackingCity = enemyCity.cityLoc;
+				if (!GetTerrainDataAt(enemyCity.cityLoc).isDiscovered)
+					enemyCity.ActivateButHideCity();
+				enemyCity.StartSendAttackWait();
+            }
         }
     }
 
@@ -5356,7 +5379,7 @@ public class MapWorld : MonoBehaviour
 		cityDict[cityLoc].army.RealignUnits(this, targetZone, attackLoc, attackLoc);
         if (cityDict[cityLoc].army.selected)
             unitMovement.ResetArmyHomeButtons();
-        ToggleBattleCam(camp.cityLoc, cityLoc, true);
+        //ToggleBattleCam(camp.cityLoc, cityLoc, true);
 
 		if (deployingArmy)
             unitMovement.CancelArmyDeployment();
@@ -5416,7 +5439,7 @@ public class MapWorld : MonoBehaviour
 			enemyCityDict[cityLoc].enemyCamp.forward = (armyLoc - campLoc) / 3;
 			enemyCityDict[cityLoc].enemyCamp.BattleStations(campLoc, enemyCityDict[cityLoc].enemyCamp.forward, leader);
 			enemyCityDict[cityLoc].StopSpawnAndSendAttackCycle(true);
-            ToggleBattleCam(cityLoc, enemyCityDict[cityLoc].enemyCamp.attackingArmy.city.cityLoc, true);
+            //ToggleBattleCam(cityLoc, enemyCityDict[cityLoc].enemyCamp.attackingArmy.city.cityLoc, true);
         }
         else
         {
@@ -5437,6 +5460,36 @@ public class MapWorld : MonoBehaviour
         if (enemyCityDict.ContainsKey(loc))
         {
 			enemyCityDict[loc].enemyCamp.ReturnToCamp();
+		}
+    }
+
+    public void ToggleCharacterConversationCam(bool v)
+    {
+        if (v)
+        {
+			if (battleLocs.Count == 0)
+				battleCamera.SetActive(true);
+
+			battleLocs.Add(RoundToInt(mainPlayer.transform.position));
+
+			foreach (Unit unit in characterUnits)
+			{
+				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+				unit.outline.ToggleOutline(false);
+			}
+		}
+        else
+        {
+			battleLocs.Remove(RoundToInt(mainPlayer.transform.position));
+
+			if (battleLocs.Count == 0)
+				battleCamera.SetActive(false);
+
+			foreach (Unit unit in characterUnits)
+			{
+				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
+				unit.outline.ToggleOutline(true);
+			}
 		}
     }
 
@@ -5524,7 +5577,7 @@ public class MapWorld : MonoBehaviour
 		}
 	}
 
-    public void ToggleBattleCam(Vector3Int enemyLoc, Vector3Int armyLoc, bool v)
+    public void ToggleBattleCam(Vector3Int enemyLoc, Vector3Int armyLoc, bool v, bool outlineOn = true)
     {
         if (v)
         {
@@ -5576,7 +5629,7 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
                     unit.battleCam = false;
-					unit.outline.ToggleOutline(true);
+					unit.outline.ToggleOutline(outlineOn);
 					//unit.MarkerCheck();
 				}
 			}
@@ -5588,7 +5641,7 @@ public class MapWorld : MonoBehaviour
                     unit.battleCam = false;
 
                     if (world[enemyLoc].treeHandler != null)
-    					unit.outline.ToggleOutline(true);
+    					unit.outline.ToggleOutline(outlineOn);
 					//unit.MarkerCheck();
 				}
 			}
@@ -8252,7 +8305,7 @@ public class MapWorld : MonoBehaviour
                     if (tutorial)
                         mainPlayer.conversationHaver.SetSomethingToSay("tutorial3b", scott);
                 }
-                else if (number == 15)
+                else if (number == 16)
 				{
                     RemoveNPCLoc(scott.currentLocation);
                     mainPlayer.gameObject.name = "Koa & co.";

@@ -252,19 +252,28 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "Really? You will help me? Well, I need to make a rocket, the peak of human accomplishments, and you and I currently don't know how to make anything... " +
-			"so, uh, this is kind of a big ask... but could you help me recreate all of human history?"
+			speakerText = "Really? You will help me? That's great!"
 		};
 		conversationDict["first_labor"].Add(first_labor14);
 
 		ConversationItem first_labor15 = new()
+		{
+			speakerImage = "KoaGuilty",
+			speakerName = "Koa",
+			speakerDirection = "Scott",
+			speakerText = "Well, let me think... I need to make a rocket, the peak of all human accomplishments, but you and I don't know how to make anything, which means we have to figure it all out... " +
+			"so, uh, this is kind of a big ask... but could you help me recreate all of human history?"
+		};
+		conversationDict["first_labor"].Add(first_labor15);
+
+		ConversationItem first_labor16 = new()
 		{
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Absolutely I will! That doesn't sound like it will take very long! Just let me know what I can do!"
 		};
-		conversationDict["first_labor"].Add(first_labor15);
+		conversationDict["first_labor"].Add(first_labor16);
 		#endregion
 		#region tutorial3b
 		conversationDict["tutorial3b"] = new();
