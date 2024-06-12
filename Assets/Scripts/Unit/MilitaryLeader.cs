@@ -10,7 +10,7 @@ public class MilitaryLeader : Military
 	public string leaderName;
 	public List<UnitBuildDataSO> leaderUnitList;
 	public Dictionary<UnitType, UnitBuildDataSO> leaderUnitDict = new();
-	public int challengeGap;
+	public int challengeGap, startingUnitCount;
 	private int timeWaited = 0, challenges = 0;
 	[HideInInspector]
 	public bool hasSomethingToSay, defending, dueling;
@@ -264,6 +264,17 @@ public class MilitaryLeader : Military
 			leader.barracksBunk += new Vector3Int(0, 0, 0);
 	}
 
+	public bool IncreaseUnitCount()
+	{
+		if (empire.empireUnitCount < 9)
+		{
+			empire.empireUnitCount = Mathf.Clamp(empire.empireUnitCount + 2, empire.empireUnitCount + 2, 9);
+			return true;
+		}
+
+		return false;
+	}
+
 	public void FinishMovementEnemyLeader()
 	{
 		defending = false;
@@ -302,6 +313,7 @@ public class MilitaryLeader : Military
 		//for empire
 		data.attackingCity = empire.attackingCity;
 		data.capitalCity = empire.capitalCity;
+		data.empireUnitCount = empire.empireUnitCount;
 		data.empireCities = new();
 
 		for (int i = 0; i < empire.empireCities.Count; i++)

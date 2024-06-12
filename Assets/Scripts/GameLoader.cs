@@ -233,6 +233,7 @@ public class GameLoader : MonoBehaviour
 		gameData.saveVersion = version;
 		gameData.seed = world.seed;
 		//gameData.saveScreenshot = screenshot;
+		gameData.maxResearchLevel = world.maxResearchLevel;
 		gameData.currentEra = world.currentEra;
 		gameData.startingRegion = world.startingRegion;
 		gameData.currentWorkedTileDict = new(world.currentWorkedTileDict);
@@ -258,6 +259,7 @@ public class GameLoader : MonoBehaviour
 		gameData.attackLocs.Clear();
 		gameData.attackLocs = new(world.uiAttackWarning.attackLocs);
 
+		gameData.enemyAttackBegin = world.enemyAttackBegin;
 		gameData.ambushes = world.ambushes;
 		gameData.cityCount = world.cityCount;
 		gameData.infantryCount = world.infantryCount;
@@ -410,6 +412,7 @@ public class GameLoader : MonoBehaviour
 		world.startingRegion = gameData.startingRegion;
 		world.tutorial = gameData.tutorial;
 		world.seed = gameData.seed;
+		world.maxResearchLevel = gameData.maxResearchLevel;
 		world.GenerateMap(gameData.allTerrain);
 		world.resourceDiscoveredList = new(gameData.resourceDiscoveredList);
 		world.LoadDiscoveredResources();
@@ -445,6 +448,7 @@ public class GameLoader : MonoBehaviour
 		world.researchTree.LoadCompletedResearch(gameData.completedResearch);
 		if (world.tutorial)
 			world.tutorialStep = gameData.tutorialData.tutorialStep;
+		world.enemyAttackBegin = gameData.enemyAttackBegin;
 		world.gameStep = gameData.gameStep;
 		world.worldResourceManager.SetWorldGoldLevel(gameData.goldAmount);
 		world.ambushes = gameData.ambushes;

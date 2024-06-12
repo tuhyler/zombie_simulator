@@ -980,7 +980,7 @@ public class CityBuilderManager : MonoBehaviour
         ToggleBuildingHighlight(true, selectedCity.cityLoc);
         world.GetTerrainDataAt(selectedCity.cityLoc).EnableHighlight(Color.green);
         DrawBorders();
-        autoAssign.isOn = selectedCity.AutoAssignLabor;
+        autoAssign.isOn = selectedCity.autoAssignLabor;
 		resourceManager = selectedCity.resourceManager;
         resourceManager.UpdateUI(selectedCity.GetResourceValues());
         uiCityTabs.ToggleVisibility(true, resourceManager);
@@ -993,7 +993,7 @@ public class CityBuilderManager : MonoBehaviour
 
 		if (world.scottFollow && selectedCity.growing)
         {
-            uiLaborAssignment.showPrioritiesButton.SetActive(selectedCity.AutoAssignLabor);
+            uiLaborAssignment.showPrioritiesButton.SetActive(selectedCity.autoAssignLabor);
             uiLaborAssignment.ShowUI();
         }
 
@@ -1276,7 +1276,7 @@ public class CityBuilderManager : MonoBehaviour
                 RemoveLaborFromDicts(upgradeLoc);
             }
             
-            if (city.AutoAssignLabor && city.unusedLabor > 0)
+            if (city.autoAssignLabor && city.unusedLabor > 0)
                 city.AutoAssignmentsForLabor();
 
             selectedImprovement.BeginImprovementUpgradeProcess(city, resourceProducer, data, false);
@@ -2359,7 +2359,7 @@ public class CityBuilderManager : MonoBehaviour
 
         //setting labor info (harbors have no labor)
         world.AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
-        if (city.AutoAssignLabor && city.unusedLabor > 0 && improvementData.maxLabor > 0)
+        if (city.autoAssignLabor && city.unusedLabor > 0 && improvementData.maxLabor > 0)
             city.AutoAssignmentsForLabor();
 
         //no tweening, so must be done here
@@ -2655,7 +2655,7 @@ public class CityBuilderManager : MonoBehaviour
 				selectedImprovement.city.army.ClearArmySpots();
             }
 
-            if (selectedImprovement.city.AutoAssignLabor && selectedImprovement.city.unusedLabor > 0)
+            if (selectedImprovement.city.autoAssignLabor && selectedImprovement.city.unusedLabor > 0)
 				selectedImprovement.city.AutoAssignmentsForLabor();
 
             if (type != SingleBuildType.None)
@@ -3078,7 +3078,7 @@ public class CityBuilderManager : MonoBehaviour
         
         if (autoAssign.isOn)
         {
-            selectedCity.AutoAssignLabor = true;
+            selectedCity.autoAssignLabor = true;
 
             if (selectedCity.unusedLabor > 0)
             {
@@ -3090,7 +3090,7 @@ public class CityBuilderManager : MonoBehaviour
         }
         else
         {
-            selectedCity.AutoAssignLabor = false;
+            selectedCity.autoAssignLabor = false;
             uiLaborPrioritizationManager.ToggleVisibility(false);
 			uiLaborAssignment.showPrioritiesButton.SetActive(false);
 		}

@@ -49,7 +49,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
     public void LoadLaborPrioritizationInfo()
     {
-        List<ResourceType> resourcePriorities = city.ResourcePriorities;
+        List<ResourceType> resourcePriorities = city.resourcePriorities;
 
         foreach (ResourceType resourceType in resourcePriorities)
         {
@@ -271,7 +271,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
         }
 
         //resourcePriorityList.Clear();
-        city.ResourcePriorities = resourcePriorities;
+        city.resourcePriorities = resourcePriorities;
 
         //if (resourcePriorities.Count > 0)
         //{

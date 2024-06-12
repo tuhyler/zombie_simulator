@@ -2760,6 +2760,7 @@ public class TerrainGenerator : MonoBehaviour
             empire.enemyLeader = leader;
             empire.enemyEra = leader.buildDataSO.unitEra;
             empire.enemyRegion = leader.buildDataSO.unitRegion;
+            empire.empireUnitCount = leader.startingUnitCount;
             leaderGO.SetActive(false);
 
 			for (int i = 0; i < empireCities.Count; i++)

@@ -13,7 +13,6 @@ public class MapWorld : MonoBehaviour
 {
     private string version = "0.1";
     private string consoleInput;
-    public string startingAttackResearch;
     [HideInInspector]
     public int seed;
     private DateTime currentTime;
@@ -226,7 +225,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
     public Dictionary<Vector3Int, EnemyAmbush> enemyAmbushDict = new();
     public Dictionary<Vector3Int, City> enemyCityDict = new();
-    public int waitTillAttackTime = 600, maxDistance, enemyUnitGrowthTime = 20, ambushProb;
+    public int waitTillAttackTime = 600, maxDistance, enemyUnitGrowthTime = 20, enemyStartAttackLevel = 3, ambushProb;
     [HideInInspector]
     public HashSet<Vector3Int> militaryStationLocs = new(); //for traveling around barracks
     public Dictionary<Vector3Int, TreasureChest> treasureLocs = new();
@@ -244,7 +243,7 @@ public class MapWorld : MonoBehaviour
 
     //for tracking stats
     [HideInInspector]
-    public int ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber, popGrowth, popLost, enemyCount, militaryCount;
+    public int ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber, popGrowth, popLost, enemyCount, militaryCount, maxResearchLevel;
     [HideInInspector]
     public string tutorialStep, gameStep;
     private bool flashingButton;
@@ -688,7 +687,8 @@ public class MapWorld : MonoBehaviour
 					data.popSize = random.Next(5, 13);
 				else
 					data.popSize = 4;
-				BuildEnemyCity(data, tile, GetTerrainDataAt(tile), Resources.Load<GameObject>("Prefabs/" + UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefabLoc), enemyRoadLocs, true, currentEra, false, empire, random);
+				BuildEnemyCity(data, tile, GetTerrainDataAt(tile), Resources.Load<GameObject>("Prefabs/" + UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefabLoc), 
+                    enemyRoadLocs, true, currentEra, false, empire, random);
             }
     
             //adding city locs to road locs to build roads there (building roads first to build cities on top
@@ -1343,7 +1343,7 @@ public class MapWorld : MonoBehaviour
 			city.enemyCamp.fieldBattleLoc = cityTile;
             city.enemyCamp.moveToLoc = data.barracksLoc;
 			city.enemyCamp.SetCityEnemyCamp();
-			AddAllEnemyUnits(city.enemyCamp, random, data, load, empire.enemyLeader);
+			AddAllEnemyUnits(city.enemyCamp, random, data, load, empire.enemyLeader, empire.empireUnitCount);
         }
 
         if (movingOut)
@@ -1454,12 +1454,12 @@ public class MapWorld : MonoBehaviour
         }
 	}
 
-    private void AddAllEnemyUnits(EnemyCamp camp, System.Random random, EnemyCityData data, bool load, MilitaryLeader leader)
+    private void AddAllEnemyUnits(EnemyCamp camp, System.Random random, EnemyCityData data, bool load, MilitaryLeader leader, int unitCount)
     {
 		List<Vector3Int> campLocs = GetNeighborsFor(camp.loc, State.EIGHTWAYARMY);
         List<UnitType> types = new() { UnitType.Infantry, UnitType.Ranged, UnitType.Cavalry };
 
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < unitCount; i++)
 		{
             Vector3Int spawnLoc;
             GameObject enemy;
@@ -4492,6 +4492,33 @@ public class MapWorld : MonoBehaviour
 
         return false;
 	}
+
+    public void IncreaseEnemyUnitCount()
+    {
+        for (int i = 0; i < allEnemyLeaders.Count; i++)
+        {
+            if (allEnemyLeaders[i].IncreaseUnitCount())
+            {
+                for (int j = 0; j < allEnemyLeaders[i].empire.empireCities.Count; j++)
+                {
+                    City enemyCity = enemyCityDict[allEnemyLeaders[i].empire.empireCities[j]];
+
+                    if (enemyCity.enemyCamp.growing)
+                        continue;
+
+					if (enemyCity.PauseForGrowthCheck())
+                    {
+                        enemyCity.enemyCamp.growing = true;
+                    }
+                    else
+                    {
+                        enemyCity.CancelSendAttackWait();
+                        enemyCity.StartSpawnCycle(true);
+                    }
+				}
+            }
+        }
+    }
 
     public void EnemyAttackCheck()
     {
