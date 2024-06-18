@@ -3,10 +3,10 @@ using UnityEngine;
 public class CanvasUpdate : MonoBehaviour
 {
     //scale size at 1920x1080 0.001069167 //defaults
-    public int defaultHeight = 1080;
-    public int maxNumerator = 21; 
-    public int denominator = 18; 
-    public int stepSize = 640;
+    //public int defaultHeight = 1080;
+    //public int maxNumerator = 27; 
+    //public int denominator = 15; 
+    //public int stepSize = 240;
 
     [HideInInspector]
     public float newCanvasWidth; //to pass in case some UI elements define their own size
@@ -31,20 +31,24 @@ public class CanvasUpdate : MonoBehaviour
 
     private void Awake()
     {
-        RectTransform rt = GetComponent<RectTransform>();
+        int newWidth = Mathf.RoundToInt(2550);
+		int newHeight = Mathf.RoundToInt(1434.375f); //0.6818182
+
+		RectTransform rt = GetComponent<RectTransform>();
 
         //setting the canvas borders
         //rt.sizeDelta = new Vector2(Screen.width, Screen.height);
-        float multiple = maxNumerator - (Screen.width / (float)stepSize);
-        float adjustWidth = Screen.width * multiple / denominator;
-        float adjustHeight = Screen.height * multiple / denominator;
-        rt.sizeDelta = new Vector2(adjustWidth, adjustHeight);
+        //float multiple = maxNumerator - (Screen.width / (float)stepSize);
+        //float adjustWidth = Screen.width * multiple / denominator;
+        //float adjustHeight = Screen.height * multiple / denominator;
+        rt.sizeDelta = new Vector2(newWidth, newHeight/*adjustWidth, adjustHeight*/);
 
         //scaling the buttons
-        Vector3 canvasScale = rt.localScale;
-        float ratioToDefault = (float)defaultHeight / adjustHeight;
-        Vector3 newCanvasScale = canvasScale * ratioToDefault;
-        rt.localScale = newCanvasScale;
+        //Vector3 canvasScale = rt.localScale;
+        //float ratioToDefault = (float)defaultHeight / adjustHeight;
+        //Vector3 newCanvasScale = canvasScale * ratioToDefault;
+        Vector3 testScale = new Vector3(.75f, .75f, .75f);
+        rt.localScale = testScale/*newCanvasScale*/;
 
         //setting the aspect ratio
         float canvasHeight = rt.rect.height;

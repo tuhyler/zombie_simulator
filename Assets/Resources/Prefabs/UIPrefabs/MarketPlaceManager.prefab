@@ -364,7 +364,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Max Hold Amount
+  m_text: 'Max Storage Amount
 
 '
   m_isRightToLeft: 0

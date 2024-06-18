@@ -258,22 +258,31 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor15 = new()
 		{
-			speakerImage = "KoaGuilty",
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "Well, let me think... I need to make a rocket, the peak of all human accomplishments, but you and I don't know how to make anything, which means we have to figure it all out... " +
-			"so, uh, this is kind of a big ask... but could you help me recreate all of human history?"
+			speakerText = "Well, let me think... I need to make a rocket, the peak of all human accomplishments, but you and I don't know how to make anything, " +
+			"which means we have to figure it all out ourselves..."
 		};
 		conversationDict["first_labor"].Add(first_labor15);
 
 		ConversationItem first_labor16 = new()
+		{
+			speakerImage = "KoaGuilty",
+			speakerName = "Koa",
+			speakerDirection = "Scott",
+			speakerText = "So, uh, this is kind of a big ask... but could you help me recreate all of human history?"
+		};
+		conversationDict["first_labor"].Add(first_labor16);
+
+		ConversationItem first_labor17 = new()
 		{
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Absolutely I will! That doesn't sound like it will take very long! Just let me know what I can do!"
 		};
-		conversationDict["first_labor"].Add(first_labor16);
+		conversationDict["first_labor"].Add(first_labor17);
 		#endregion
 		#region tutorial3b
 		conversationDict["tutorial3b"] = new();
@@ -1160,7 +1169,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Haniya",
-			speakerText = "Then we shall waste no time in getting you what you need! Onward, my fellow contemporaries!"
+			speakerText = "Then we shall waste no time in retrieving what you need! Onward, my fellow contemporaries!"
 		};
 		conversationDict["Haniya_quest0"].Add(haniya_quest08);
 		#endregion
@@ -1955,6 +1964,60 @@ public class Conversations : MonoBehaviour
 			speakerText = "I would be a fool to not ask out Haniya the next chance I get."
 		};
 		conversationDict["Haniya_quest3_complete_coda"].Add(haniya_quest3_complete_coda1);
+
+		ConversationItem haniya_quest3_complete_coda2 = new()
+		{
+			speakerImage = "KaiQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Yeah, it's about time you got on that. People around here are starting to say that you're too scared to do it..."
+		};
+		conversationDict["Haniya_quest3_complete_coda"].Add(haniya_quest3_complete_coda2);
+
+		ConversationItem haniya_quest3_complete_coda3 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "You are lying, of course, because nobody with even a half of a brain would even consider saying something like that about me, but I understand your point. "
+		};
+		conversationDict["Haniya_quest3_complete_coda"].Add(haniya_quest3_complete_coda3);
+
+		ConversationItem haniya_quest3_complete_coda4 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Azai",
+			speakerText = "I think that's a fantastic idea, Azai! When are you going to do it? The next time we return here?"
+		};
+		conversationDict["Haniya_quest3_complete_coda"].Add(haniya_quest3_complete_coda4);
+
+		ConversationItem haniya_quest3_complete_coda5 = new()
+		{
+			speakerImage = "AzaiAwkward",
+			speakerName = "Azai",
+			speakerDirection = "Scott",
+			speakerText = "*Timidly* The next time? Isn't that a little too soon? Don't you think it would be better if we waited a few more times, or until we make it through the next winter?"
+		};
+		conversationDict["Haniya_quest3_complete_coda"].Add(haniya_quest3_complete_coda5);
+
+		ConversationItem haniya_quest3_complete_coda6 = new()
+		{
+			speakerImage = "KaiQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Are you hoping she dies of old age first so you don't have to do it?"
+		};
+		conversationDict["Haniya_quest3_complete_coda"].Add(haniya_quest3_complete_coda6);
+
+		ConversationItem haniya_quest3_complete_coda7 = new()
+		{
+			speakerImage = "AzaiAwkward",
+			speakerName = "Azai",
+			speakerDirection = "Scott",
+			speakerText = "*Glares* I just want to take advantage of the most appropriate time, but perhaps sooner is better than later..."
+		};
+		conversationDict["Haniya_quest3_complete_coda"].Add(haniya_quest3_complete_coda7);
 		#endregion
 		#region quest4
 		conversationDict["Haniya_quest4"] = new();
@@ -1964,10 +2027,92 @@ public class Conversations : MonoBehaviour
 			speakerImage = "HaniyaHappy",
 			speakerName = "Haniya",
 			speakerDirection = "Koa",
-			speakerText = "Hello again, Koa! I was hoping you'd return soon, I have another favor to ask of you all. " +
-			"Would you be able to provide me a metal ingot that you can use to form weapons?"
+			speakerText = "Hello again, Koa! I was hopeful you'd return soon, I have another favor to ask of you all. Would you be able to provide me bronze ingots that you can use to form weapons? " +
+			"I would need 9 of them."
 		};
 		conversationDict["Haniya_quest4"].Add(haniya_quest41);
+
+		ConversationItem haniya_quest42 = new()
+		{
+			speakerImage = "KoaHappy",
+			speakerName = "Koa",
+			speakerDirection = "Haniya",
+			speakerText = "Yeah we can do that, but before we leave, I think Azai wanted to ask you something, right Azai?"
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest42);
+
+		ConversationItem haniya_quest43 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Azai",
+			speakerText = "Oh? What is it, Azai?"
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest43);
+
+		ConversationItem haniya_quest44 = new()
+		{
+			speakerImage = "AzaiAwkward",
+			speakerName = "Azai",
+			speakerDirection = "Haniya",
+			speakerText = "Um, yes, er, well, for what purpose did you intend to use these ingots?"
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest44);
+
+		ConversationItem haniya_quest45 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Azai",
+			speakerText = "Oh, it's not for me, it's something my boyfriend wanted and I wanted to give them to him as a surprise!"
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest45);
+
+		ConversationItem haniya_quest46 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Haniya",
+			speakerText = "...for your... boyfriend?"
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest46);
+
+		ConversationItem haniya_quest47 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Azai",
+			speakerText = "Yup! We just started seeing each other, it's kind of a funny story how we met, turns out he was the one who accidentally broke my roof in the first place! " +
+			"He was saving a kitten from an overhanging branch, but the branch broke, and he fell on my roof! (The kitten was okay.)"
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest47);
+
+		ConversationItem haniya_quest48 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Azai",
+			speakerText = "Was there anything else you wanted? Azai?"
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest48);
+
+		ConversationItem haniya_quest49 = new()
+		{
+			speakerImage = "KoaGuilty",
+			speakerName = "Koa",
+			speakerDirection = "Haniya",
+			speakerText = "Er no... probably not anymore..."
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest49);
+
+		ConversationItem haniya_quest410 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Azai",
+			speakerText = "No? Okay! Well, thanks for stopping by, everyone!"
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest410);
 		#endregion
 		#region quest4complete
 		conversationDict["Haniya_quest4_complete"] = new();
@@ -1977,9 +2122,55 @@ public class Conversations : MonoBehaviour
 			speakerImage = "HaniyaHappy",
 			speakerName = "Haniya",
 			speakerDirection = "Koa",
-			speakerText = "Thank you again! These are very hard to come by so I'm glad you were able to get me this bronze."
+			speakerText = "Thank you again! These are very hard to come by, so I'm glad you were able to deliver."
 		};
 		conversationDict["Haniya_quest4_complete"].Add(haniya_quest4_complete1);
+
+		ConversationItem haniya_quest4_complete2 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Haniya",
+			speakerText = "This bronze will make an excellent gift to the man in your life, who is no doubt a very lucky individual."
+		};
+		conversationDict["Haniya_quest4_complete"].Add(haniya_quest4_complete2);
+
+		ConversationItem haniya_quest4_complete3 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Wow Azai, that was a very mature response."
+		};
+		conversationDict["Haniya_quest4_complete"].Add(haniya_quest4_complete3);
+
+		ConversationItem haniya_quest4_complete4 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Haniya",
+			speakerText = "*Flexing* However, I must now return to our blossoming civilization, for I am needed to single-handedly fend off all enemy invaders, " +
+			"save HUNDREDS of kittens stuck in trees, talk about my deepest feelings and desires, and so on."
+		};
+		conversationDict["Haniya_quest4_complete"].Add(haniya_quest4_complete4);
+
+		ConversationItem haniya_quest4_complete5 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Ah, there's the Azai I know."
+		};
+		conversationDict["Haniya_quest4_complete"].Add(haniya_quest4_complete5);
+
+		ConversationItem haniya_quest4_complete6 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "Wow! Sounds like you're really busy! Well, goodbye everyone! Thanks again for your help!"
+		};
+		conversationDict["Haniya_quest4_complete"].Add(haniya_quest4_complete6);
 		#endregion
 		#endregion
 
@@ -2343,7 +2534,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "NatakamaniQuestion",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
-			speakerText = "Moving on, I don't suppose you men would you be able to get us some stone statues, could you? We're thinking of using them " +
+			speakerText = "Moving on, I don't suppose you men would you be able to get us some stone sculptures, could you? We're thinking of using them " +
 			"to decorate a memorial we are building, and we'd need about 10 of them."
 		};
 		conversationDict["Natakamani_quest1"].Add(natakamani_quest19);
@@ -2452,7 +2643,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Natakamani",
-			speakerText = "You know, we also have a drink called Dr. Pepper, but I am just now realizing I shouldn't have mentioned it because you're just going " +
+			speakerText = "I'm also quite fond of a drink we have called Dr. Pepper, but I am just now realizing I shouldn't have mentioned it because you're just going " +
 			"to interpret the name literally..."
 		};
 		conversationDict["Natakamani_quest2"].Add(natakamani_quest24);
@@ -2472,7 +2663,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaGuilty",
 			speakerName = "Koa",
 			speakerDirection = "Natakamani",
-			speakerText = "Yeah, I'm not even going to bring up Coke or Hawaiian Punch with you."
+			speakerText = "Yeah, I'm not even going to bring up Hawaiian Punch or Coke with you."
 		};
 		conversationDict["Natakamani_quest2"].Add(natakamani_quest26);
 
@@ -2481,7 +2672,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "NatakamaniQuestion",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
-			speakerText = "Now that you mention it, we could use those aforementioned seasonings. We're in the process of preparing an enormous feast. " +
+			speakerText = "Now that you mention it, we could use those aforementioned spices. We're in the process of preparing an enormous feast. " +
 			"Could you bring us something that could improve the flavor of our food? Again, I'd like 8 of them."
 		};
 		conversationDict["Natakamani_quest2"].Add(natakamani_quest27);

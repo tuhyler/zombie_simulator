@@ -154,6 +154,11 @@ public class CityBuilderManager : MonoBehaviour
             OpenAddPopWindow();
     }
 
+    public void CenterCamOnLoc(Vector3Int loc)
+    {
+		focusCam.CenterCameraNoFollow(loc);
+	}
+
     public void CenterCamOnCity()
     {
         if (selectedCity != null)
@@ -430,6 +435,23 @@ public class CityBuilderManager : MonoBehaviour
 						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Battle is here");
 						return;
 					}
+
+                    if (improvementData.singleBuildType == SingleBuildType.Barracks || improvementData.singleBuildType == SingleBuildType.Shipyard || 
+                        improvementData.singleBuildType == SingleBuildType.AirBase)
+                    {
+                        foreach (Vector3Int tile in world.GetNeighborsFor(terrainLoc, MapWorld.State.FOURWAYINCREMENT))
+                        {
+                            if (world.GetTerrainDataAt(tile).enemyZone && world.CompletedImprovementCheck(tile))
+                            {
+                                SingleBuildType improvementType = world.GetCityDevelopment(tile).GetImprovementData.singleBuildType;
+                                if (improvementType == SingleBuildType.Barracks || improvementType == SingleBuildType.Shipyard || improvementType == SingleBuildType.AirBase)
+                                {
+                                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Too close to enemy military base");
+								    return;
+                                }
+                            }
+                        }
+                    }
 
                     BuildImprovementQueueCheck(improvementData, terrainLoc); //passing the data here as method requires it
 
@@ -2231,25 +2253,28 @@ public class CityBuilderManager : MonoBehaviour
         {
             td.ToggleTerrainMesh(false);
 
-            foreach (MeshFilter mesh in cityImprovement.MeshFilter)
+            if (!td.terrainData.grassland)
             {
-                if (mesh.name == "Ground")
+                foreach (MeshFilter mesh in cityImprovement.MeshFilter)
                 {
-                    Vector2[] terrainUVs = td.UVs;
-                    Vector2[] newUVs = mesh.mesh.uv;
-					Vector2[] finalUVs = world.NormalizeUVs(terrainUVs, newUVs, Mathf.RoundToInt(td.main.localEulerAngles.y / 90));
-                    mesh.mesh.uv = finalUVs;
-
-                    foreach (MeshFilter mesh2 in meshes)
+                    if (mesh.name == "Ground")
                     {
-                        if (mesh2.name == "Ground")
-                        {
-                            mesh2.mesh.uv = finalUVs;
-                            break;
-                        }
-                    }
+					    Vector2[] terrainUVs = world.SetUVMap(world.GetGrasslandCount(td), world.SetUVShift(td.terrainData.terrainDesc), Mathf.RoundToInt(td.main.eulerAngles.y));
+                        Vector2[] newUVs = mesh.mesh.uv;
+					    Vector2[] finalUVs = world.NormalizeUVs(terrainUVs, newUVs, Mathf.RoundToInt(td.main.localEulerAngles.y / 90));
+                        mesh.mesh.uv = finalUVs;
 
-                    break;
+                        foreach (MeshFilter mesh2 in meshes)
+                        {
+                            if (mesh2.name == "Ground")
+                            {
+                                mesh2.mesh.uv = finalUVs;
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
                 }
             }
         }
@@ -2274,7 +2299,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 if (mesh.name == "Rocks")
                 {
-                    Vector2 rockUVs = td.RockUVs;
+                    Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
                     Vector2[] newUVs = mesh.mesh.uv;
                     int i = 0;
 
@@ -3322,6 +3347,7 @@ public class CityBuilderManager : MonoBehaviour
 
         //for all single build improvements, finding a nearby city to join that doesn't have one. If not one available, then is unowned. 
         SetSingleBuildsAvailable(city);
+        world.uiProfitabilityStats.RemoveCityStats(city);
         Destroy(destroyedCity);
 
         uiDestroyCityWarning.ToggleVisibility(false);

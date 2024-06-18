@@ -15,7 +15,7 @@ public class TradeRep : Unit
 	public int happyDiscount;
 	public int ecstaticDiscount;
 	public List<ResourceValue> questGoals = new();
-	public List<int> questRewardsInGold = new();
+	//public List<int> questRewardsInGold = new();
 	public List<string> questHints = new();
 	public int waitForNextQuest = 10;
 	public int purchasedAmountBaseThreshold = 500;
@@ -138,7 +138,8 @@ public class TradeRep : Unit
 	public void BeginNextQuestWait(bool giveReward)
 	{
 		if (giveReward)
-			world.ReceiveQuestReward(world.mainPlayer.transform.position, questRewardsInGold[currentQuest - 1]);
+			world.ReceiveQuestReward(world.mainPlayer.transform.position, 
+				ResourceHolder.Instance.GetPrice(questGoals[currentQuest - 1].resourceType) * questGoals[currentQuest - 1].resourceAmount * world.maxPriceFactor);
 
 		if (currentQuest < questGoals.Count)
 		{

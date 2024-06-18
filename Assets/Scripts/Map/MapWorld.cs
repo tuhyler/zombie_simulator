@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,15 +30,13 @@ public class MapWorld : MonoBehaviour
     //[SerializeField]
     //public Unit /*scott, */azai;
     [SerializeField]
-    public Texture2D cursorArrow;
-    [SerializeField]
     public Water water;
     [SerializeField]
     public GameObject mainCam, battleCamera, /*resourceIcon, */speechBubble/*, uiHelperWindow*/;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
-    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas, tcCanvas, mainCanvas;
+    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas, tcCanvas, wonderCanvas, mainCanvas;
     [HideInInspector]
     public bool tutorial, hideUI, scottFollow, azaiFollow, bridgeResearched, waterTransport, airTransport;
     [SerializeField]
@@ -50,6 +49,8 @@ public class MapWorld : MonoBehaviour
     public UIAttackWarning uiAttackWarning;
     [SerializeField]
     public UIWorldResources uiWorldResources;
+    [SerializeField]
+    public UIProfitabilityStats uiProfitabilityStats;
     [SerializeField]
     public UIResearchTreePanel researchTree;
     [SerializeField]
@@ -105,7 +106,7 @@ public class MapWorld : MonoBehaviour
     public UnitBuildDataSO laborerData;
 
     [SerializeField]
-    public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
+    public Transform terrainHolder, picGOHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
     [SerializeField]
     public LayerMask enemyKillLayerMask, unitMask;
     [SerializeField]
@@ -225,7 +226,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
     public Dictionary<Vector3Int, EnemyAmbush> enemyAmbushDict = new();
     public Dictionary<Vector3Int, City> enemyCityDict = new();
-    public int waitTillAttackTime = 600, maxDistance, enemyUnitGrowthTime = 20, enemyStartAttackLevel = 3, ambushProb;
+    public int waitTillAttackTime = 600, maxDistance, enemyUnitGrowthTime = 20, enemyStartAttackLevel = 3, ambushProb, maxPriceFactor = 3;
     [HideInInspector]
     public HashSet<Vector3Int> militaryStationLocs = new(); //for traveling around barracks
     public Dictionary<Vector3Int, TreasureChest> treasureLocs = new();
@@ -312,9 +313,9 @@ public class MapWorld : MonoBehaviour
 
     private void Start()
     {
-        Cursor.SetCursor(cursorArrow, Vector2.zero, CursorMode.ForceSoftware);
+        CursorCheck();
 
-        NewGamePrep(false);
+		NewGamePrep(false);
 		AddToDiscoverList(ResourceType.Gold);
         AddToDiscoverList(ResourceType.Research);
 
@@ -346,6 +347,15 @@ public class MapWorld : MonoBehaviour
                     SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
             }
         }
+
+        if (showAllBuildOptions)
+        {
+			foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+			{
+				if (!ResourceCheck(resource.resourceType))
+					DiscoverResource(resource.resourceType);
+			}
+		}
 
         cityBuilderManager.uiRawGoodsBuilder.FinishMenuSetup();
 		cityBuilderManager.uiBuildingBuilder.FinishMenuSetup();
@@ -402,7 +412,17 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    public void NewGamePrep(bool newGame, Dictionary<Vector3Int, TerrainData> terrainDict = null, List<EnemyEmpire> enemyEmpires = null, List<Vector3Int> enemyRoadLocs = null, bool tutorial = false)
+    public void CursorCheck()
+    {
+		if (Screen.width > 3000)
+			Cursor.SetCursor(Resources.Load<Texture2D>("Prefabs/MiscPrefabs/cursor_gold_big"), Vector2.zero, CursorMode.ForceSoftware);
+		else if (Screen.width > 1920)
+			Cursor.SetCursor(Resources.Load<Texture2D>("Prefabs/MiscPrefabs/cursor_gold_med"), Vector2.zero, CursorMode.ForceSoftware);
+		else
+			Cursor.SetCursor(Resources.Load<Texture2D>("Prefabs/MiscPrefabs/cursor_gold"), Vector2.zero, CursorMode.ForceSoftware);
+	}
+
+	public void NewGamePrep(bool newGame, Dictionary<Vector3Int, TerrainData> terrainDict = null, List<EnemyEmpire> enemyEmpires = null, List<Vector3Int> enemyRoadLocs = null, bool tutorial = false)
     {
 		wonderButton.gameObject.SetActive(true);
 		uiMainMenuButton.gameObject.SetActive(true);
@@ -886,7 +906,7 @@ public class MapWorld : MonoBehaviour
             TerrainData td = go.GetComponent<TerrainData>();
             td.LoadData(data);
             
-            //checking to place mountain middles
+            //checking to place mountain middles and to change uvs
             if (td.terrainData.terrainDesc == TerrainDesc.Mountain)
             {
                 if (td.terrainData.grassland)
@@ -897,7 +917,11 @@ public class MapWorld : MonoBehaviour
 					    if (mainMap[neighbor].name == "GrasslandMountainTerrain")
 						    SetMountainMiddle(td, i, true);
 				    }
-                }
+
+                    //Set region based on location relative to starting region? or just add east boolean
+                    if (startingRegion == Region.East)
+						td.ChangeMountainUVs(false);
+				}
                 else
                 {
 					for (int i = 0; i < neighborsFourDirectionsIncrement.Count; i++)
@@ -906,6 +930,8 @@ public class MapWorld : MonoBehaviour
 						if (mainMap[neighbor].name == "DesertMountainTerrain")
 							SetMountainMiddle(td, i, false);
 					}
+
+                    td.ChangeMountainUVs(true);
 				}
 			}
             
@@ -1780,27 +1806,30 @@ public class MapWorld : MonoBehaviour
 			{
 				td.ToggleTerrainMesh(false);
 
-				foreach (MeshFilter mesh in cityImprovement.MeshFilter)
-				{
-					if (mesh.name == "Ground")
-					{
-						Vector2[] terrainUVs = td.UVs;
-						Vector2[] newUVs = mesh.mesh.uv;
-						Vector2[] finalUVs = NormalizeUVs(terrainUVs, newUVs, Mathf.RoundToInt(td.main.eulerAngles.y / 90));
-						mesh.mesh.uv = finalUVs;
+                if (!td.terrainData.grassland)
+                {
+				    foreach (MeshFilter mesh in cityImprovement.MeshFilter)
+				    {
+					    if (mesh.name == "Ground")
+					    {						
+                            Vector2[] terrainUVs = SetUVMap(GetGrasslandCount(td), SetUVShift(td.terrainData.terrainDesc), Mathf.RoundToInt(td.main.eulerAngles.y));
+						    Vector2[] newUVs = mesh.mesh.uv;
+						    Vector2[] finalUVs = NormalizeUVs(terrainUVs, newUVs, Mathf.RoundToInt(td.main.eulerAngles.y / 90));
+						    mesh.mesh.uv = finalUVs;
 
-                        foreach (MeshFilter mesh2 in meshes)
-						{
-                            if (mesh2.name == "Ground")
-							{
-								mesh2.mesh.uv = finalUVs;
-								break;
-							}
-						}
+                            foreach (MeshFilter mesh2 in meshes)
+						    {
+                                if (mesh2.name == "Ground")
+							    {
+								    mesh2.mesh.uv = finalUVs;
+								    break;
+							    }
+						    }
 
-						break;
-					}
-				}
+						    break;
+					    }
+				    }
+                }
 			}
             else
             {
@@ -1822,7 +1851,7 @@ public class MapWorld : MonoBehaviour
 				{
 					if (mesh.name == "Rocks")
 					{
-						Vector2 rockUVs = td.RockUVs;
+						Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
 						Vector2[] newUVs = mesh.mesh.uv;
 						int i = 0;
 
@@ -2363,6 +2392,9 @@ public class MapWorld : MonoBehaviour
         foreach (Transform go in terrainHolder)
             Destroy(go.gameObject);
 
+        foreach (Transform go in picGOHolder)
+            Destroy(go.gameObject);
+
         world.Clear();
 
         //foreach (Transform go in tradeCenterHolder)
@@ -2613,6 +2645,7 @@ public class MapWorld : MonoBehaviour
         cityCanvas.gameObject.SetActive(false);
         personalResourceCanvas.gameObject.SetActive(false);
         tcCanvas.gameObject.SetActive(false);
+        wonderCanvas.gameObject.SetActive(false);
         traderCanvas.gameObject.SetActive(false);
         workerCanvas.gameObject.SetActive(false);
         tradeRouteManagerCanvas.gameObject.SetActive(false);
@@ -2620,26 +2653,31 @@ public class MapWorld : MonoBehaviour
         overflowGridCanvas.gameObject.SetActive(false);
     }
 
+    public int[] GetGrasslandCount(TerrainData td)
+    {
+		int[] grasslandCount = new int[4];
+        int i = 0;
+
+		foreach (Vector3Int neighbor in GetNeighborsFor(td.TileCoordinates, State.FOURWAYINCREMENT))
+		{
+			if (GetTerrainDataAt(neighbor).terrainData.grassland)
+				grasslandCount[i] = 1;
+			else
+				grasslandCount[i] = 0;
+
+			i++;
+		}
+
+		return grasslandCount;
+	}
+
     public void ConfigureUVs(TerrainData td)
     {
         TerrainDesc desc = td.terrainData.terrainDesc;
-        int[] grasslandCount = new int[4];
-        int i = 0;
-
-        if (td.terrainData.type == TerrainType.Coast || desc == TerrainDesc.Desert || desc == TerrainDesc.DesertFloodPlain || desc == TerrainDesc.DesertHill || desc == TerrainDesc.River)
-        {
-            foreach (Vector3Int neighbor in GetNeighborsFor(td.TileCoordinates, State.FOURWAYINCREMENT))
-            {
-				if (GetTerrainDataAt(neighbor).terrainData.grassland)
-                    grasslandCount[i] = 1;
-                else
-                    grasslandCount[i] = 0;
-
-                i++;
-            }
-        }
-        else
+        if (td.terrainData.type != TerrainType.Coast && desc != TerrainDesc.Desert && desc != TerrainDesc.DesertFloodPlain && desc != TerrainDesc.DesertHill && desc != TerrainDesc.River)
             return;
+
+        int[] grasslandCount = GetGrasslandCount(td);
         
         if (grasslandCount.Sum() == 0)
         {
@@ -2647,11 +2685,10 @@ public class MapWorld : MonoBehaviour
             return;
         }
 
-        int eulerAngle = Mathf.RoundToInt(td.main.eulerAngles.y);
-
-        Vector2[] uvs = SetUVMap(grasslandCount, SetUVShift(desc), eulerAngle);
-        if (td.UVs.Length > 4)
-            uvs = NormalizeUVs(uvs, td.UVs);
+        Vector2[] uvs = SetUVMap(grasslandCount, SetUVShift(desc), Mathf.RoundToInt(td.main.eulerAngles.y));
+        Vector2[] newUVs = td.mainMesh.sharedMesh.uv;
+		if (newUVs.Length > 4)
+            uvs = NormalizeUVs(uvs, newUVs);
         td.SetUVs(uvs);
 	}
 
@@ -3012,6 +3049,7 @@ public class MapWorld : MonoBehaviour
         cityBuilderManager.UnselectTradeCenter();
         //unitMovement.LoadUnloadFinish(false);
         researchTree.ToggleVisibility(false);
+        uiProfitabilityStats.ToggleVisibility(false);
         wonderHandler.ToggleVisibility(false);
         //mapPanel.ToggleVisibility(false);
         wonderButton.ToggleButtonColor(false);
@@ -4113,6 +4151,20 @@ public class MapWorld : MonoBehaviour
         return tempNoWalkList.Contains(loc);
     }
 
+    //Profitability info
+    public void OpenProfitabilityStats()
+    {
+		cityBuilderManager.PlaySelectAudio();
+
+		if (unitOrders || buildingWonder)
+			CloseBuildingSomethingPanel();
+
+        if (uiProfitabilityStats.activeStatus)
+            uiProfitabilityStats.ToggleVisibility(false);
+        else
+            uiProfitabilityStats.ToggleVisibility(true);
+	}
+
     //Research info
     public void OpenResearchTree()
     {
@@ -4130,6 +4182,7 @@ public class MapWorld : MonoBehaviour
     public void CloseResearchTree()
     {
         researchTree.ToggleVisibility(false);
+        uiProfitabilityStats.ToggleVisibility(false);
     }
 
     public void CloseMap()
@@ -5876,6 +5929,18 @@ public class MapWorld : MonoBehaviour
                 TerrainData nextTD = GetTerrainDataAt(neighborTiles[j]);
 				if (nextTD.enemyZone)
 				{
+                    Color borderColor = new Color(1, 0, 0, 0.68f);
+                    //Checking if enemy zone is enemy empire
+                    List<Vector3Int> potentialEnemyCityTiles = GetNeighborsFor(neighborTiles[j], State.EIGHTWAYINCREMENT);
+                    for (int k = 0; k < potentialEnemyCityTiles.Count; k++)
+                    {
+                        if (enemyCityDict.ContainsKey(potentialEnemyCityTiles[k]))
+                        {
+                            borderColor = enemyCityDict[potentialEnemyCityTiles[k]].empire.enemyLeader.borderColor;
+                            break;
+                        }
+                    }
+                    
                     Vector3Int borderLocation = enemyZones[i] - neighborTiles[j];
                     Vector3 borderPosition = neighborTiles[j];
 					//borderPosition.y = -0.1f;
@@ -5894,7 +5959,7 @@ public class MapWorld : MonoBehaviour
 					}
 
 					GameObject border = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/EnemyBorder"), borderPosition, rotation);
-					border.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 0.68f);
+					border.GetComponent<SpriteRenderer>().color = borderColor;
 					border.transform.SetParent(terrainHolder, false);
 
                     if (!enemyBordersDict.ContainsKey(neighborTiles[j]))
@@ -7447,8 +7512,6 @@ public class MapWorld : MonoBehaviour
     {
         bool turnOff = true;
 
-        if (cityBuilderManager.uiWonderSelection.activeStatus)
-            turnOff = false;
         if (cityBuilderManager.uiCityTabs.activeStatus)
             turnOff = false;
 
@@ -8305,7 +8368,7 @@ public class MapWorld : MonoBehaviour
                     if (tutorial)
                         mainPlayer.conversationHaver.SetSomethingToSay("tutorial3b", scott);
                 }
-                else if (number == 16)
+                else if (number == 17)
 				{
                     RemoveNPCLoc(scott.currentLocation);
                     mainPlayer.gameObject.name = "Koa & co.";

@@ -46,11 +46,11 @@ public class UIWorldResources : MonoBehaviour
 			}
 			else if (resourceAmount < 1000000)
 			{
-				goldResourceAmount.text = Math.Round(resourceAmount * 0.001f, 1) + " k";
+				goldResourceAmount.text = Math.Round(resourceAmount * 0.001f, 1) + "k";
 			}
 			else if (resourceAmount < 1000000000)
 			{
-				goldResourceAmount.text = Math.Round(resourceAmount * 0.000001f, 1) + " M";
+				goldResourceAmount.text = Math.Round(resourceAmount * 0.000001f, 1) + "M";
 			}
         }
         else if (resourceType == ResourceType.Research)

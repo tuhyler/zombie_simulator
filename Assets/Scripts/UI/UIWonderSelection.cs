@@ -75,7 +75,7 @@ public class UIWonderSelection : MonoBehaviour
             UpdateWaitingForMessage(wonder.goldWait);
 
             //world.openingCity = true;
-			world.cityCanvas.gameObject.SetActive(true);
+			world.wonderCanvas.gameObject.SetActive(true);
 			SetWonderInfo(wonder);
             SetResources(wonder);
             if (!wonder.isConstructing)
@@ -120,7 +120,7 @@ public class UIWonderSelection : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         addHarborButton.SetActive(false);
-        world.CityCanvasCheck();
+        world.wonderCanvas.gameObject.SetActive(false);
         //if (!world.openingCity)
         //    world.cityCanvas.gameObject.SetActive(false);
         //else

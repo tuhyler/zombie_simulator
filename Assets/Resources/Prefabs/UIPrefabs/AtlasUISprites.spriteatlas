@@ -130,6 +130,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 46dfeb36f3fa8624894b5df3314dd6d8, type: 3}
   - {fileID: 21300000, guid: 88d1d44629745064ba9f10a32f12f75f, type: 3}
   - {fileID: 21300000, guid: 593309569c73d8d4f9063ad84cbeba00, type: 3}
+  - {fileID: 21300000, guid: 8ef7cf6614de30f48b1bf4a59a0c2cae, type: 3}
   - {fileID: 21300000, guid: 603147767a6f21d48a1769e215f3a04c, type: 3}
   - {fileID: 21300000, guid: 839202966388072458c2287e7f056bed, type: 3}
   - {fileID: 21300000, guid: b6c6c6c651ced324e84cb9105fa7457a, type: 3}
@@ -341,6 +342,7 @@ SpriteAtlas:
   - bar_blueclear01
   - icon_newsmall
   - arrow_left_blue
+  - circle_white_small
   - bar_white
   - check_white
   - check_blue

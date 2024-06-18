@@ -1002,7 +1002,7 @@ public class UnitMovement : MonoBehaviour
         world.tooltip = false;
 		world.somethingSelected = true;
 		selectedUnit.Highlight(Color.green);
-		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, false, selectedUnit.military.strengthBonus, false);
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, false, selectedUnit.military.strengthBonus, false, true);
 	}
 
 
@@ -1058,9 +1058,9 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isPlayer)
         {
 			if (world.azaiFollow)
-				infoManager.ShowInfoPanel(selectedUnit.name, world.azai.buildDataSO, world.azai.currentHealth, false, world.azai.military.strengthBonus, false);
+				infoManager.ShowInfoPanel(selectedUnit.name, world.azai.buildDataSO, world.azai.currentHealth, false, world.azai.military.strengthBonus, false, true);
             else
-                infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, false, 0, false);
+                infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, false, 0, false, true);
 		}
         else
         {

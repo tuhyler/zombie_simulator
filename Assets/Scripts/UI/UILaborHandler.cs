@@ -77,16 +77,16 @@ public class UILaborHandler : MonoBehaviour
             if (uiCityLaborCostPanel.isOpen)
                 ToggleCityLaborCost();
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(500f, 0, 0);
+            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
 
-            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x - 500f, 0.3f).setEaseOutSine();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f).setEaseOutSine();
             //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
         {
             activeStatus = false;
             uiCityLaborCostPanel.ToggleVisibility(false, true);
-            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 600f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
 

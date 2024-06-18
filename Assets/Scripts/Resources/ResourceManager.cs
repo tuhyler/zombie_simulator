@@ -36,10 +36,8 @@ public class ResourceManager : MonoBehaviour
     public bool pauseGrowth, growthDeclineDanger;
     public int cyclesToWait = 2;
     [HideInInspector]
-    public int starvationCount, noHousingCount, noWaterCount;
-    private int cycleCount;
-    public int CycleCount { get { return cycleCount; } set { cycleCount = value; } }
-
+    public int starvationCount, noHousingCount, noWaterCount,  cycleCount;
+    
     //for queued build orders
     public Dictionary<ResourceType, int> queuedResourcesToCheck = new();
     [HideInInspector]
@@ -710,8 +708,11 @@ public class ResourceManager : MonoBehaviour
 			}
 		}
 
+        city.SetLast5Gold(goldAdded);
+
         if (goldAdded > 0)
         {
+            //city.totalGold += goldAdded;
             Vector3 cityLoc = city.cityLoc;
             cityLoc.y += length * 0.4f + 0.4f;
             InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldAdded, ResourceHolder.Instance.GetIcon(ResourceType.Gold), city.world);
@@ -732,7 +733,7 @@ public class ResourceManager : MonoBehaviour
             }
             else
             {
-                resourcePriceDict[type] = Mathf.Min(currentPrice++, originalPrice * 3);
+                resourcePriceDict[type] = Mathf.Min(currentPrice++, originalPrice * city.world.maxPriceFactor);
             }
             
    //         if (demandRatio <= -0.5f)
@@ -756,7 +757,7 @@ public class ResourceManager : MonoBehaviour
             }
             else
             {
-                resourcePriceDict[type] = Mathf.Max(1, currentPrice--);
+                resourcePriceDict[type] = Mathf.Max(1, currentPrice - 1);
             }
             
    //         if (demandRatio < 3f)

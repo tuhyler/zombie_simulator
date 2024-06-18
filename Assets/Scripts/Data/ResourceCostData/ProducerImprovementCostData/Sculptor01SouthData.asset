@@ -51,7 +51,7 @@ MonoBehaviour:
   specificTerrain: 0
   workEthicChange: 0
   purchaseAmountChange: 0
-  maxLabor: 1
+  maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 25
+  buildTime: 30
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0

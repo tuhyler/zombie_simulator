@@ -16,7 +16,13 @@ public class UITradeResource : MonoBehaviour
     [HideInInspector]
     public ResourceType resourceType;
 
-    public void SetValue(int val)
+	private void Awake()
+	{
+        resourceAmountText.outlineColor = Color.black;
+        resourceAmountText.outlineWidth = 0.2f;
+    }
+
+	public void SetValue(int val)
     {
         string str = val.ToString();
         resourceAmountText.text = str;

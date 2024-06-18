@@ -33,28 +33,28 @@ MonoBehaviour:
     resourceAmount: 15
   consumedResources:
   - resourceType: 26
-    resourceAmount: 1
+    resourceAmount: 2
   - resourceType: 28
-    resourceAmount: 1
-  - resourceType: 6
-    resourceAmount: 1
-  - resourceType: 4
-    resourceAmount: 4
-  consumedResources1:
-  - resourceType: 15
     resourceAmount: 2
   - resourceType: 6
-    resourceAmount: 1
+    resourceAmount: 2
   - resourceType: 4
-    resourceAmount: 3
+    resourceAmount: 8
+  consumedResources1:
+  - resourceType: 15
+    resourceAmount: 4
+  - resourceType: 6
+    resourceAmount: 2
+  - resourceType: 4
+    resourceAmount: 6
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 29
-    resourceAmount: 1
+    resourceAmount: 2
   - resourceType: 16
-    resourceAmount: 1
+    resourceAmount: 2
   producedResourceTime: 3c0000003c000000
   rawMaterials: 0
   rawResourceType: 0
@@ -63,8 +63,8 @@ MonoBehaviour:
   specificTerrain: 0
   workEthicChange: 0
   purchaseAmountChange: 0
-  maxLabor: 1
-  housingIncrease: 1
+  maxLabor: 2
+  housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
   powerIncrease: 0
@@ -74,7 +74,7 @@ MonoBehaviour:
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 25
+  buildTime: 45
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0

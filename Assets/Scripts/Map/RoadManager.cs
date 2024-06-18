@@ -19,7 +19,7 @@ public class RoadManager : MonoBehaviour
 
     //private bool hideRoads;
 
-    public int roadMovementCost = 1, roadBuildingTime = 5, roadRemovingTime = 1;
+    public int roadMovementCost = 1;
     //[HideInInspector]
     //public int timePassed;
     //private WaitForSeconds oneSecondWait = new WaitForSeconds(1);

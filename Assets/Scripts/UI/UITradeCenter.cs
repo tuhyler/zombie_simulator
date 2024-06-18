@@ -67,7 +67,14 @@ public class UITradeCenter : MonoBehaviour, IGoldUpdateCheck
             sellDict[resource.resourceType] = newTradeResource2;
             newResource2.SetActive(false);
         }
-    }
+
+		increaseText.outlineColor = Color.black;
+		increaseText.outlineWidth = .1f;
+		decreaseText.outlineColor = Color.black;
+		decreaseText.outlineWidth = .01f;
+		ecstaticText.outlineColor = Color.black;
+		ecstaticText.outlineWidth = .01f;
+	}
 
     public void ToggleVisibility(bool v, TradeCenter center = null)
     {

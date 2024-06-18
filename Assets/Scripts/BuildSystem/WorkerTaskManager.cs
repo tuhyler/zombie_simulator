@@ -28,6 +28,7 @@ public class WorkerTaskManager : MonoBehaviour
     [HideInInspector]
     public RoadManager roadManager;
 
+    public int forestRemovalTime = 60, clearedForestLumber = 100, roadBuildingTime = 10, roadRemovalTime = 10, cityBuildTime = 5;
     //[HideInInspector]
     //public Coroutine taskCoroutine;
 
@@ -312,7 +313,7 @@ public class WorkerTaskManager : MonoBehaviour
 		if (clearForest)
 		{
             city.resourceManager.resourceCount = 0;
-			city.resourceManager.AddResource(ResourceType.Lumber, world.scott.clearedForestlumberAmount);
+			city.resourceManager.AddResource(ResourceType.Lumber, clearedForestLumber);
             world.scott.clearedForest = false;
 		}
 
@@ -362,6 +363,7 @@ public class WorkerTaskManager : MonoBehaviour
 
         city.reachedWaterLimit = !city.hasFreshWater;
         city.waterCount = city.hasFreshWater ? 9999 : 0;
+        world.uiProfitabilityStats.CreateNewProfitabilityCityStats(city);
         world.AddCityBuildingDict(workerTile);
         world.TutorialCheck("Build City");
         world.EnemyAttackCheck();

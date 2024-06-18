@@ -14,18 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainName: GrasslandMountainTerrain
   tag: Mountain
-  prefabs:
-  - {fileID: 5677375415287477985, guid: 7e31725cbb88d1c4087229a45da4bc10, type: 3}
-  - {fileID: 4088824286547333909, guid: 989852db0ede0a64786540ecfa60e400, type: 3}
-  - {fileID: 4632051853856769168, guid: 47b612d09e0bd86428f6ef906d15fa9c, type: 3}
-  - {fileID: 103996674289910368, guid: 417f0913fc58b014a8ebd0cadfba206c, type: 3}
-  decors:
-  - {fileID: 0}
   prefabLocs:
   - GrasslandMountainVar02
   - GrasslandMountainVar03
   - GrasslandMountainVar04
   - GrasslandMountainVar05
+  - GrasslandSnowMountainVar02
+  - GrasslandSnowMountainVar03
+  - GrasslandSnowMountainVar04
+  - GrasslandSnowMountainVar05
   decorLocs:
   - 
   title: Mountain

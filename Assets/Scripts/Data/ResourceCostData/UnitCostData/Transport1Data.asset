@@ -25,7 +25,9 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: 6e5466c9305c2e545bd04514bf524718, type: 3}
   unitCost:
   - resourceType: 6
-    resourceAmount: 5
+    resourceAmount: 40
+  - resourceType: 19
+    resourceAmount: 10
   cycleCost: []
   battleCost: []
   laborCost: 0

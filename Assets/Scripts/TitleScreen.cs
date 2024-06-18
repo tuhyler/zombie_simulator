@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class TitleScreen : MonoBehaviour
@@ -5,17 +6,43 @@ public class TitleScreen : MonoBehaviour
     public UISaveGame uiLoadGame;
     public UISettings uiSettings;
     public UINewGameMenu uiNewGame;
+    public TMP_Text startContinueText; 
     private AudioSource audioSource;
 
     public AudioClip closeClip, selectClip, checkClip;
-    public Texture2D cursorArrow;
+    //public Texture2D cursorArrow, cursorArrowMed, cursorArrowBig;
 
 	private void Awake()
 	{
         audioSource = GetComponent<AudioSource>();
         uiLoadGame.PopulateSaveItems();
-		Cursor.SetCursor(cursorArrow, Vector2.zero, CursorMode.ForceSoftware);
+        CursorCheck();
+
+        startContinueText.text = uiLoadGame.currentSaves.Count > 0 ? "Continue" : "Start Game";
 	}
+
+	public void CursorCheck()
+	{
+		if (Screen.width > 3000)
+			Cursor.SetCursor(Resources.Load<Texture2D>("Prefabs/MiscPrefabs/cursor_gold_big"), Vector2.zero, CursorMode.ForceSoftware);
+		else if (Screen.width > 1920)
+			Cursor.SetCursor(Resources.Load<Texture2D>("Prefabs/MiscPrefabs/cursor_gold_med"), Vector2.zero, CursorMode.ForceSoftware);
+		else
+			Cursor.SetCursor(Resources.Load<Texture2D>("Prefabs/MiscPrefabs/cursor_gold"), Vector2.zero, CursorMode.ForceSoftware);
+	}
+
+	public void StartContinueGame()
+    {
+        if (uiLoadGame.currentSaves.Count > 0)
+        {
+            Cursor.visible = false;
+            GameManager.Instance.LoadGame(uiLoadGame.currentSaves[0]);
+        }
+        else
+        {
+            InstaStartNewGame();
+        }
+    }
 
 	public void NewGame()
     {
@@ -36,9 +63,14 @@ public class TitleScreen : MonoBehaviour
         }
         else
         {
-            Cursor.visible = false;
-			GameManager.Instance.NewGame("SouthToggle", "ContinentsToggle", "NormalToggle", "ModerateToggle", "MediumToggle", true, Random.Range(0, 9999999));
+            InstaStartNewGame();
         }
+	}
+
+    private void InstaStartNewGame()
+    {
+		Cursor.visible = false;
+		GameManager.Instance.NewGame("SouthToggle", "ContinentsToggle", "NormalToggle", "ModerateToggle", "MediumToggle", true, Random.Range(0, 9999999));
 	}
 
     public void LoadGame()

@@ -187,6 +187,10 @@ MonoBehaviour:
   growing: 0
   attacked: 0
   lostPop: 0
+  currentPop: 0
+  unusedLabor: 0
+  usedLabor: 0
+  attackBonus: 0
   uiCityResourceInfoPanel: {fileID: 0}
   army: {fileID: 0}
   navy: {fileID: 0}
@@ -194,9 +198,6 @@ MonoBehaviour:
   world: {fileID: 0}
   singleBuildList: 
   resourceManager: {fileID: 0}
-  currentPop: 0
-  unusedLabor: 0
-  usedLabor: 0
   unitFoodConsumptionPerMinute: 1
   secondsTillGrowthCheck: 60
   growthFood: 3
@@ -212,6 +213,9 @@ MonoBehaviour:
   waitList: []
   seaWaitList: []
   airWaitList: []
+  autoAssignLabor: 0
+  resourcePriorities: 
+  lastFiveCoin: 0000000000000000000000000000000000000000
   tradersHere: []
 --- !u!114 &-548530054223577924
 MonoBehaviour:
@@ -260,7 +264,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceSellList: 
   resourceStorageLevel: 0
-  initialResources: []
+  initialResources:
+  - resourceType: 2
+    resourceAmount: 100
+  - resourceType: 7
+    resourceAmount: 100
+  - resourceType: 6
+    resourceAmount: 100
+  - resourceType: 31
+    resourceAmount: 100
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0
@@ -268,6 +280,7 @@ MonoBehaviour:
   starvationCount: 0
   noHousingCount: 0
   noWaterCount: 0
+  cycleCount: 0
   resourceCount: 0
 --- !u!65 &7800520638858068917
 BoxCollider:

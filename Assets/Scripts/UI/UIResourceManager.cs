@@ -212,9 +212,9 @@ public class UIResourceManager : MonoBehaviour
 
 		int diff = cityName.Length - 3;
 		if (diff > 0)
-			titleBar.sizeDelta = new Vector2(diff * 20 + 220, 60);
+			titleBar.sizeDelta = new Vector2(diff * 24 + 250, 70);
 		else
-			titleBar.sizeDelta = new Vector2(220, 60);
+			titleBar.sizeDelta = new Vector2(250, 70);
 
 		//cityStoragePercent.text = $"{Mathf.RoundToInt(100 * (cityStorageLevel / cityStorageLimit))}%";
 		cityLevel.text = SetStringValue(cityStorageLevel);

@@ -483,7 +483,7 @@ public class TerrainGenerator : MonoBehaviour
             else if (mainMap[position] == ProceduralGeneration.grasslandMountain)
             {
                 mountainTiles.Add(position);
-				int prefabIndex = random.Next(0, grasslandMountainSO.prefabLocs.Count); 
+				int prefabIndex = newRegion == Region.North ? random.Next(4, 8) : random.Next(0, 4); 
 				GameObject grasslandMountain = Resources.Load<GameObject>("Prefabs/TerrainPrefabs/" + grasslandMountainSO.prefabLocs[prefabIndex]);
 				GenerateTile(grasslandMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex);
             }
@@ -710,7 +710,8 @@ public class TerrainGenerator : MonoBehaviour
 
             bool swamp = propTiles[i].terrainData.terrainDesc == TerrainDesc.Swamp;
             bool forest = propTiles[i].CompareTag("Forest") || propTiles[i].CompareTag("Forest Hill");
-            AddProp(random, propTiles[i], propTiles[i].terrainData.decorLocs, swamp, forest);
+            bool desert = propTiles[i].terrainData.terrainDesc == TerrainDesc.Desert;
+            AddProp(random, propTiles[i], propTiles[i].terrainData.decorLocs, swamp, forest, desert);
         }
 
         for (int i = 0; i < foodLocs.Count; i++)
@@ -738,6 +739,19 @@ public class TerrainGenerator : MonoBehaviour
                     if (terrainDict.ContainsKey(tile) && terrainDict[tile].terrainData.terrainDesc == TerrainDesc.Mountain && terrainDict[tile].terrainData.grassland == grassland)
                         SetMountainMiddle(td, j, grassland, td.main.rotation);
 				}
+
+                if (startingGame)
+                {
+                    if (grassland)
+                    {
+                        if (newRegion == Region.East)
+                            td.ChangeMountainUVs(false);
+                    }
+                    else
+                    {
+                        td.ChangeMountainUVs(true);
+                    }
+                }
 			}
         }
         //Finish it all off by placing water
@@ -830,7 +844,7 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-    private void AddProp(System.Random random, TerrainData td, List<string> propArray, bool swamp, bool forest)
+    private void AddProp(System.Random random, TerrainData td, List<string> propArray, bool swamp, bool forest, bool desert)
     {
         Quaternion rotation;
         if (swamp)
@@ -846,16 +860,21 @@ public class TerrainGenerator : MonoBehaviour
             if (propArray.Count > 1)
 			{
 				propInt = 1;
-				//check for nearby mountains
-				for (int i = 0; i < ProceduralGeneration.neighborsEightDirections.Count; i++)
-				{
-					if (terrainDict[ProceduralGeneration.neighborsEightDirections[i] + td.TileCoordinates].terrainData.terrainDesc == TerrainDesc.Mountain)
-					{
-						propInt = random.Next(0, 2);
-                        changeLeafColor = true;
-						break;
-					}
-				}
+
+				//no coniferous or fall colors in south
+				if (newRegion != Region.South)
+                {
+				    //check for nearby mountains
+				    for (int i = 0; i < ProceduralGeneration.neighborsEightDirections.Count; i++)
+				    {
+					    if (terrainDict[ProceduralGeneration.neighborsEightDirections[i] + td.TileCoordinates].terrainData.terrainDesc == TerrainDesc.Mountain)
+					    {
+						    propInt = random.Next(0, 2);
+                            changeLeafColor = true;
+						    break;
+					    }
+				    }
+                }
 			}
 
 			td.decorIndex = propInt;
@@ -868,6 +887,17 @@ public class TerrainGenerator : MonoBehaviour
                 {
 				    for (int i = 0; i < 10; i++)
 					    td.uvMapIndex.Add(random.Next(0, 4));
+                }
+                else if (newRegion == Region.East) //east gets spring blossoms on trees
+                {
+                    changeLeafColor = random.Next(0, 2) == 0;
+
+                    if (changeLeafColor)
+                    {
+						td.changeLeafColor = changeLeafColor;
+						td.spring = true;
+                        td.uvMapIndex.Add(random.Next(0, 4));
+                    }
                 }
 			}
 
@@ -883,7 +913,27 @@ public class TerrainGenerator : MonoBehaviour
 		}
         else
         {
-			int propInt = random.Next(0, propArray.Count);
+            int propInt;
+            
+            if (desert)
+            {
+                int[] intArray;
+                
+                if (newRegion == Region.South)
+                    intArray = new int[3] { 0, 0, 1 };
+                else if (newRegion == Region.North)
+					intArray = new int[3] { 0, 1, 2 };
+                else if (newRegion == Region.East)
+					intArray = new int[3] { 0, 0, 1 };
+                else
+					intArray = new int[3] { 0, 1, 2 };
+
+                propInt = intArray[random.Next(0, intArray.Length)];
+            }
+            else
+            {
+                propInt = random.Next(0, propArray.Count);
+            }
 			td.decorIndex = propInt;
 
             if (propArray[propInt] != "")

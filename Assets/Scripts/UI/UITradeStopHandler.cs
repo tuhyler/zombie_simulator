@@ -86,7 +86,9 @@ public class UITradeStopHandler : MonoBehaviour
     {
         timeText.outlineWidth = 0.5f;
         timeText.outlineColor = new Color(0, 0, 0, 255);
-        progressBarHolder.SetActive(false);
+		counter.outlineColor = Color.black;
+		counter.outlineWidth = 0.2f;
+		progressBarHolder.SetActive(false);
         //GrowResourceTaskPool();
     }
 

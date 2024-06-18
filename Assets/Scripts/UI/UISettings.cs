@@ -151,10 +151,13 @@ public class UISettings : MonoBehaviour
         {
             if (world.cityBuilderManager.audioSource != null)
                 world.cityBuilderManager.PlaySelectAudio(world.cityBuilderManager.checkClip);
+
+            world.CursorCheck();
         }
         else
         {
 			titleScreen.PlayCheckAudio();
+            titleScreen.CursorCheck();
         }
 
 		Resolution resolution = resolutions[index];

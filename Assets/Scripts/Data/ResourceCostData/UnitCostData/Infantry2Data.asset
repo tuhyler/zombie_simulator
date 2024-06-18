@@ -24,17 +24,17 @@ MonoBehaviour:
   imageName: 
   mapIcon: {fileID: 21300000, guid: 2fadef0d442ebc9499e1837619d4b1e0, type: 3}
   unitCost:
-  - resourceType: 7
-    resourceAmount: 12
-  - resourceType: 17
-    resourceAmount: 2
+  - resourceType: 15
+    resourceAmount: 10
+  - resourceType: 19
+    resourceAmount: 5
   cycleCost:
   - resourceType: 4
     resourceAmount: 2
   - resourceType: 2
     resourceAmount: 1
   battleCost: []
-  laborCost: 0
+  laborCost: 1
   unitType: 1
   unitDescription: Strong, fast unit
   availableInitially: 0
