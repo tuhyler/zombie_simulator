@@ -25,14 +25,16 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:
   - resourceType: 6
-    resourceAmount: 5
+    resourceAmount: 40
+  - resourceType: 19
+    resourceAmount: 10
   cycleCost:
   - resourceType: 4
-    resourceAmount: 1
+    resourceAmount: 2
   - resourceType: 2
-    resourceAmount: 1
+    resourceAmount: 2
   battleCost: []
-  laborCost: 0
+  laborCost: 2
   unitType: 6
   unitDescription: Water transport for cargo
   availableInitially: 0
@@ -42,7 +44,7 @@ MonoBehaviour:
   baseAttackSpeed: 0.5
   movementSpeed: 1
   trainTime: 5
-  cargoCapacity: 250
+  cargoCapacity: 100
   goldDropRange: {x: 0, y: 0}
   transportationType: 1
   characterUnit: 0

@@ -459,7 +459,7 @@ public class ProceduralGeneration
         mainTiles = RemoveSingleIslands(mainTiles);
         mainTiles = RemoveSingles2(mainTiles, width, height, yCoord);
 		mainTiles = RemoveSingles2(mainTiles, width, height, yCoord);
-		mainTiles = GenerateSwamps(mainTiles, width, height, yCoord, seed);
+		//mainTiles = GenerateSwamps(mainTiles, width, height, yCoord, seed);
 
         return mainTiles;
     }

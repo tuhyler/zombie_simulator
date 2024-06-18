@@ -24,7 +24,7 @@ public class UIMarketPlaceManager : MonoBehaviour
     [SerializeField]
     private Sprite buttonUp;
     private Sprite buttonDown;
-    private bool sortResourcesUp, sortPricesUp, sortAmountUp, sortSellUp, sortPurchaseAmountsUp;
+    private bool sortResourcesUp, sortPricesUp, sortAmountUp, sortSellUp, sortPurchaseAmountsUp, resourcesSorted, pricesSorted, amountSorted, sellSorted, purchaseAmountsSorted;
     private Color sortButtonOriginalColor;
 
     [HideInInspector]
@@ -83,7 +83,18 @@ public class UIMarketPlaceManager : MonoBehaviour
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.8f).setEaseOutBack();
             //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
-        }
+
+            if (resourcesSorted)
+                SortResources(sortResourcesUp);
+            else if (pricesSorted)
+                SortPrices(sortPricesUp);
+			else if (amountSorted)
+				SortAmounts(sortAmountUp);
+			else if (purchaseAmountsSorted)
+				SortPurchaseAmounts(sortPurchaseAmountsUp);
+			else if (sellSorted)
+				SortSell(sortSellUp);
+		}
         else
         {
             isTyping = false;
@@ -215,6 +226,11 @@ public class UIMarketPlaceManager : MonoBehaviour
                 sortAmounts.color = sortButtonOriginalColor;
                 sortSell.color = sortButtonOriginalColor;
                 sortPurchaseAmounts.color = sortButtonOriginalColor;
+                resourcesSorted = true;
+                pricesSorted = false;
+                amountSorted = false;
+                purchaseAmountsSorted = false;
+                sellSorted = false;
                 break;
             case "prices":
                 sortResources.color = sortButtonOriginalColor;
@@ -222,6 +238,11 @@ public class UIMarketPlaceManager : MonoBehaviour
                 sortAmounts.color = sortButtonOriginalColor;
                 sortSell.color = sortButtonOriginalColor;
 				sortPurchaseAmounts.color = sortButtonOriginalColor;
+				resourcesSorted = false;
+				pricesSorted = true;
+				amountSorted = false;
+				purchaseAmountsSorted = false;
+				sellSorted = false;
 				break;
             case "amount":
                 sortResources.color = sortButtonOriginalColor;
@@ -229,6 +250,11 @@ public class UIMarketPlaceManager : MonoBehaviour
                 sortAmounts.color = Color.green;
                 sortSell.color = sortButtonOriginalColor;
 				sortPurchaseAmounts.color = sortButtonOriginalColor;
+				resourcesSorted = false;
+				pricesSorted = false;
+				amountSorted = true;
+				purchaseAmountsSorted = false;
+				sellSorted = false;
 				break;
             case "purchaseAmount":
                 sortResources.color = sortButtonOriginalColor;
@@ -236,6 +262,11 @@ public class UIMarketPlaceManager : MonoBehaviour
                 sortAmounts.color = sortButtonOriginalColor;
                 sortSell.color = sortButtonOriginalColor;
 				sortPurchaseAmounts.color = Color.green;
+				resourcesSorted = false;
+				pricesSorted = false;
+				amountSorted = false;
+				purchaseAmountsSorted = true;
+				sellSorted = false;
 				break;
             case "sell":
                 sortResources.color = sortButtonOriginalColor;
@@ -243,7 +274,12 @@ public class UIMarketPlaceManager : MonoBehaviour
                 sortAmounts.color = sortButtonOriginalColor;
                 sortSell.color = Color.green;
 			    sortPurchaseAmounts.color = sortButtonOriginalColor;
-                break;
+				resourcesSorted = false;
+				pricesSorted = false;
+				amountSorted = false;
+				purchaseAmountsSorted = false;
+				sellSorted = true;
+				break;
         }
     }
 

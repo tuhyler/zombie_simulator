@@ -29,8 +29,8 @@ public class UIResourceInfoPanel : MonoBehaviour
 
     private void Awake()
     {
-        resourceAmountText.outlineColor = new Color(0f, 0f, 0f);
-        resourceAmountText.outlineWidth = .1f;
+        resourceAmountText.outlineColor = Color.black;
+        resourceAmountText.outlineWidth = .2f;
     }
 
     public void SetResourceAmount(int amount)
@@ -41,11 +41,11 @@ public class UIResourceInfoPanel : MonoBehaviour
         }
         else if (amount < 1000000)
         {
-            resourceAmountText.text = Math.Round(amount * 0.001f, 1) + " k";
+            resourceAmountText.text = Math.Round(amount * 0.001f, 1) + "k";
         }
         else if (amount < 1000000000)
         {
-            resourceAmountText.text = Math.Round(amount * 0.000001f, 1) + " M";
+            resourceAmountText.text = Math.Round(amount * 0.000001f, 1) + "M";
         }
     }
 
@@ -58,11 +58,11 @@ public class UIResourceInfoPanel : MonoBehaviour
 		}
 		else if (amount < 1000000)
 		{
-			resourceAmountText.text = "-" + Math.Round(amount * 0.001f, 1) + " k";
+			resourceAmountText.text = "-" + Math.Round(amount * 0.001f, 1) + "k";
 		}
 		else if (amount < 1000000000)
 		{
-			resourceAmountText.text = "-" + Math.Round(amount * 0.000001f, 1) + " M";
+			resourceAmountText.text = "-" + Math.Round(amount * 0.000001f, 1) + "M";
 		}
 	}
 

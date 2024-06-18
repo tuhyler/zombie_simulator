@@ -47,12 +47,10 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
     {
         SetButtonInteractable(false);
 
-        if (Screen.height > 1080)
-            buttonHighlight.transform.localScale = new Vector3(90f, 90f, 90f);
-        else if (Screen.height < 1080)
-            buttonHighlight.transform.localScale = new Vector3(110f, 110f, 110f);
+		resourceAmountText.outlineColor = Color.black;
+		resourceAmountText.outlineWidth = .2f;
 
-        if (tempParent != null)
+		if (tempParent != null)
             buttonHandler = tempParent.GetComponent<UIPersonalResourceInfoPanel>();
 
         priceHolder.SetActive(false);
@@ -102,11 +100,11 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
 		}
 		else if (amount < 1000000)
 		{
-			resourceAmountText.text = Math.Round(amount * 0.001f, 1) + " k";
+			resourceAmountText.text = Math.Round(amount * 0.001f, 1) + "k";
 		}
 		else if (amount < 1000000000)
 		{
-			resourceAmountText.text = Math.Round(amount * 0.000001f, 1) + " M";
+			resourceAmountText.text = Math.Round(amount * 0.000001f, 1) + "M";
 		}
 	}
 
@@ -198,11 +196,11 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
 		}
 		else if (price < 1000000)
 		{
-			priceText.text = Math.Round(price * 0.001f, 1) + " k";
+			priceText.text = Math.Round(price * 0.001f, 1) + "k";
 		}
 		else if (price < 1000000000)
 		{
-			priceText.text = Math.Round(price * 0.000001f, 1) + " M";
+			priceText.text = Math.Round(price * 0.000001f, 1) + "M";
 		}
 
         this.price = price;

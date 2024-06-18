@@ -118,6 +118,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public List<ResourceType> resourcePriorities = new();
 
+    //profitability info
+    [HideInInspector]
+    public int[] lastFiveCoin = new int[5];
+
     //for upgrading traders
     [HideInInspector]
     public List<Trader> tradersHere = new();
@@ -379,6 +383,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             cityNameMap.SetActive(false);
         SetCityNameFieldSize(newCityName);
         SetCityName(newCityName);
+        world.uiProfitabilityStats.UpdateCityName(this);
         //AddCityNameToWorld();
     }
 
@@ -636,6 +641,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.hadPopLoss)
                 world.TutorialCheck("First Pop Loss");
+
+            if (world.uiProfitabilityStats.activeStatus)
+                world.uiProfitabilityStats.UpdateCityPop(this);
         }
     }
 
@@ -952,10 +960,20 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             }
         }
 
-        resourceManager.CycleCount++;
+        resourceManager.cycleCount++;
+        if (world.uiProfitabilityStats.activeStatus)
+            world.uiProfitabilityStats.UpdateCityProfitability(this);
 
         if (growing)
             ContinueGrowthCycle();         
+    }
+
+    public void SetLast5Gold(int gold)
+    {
+        for (int i = 0; i < 4; i++)
+            lastFiveCoin[i] = lastFiveCoin[i + 1];
+
+        lastFiveCoin[4] = gold;
     }
 
     public void StartSendAttackWait()
@@ -1891,8 +1909,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         data.starvationCount = resourceManager.starvationCount;
         data.noHousingCount = resourceManager.noHousingCount;
         data.noWaterCount = resourceManager.noWaterCount;
-        data.cycleCount = resourceManager.CycleCount;
+        data.cycleCount = resourceManager.cycleCount;
         data.resourceGridDict = resourceGridDict;
+        data.lastFiveCoin = lastFiveCoin;
 
         //queue lists
         data.queueItemList = queueItemList;
@@ -2001,6 +2020,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         attacked = data.attacked;
         growing = data.growing;
         singleBuildList = data.singleBuildList;
+        lastFiveCoin = data.lastFiveCoin;
 
         if (growing)
         {
@@ -2044,7 +2064,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		resourceManager.starvationCount = data.starvationCount;
 		resourceManager.noHousingCount = data.noHousingCount;
 		resourceManager.noWaterCount = data.noWaterCount;
-		resourceManager.CycleCount = data.cycleCount;
+		resourceManager.cycleCount = data.cycleCount;
 		resourceGridDict = data.resourceGridDict;
 
         if (resourceManager.growthDeclineDanger)

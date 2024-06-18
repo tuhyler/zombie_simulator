@@ -22,7 +22,13 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     private UIResourceManager resourceManager;
 
-    public void SetResourceManager(UIResourceManager resourceManager)
+	private void Awake()
+	{
+		resourceAmount.outlineColor = Color.black;
+		resourceAmount.outlineWidth = .2f;
+	}
+
+	public void SetResourceManager(UIResourceManager resourceManager)
     {
         this.resourceManager = resourceManager;
     }
@@ -37,11 +43,11 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 		}
 		else if (val < 1000000)
 		{
-			resourceAmount.text = Math.Round(val * 0.001f, 1) + " k";
+			resourceAmount.text = Math.Round(val * 0.001f, 1) + "k";
 		}
 		else if (val < 1000000000)
 		{
-			resourceAmount.text = Math.Round(val * 0.000001f, 1) + " M";
+			resourceAmount.text = Math.Round(val * 0.000001f, 1) + "M";
 		}
     }
 

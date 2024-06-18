@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 1273472742864187899, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
@@ -47,17 +47,37 @@ PrefabInstance:
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: questGoals.Array.size
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: questHints.Array.size
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: questHints.Array.data[0]
-      value: '- wants 5 stone'
+      value: '- Wants 5 Pottery'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.data[1]
+      value: '- Wants 5 Bricks'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.data[2]
+      value: '- Wants 8 Cloth'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.data[3]
+      value: '- Wants 5 Incense'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.data[4]
+      value: '- Wants 9 Bronze Ingots'
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
@@ -72,12 +92,52 @@ PrefabInstance:
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: questGoals.Array.data[0].resourceType
-      value: 7
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[1].resourceType
+      value: 31
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[2].resourceType
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[3].resourceType
+      value: 32
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[4].resourceType
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: questGoals.Array.data[0].resourceAmount
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[1].resourceAmount
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[2].resourceAmount
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[3].resourceAmount
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[4].resourceAmount
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 3136344403743662241, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}

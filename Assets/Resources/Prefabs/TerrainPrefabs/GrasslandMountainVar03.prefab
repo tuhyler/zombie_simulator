@@ -9,6 +9,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -3658443331444529470, guid: 4884bf28550b28c4ca3a1c1080daacc8,
         type: 3}
+      propertyPath: mainMesh
+      value: 
+      objectReference: {fileID: 2968551342373142125}
+    - target: {fileID: -3658443331444529470, guid: 4884bf28550b28c4ca3a1c1080daacc8,
+        type: 3}
       propertyPath: terrainMesh
       value: 
       objectReference: {fileID: 2968551342373142125}

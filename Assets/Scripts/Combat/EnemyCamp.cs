@@ -438,6 +438,7 @@ public class EnemyCamp
 		if (attackingArmy != null)
 		{
 			attackingArmy.inBattle = false;
+			world.RemoveBattleZones(threatLoc, actualAttackLoc);
 			if (isCity)
 				world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, false, false);
 		}
@@ -459,7 +460,7 @@ public class EnemyCamp
 	{
 		inBattle = true;
 
-		if (!world.enemyAttackBegin)
+		if (isCity && !world.enemyAttackBegin)
 			world.StartAttacks();
 
 		foreach (Military unit in unitsInCamp)
@@ -610,6 +611,7 @@ public class EnemyCamp
 
 			inBattle = false;
 			Vector3Int enemyLoc = isCity ? cityLoc : loc;
+			world.RemoveBattleZones(threatLoc, actualAttackLoc);
 			if (removingOut || !isCity)
 				world.ToggleBattleCam(enemyLoc, attackingArmy.city.cityLoc, false);
 

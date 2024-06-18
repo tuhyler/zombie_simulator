@@ -139,6 +139,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
+      propertyPath: mainMesh
+      value: 
+      objectReference: {fileID: 3768603743927520219}
+    - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
       propertyPath: terrainData
       value: 
       objectReference: {fileID: 11400000, guid: 7a6edb3916d31514e8b3fc94fcd50dd2,

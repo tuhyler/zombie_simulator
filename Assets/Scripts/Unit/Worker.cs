@@ -6,10 +6,11 @@ using UnityEngine;
 
 public class Worker : Unit
 {
-    //[HideInInspector]
-    //public bool harvested;// harvesting, resourceIsNotNull;
-    //private ResourceIndividualHandler resourceIndividualHandler;
-    private WorkerTaskManager workerTaskManager;
+	//[HideInInspector]
+	//public bool harvested;// harvesting, resourceIsNotNull;
+	//private ResourceIndividualHandler resourceIndividualHandler;
+	[HideInInspector]
+    public WorkerTaskManager workerTaskManager;
 	[HideInInspector]
     public Vector3Int resourceCityLoc, prevFriendlyTile;
     private Resource resource;
@@ -20,8 +21,6 @@ public class Worker : Unit
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
     public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, toTransport, inTransport, inEnemyLines, harvested, harvestedForest, runningAway, firstStep, isBusy;
-    public int clearingForestTime = 1, cityBuildingTime = 2, roadBuildingTime = 1, roadRemovingTime = 2;
-    public int clearedForestlumberAmount = 100;
     public AudioClip[] gatheringClips;
     [HideInInspector]
 	public int timePassed;
@@ -433,7 +432,7 @@ public class Worker : Unit
 		RemoveFromOrderQueue();
 		world.SetWorkerWorkLocation(workerTile);
 		world.RemoveQueueItemCheck(workerTile);
-		timePassed = world.roadManager.roadBuildingTime;
+		timePassed = workerTaskManager.roadBuildingTime;
 
 		taskCo = StartCoroutine(BuildRoad(workerTile)); //specific worker (instead of workerUnit) to allow concurrent build
 		//workerTaskManager.BuildRoad(workerTile, this);
@@ -441,7 +440,7 @@ public class Worker : Unit
 
 	public IEnumerator BuildRoad(Vector3Int roadPosition)
 	{
-		ShowProgressTimeBar(roadBuildingTime);
+		ShowProgressTimeBar(workerTaskManager.roadBuildingTime);
 		SetWorkAnimation(true);
 		SetTime(timePassed);
 
@@ -585,7 +584,7 @@ public class Worker : Unit
 		}
 
 		world.SetWorkerWorkLocation(workerTile);
-		timePassed = world.roadManager.roadRemovingTime;
+		timePassed = workerTaskManager.roadRemovalTime;
 		taskCo = StartCoroutine(RemoveRoad(workerTile));
 
 		//workerTaskManager.RemoveRoad(workerTile, this);
@@ -593,7 +592,7 @@ public class Worker : Unit
 
 	public IEnumerator RemoveRoad(Vector3Int tile)
 	{
-		ShowProgressTimeBar(roadRemovingTime);
+		ShowProgressTimeBar(workerTaskManager.roadRemovalTime);
 		SetWorkAnimation(true);
 		SetTime(timePassed);
 
@@ -724,7 +723,7 @@ public class Worker : Unit
 		if (world.mainPlayer.isSelected)
 			world.unitMovement.uiCancelTask.ToggleVisibility(true);
 		if (clearForest)
-			timePassed = world.scott.clearingForestTime;
+			timePassed = workerTaskManager.forestRemovalTime;
 		else
 			timePassed = resourceIndividual.ResourceGatheringTime;
 		taskCo = StartCoroutine(GenerateHarvestedResource(workerPos, this, city, resourceIndividual, clearForest));
@@ -735,7 +734,7 @@ public class Worker : Unit
 		Vector3Int pos = world.GetClosestTerrainLoc(unitPos);
 
 		if (clearForest)
-			worker.ShowProgressTimeBar(worker.clearingForestTime);
+			worker.ShowProgressTimeBar(workerTaskManager.forestRemovalTime);
 		else
 			worker.ShowProgressTimeBar(resourceIndividual.ResourceGatheringTime);
 
@@ -909,7 +908,7 @@ public class Worker : Unit
         isBusy = true;
 		bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
 		world.RemoveQueueItemCheck(workerTile);
-		int totalTime = cityBuildingTime;
+		int totalTime = workerTaskManager.cityBuildTime;
 		buildingCity = true;
 
 		if (clearForest)
@@ -2031,7 +2030,7 @@ public class Worker : Unit
 				TerrainData td = world.GetTerrainDataAt(currentLocation);
 				TerrainType type = td.terrainData.type;
 				bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
-				int totalTime = cityBuildingTime;
+				int totalTime = workerTaskManager.cityBuildTime;
 				buildingCity = true;
 
 				if (clearForest)

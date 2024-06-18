@@ -32,6 +32,7 @@ public class UICityLaborCostPanel : MonoBehaviour
         gameObject.SetActive(false);
         buttonLeft = openCostsImage.sprite;
         originalColor = openCostsImage.color;
+        isOpen = true;
 
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources))
         {
@@ -80,8 +81,8 @@ public class UICityLaborCostPanel : MonoBehaviour
 
             if (suddenly)
             {
-                allContents.anchoredPosition3D = originalLoc + new Vector3(600f, 0, 0);
-                LeanTween.moveX(allContents, allContents.anchoredPosition3D.x - 600f, 0.3f).setEaseOutSine();
+                allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
+                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f).setEaseOutSine();
             }
             else
             {
@@ -101,7 +102,7 @@ public class UICityLaborCostPanel : MonoBehaviour
             //when closing the entire labor menu
             if (suddenly)
             {
-                LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 600f, 0.2f).setOnComplete(SetActiveStatusFalse);
+                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.2f).setOnComplete(SetActiveStatusFalse);
             }
             else
             {

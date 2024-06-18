@@ -78,7 +78,9 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 	private void Awake()
     {
         counter.outlineColor = Color.black;//new Color(0.2f, 0.2f, 0.2f);
-        counter.outlineWidth = 0.3f;
+        counter.outlineWidth = 0.1f;
+        resourceCount.outlineColor = Color.black;
+        resourceCount.outlineWidth = 0.2f;
         check.gameObject.SetActive(false);
         completeImage.gameObject.SetActive(false);
         //allToggle.gameObject.SetActive(false);

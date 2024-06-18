@@ -25,16 +25,16 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: d35d180233d47c645916450be3c1ac0d, type: 3}
   unitCost:
   - resourceType: 6
-    resourceAmount: 6
+    resourceAmount: 10
   cycleCost:
   - resourceType: 4
     resourceAmount: 3
   - resourceType: 2
     resourceAmount: 2
   battleCost: []
-  laborCost: 0
+  laborCost: 1
   unitType: 3
-  unitDescription: Fast unit
+  unitDescription: Fast unit, capable of flanking ranged units
   availableInitially: 0
   health: 12
   regenerationRate: 2

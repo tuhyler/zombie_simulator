@@ -89,6 +89,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eb282813409758340a0c754fe97f5427, type: 3}
+--- !u!33 &4145804812599932956 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: eb282813409758340a0c754fe97f5427,
+    type: 3}
+  m_PrefabInstance: {fileID: 697417385512915026}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3259484151576846776
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -96,6 +102,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 151414204977523408, guid: cf88eb4e5c462594ca288fa073e479f8,
+        type: 3}
+      propertyPath: mainMesh
+      value: 
+      objectReference: {fileID: 4145804812599932956}
     - target: {fileID: 151414204977523408, guid: cf88eb4e5c462594ca288fa073e479f8,
         type: 3}
       propertyPath: terrainData

@@ -42,8 +42,8 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 21
-    resourceAmount: 1
-  producedResourceTime: 14000000
+    resourceAmount: 2
+  producedResourceTime: 1e000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
@@ -51,7 +51,7 @@ MonoBehaviour:
   specificTerrain: 0
   workEthicChange: 0
   purchaseAmountChange: 0
-  maxLabor: 5
+  maxLabor: 3
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0

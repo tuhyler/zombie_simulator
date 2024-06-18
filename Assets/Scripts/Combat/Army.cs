@@ -1219,6 +1219,7 @@ public class Army : MonoBehaviour
             {
                 city.attacked = false;
                 Vector3Int enemyLoc = targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc;
+                world.RemoveBattleZones(attackZone, enemyTarget);
                 world.ToggleBattleCam(enemyLoc, city.cityLoc, false);
 			    //world.ToggleForestsInBattleClear(enemyTarget, attackZone, false);
                 //world.RemoveFromBattleArea(cavalryRange);
@@ -1317,6 +1318,7 @@ public class Army : MonoBehaviour
             unit.StopAttacking(false);
         }
 
+        world.RemoveBattleZones(attackZone, enemyTarget);
         if (targetCamp.isCity)
             world.ToggleBattleCam(targetCamp.cityLoc, city.cityLoc, false);
 		//world.ToggleForestsInBattleClear(enemyTarget, attackZone, false);

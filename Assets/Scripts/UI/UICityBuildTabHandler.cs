@@ -294,7 +294,8 @@ public class UICityBuildTabHandler : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        cityBuilderManager.world.CityCanvasCheck();
+		cityBuilderManager.world.cityCanvas.gameObject.SetActive(false);
+		//cityBuilderManager.world.CityCanvasCheck();
         //if (!cityBuilderManager.world.openingCity)
         //    cityBuilderManager.world.cityCanvas.gameObject.SetActive(false);
         //else

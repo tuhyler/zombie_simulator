@@ -199,17 +199,11 @@ public class UIConversationTaskManager : MonoBehaviour, IImmoveable
 					textToAdd += "\n\n";
 
 				if (i < currentQuest)
-				{
 					textToAdd += "<color=#007000>Task " + (i + 1).ToString() + " (Completed)" + "\n" + tradeRep.questHints[i] + "</color>";
-				}
 				else if (i == currentQuest)
-				{
 					textToAdd += "<color=" + color + ">Task " + (i + 1).ToString() + status + "\n" + tradeRep.questHints[i] + "</color>";
-				}
 				else
-				{
 					break;
-				}
 			}
 		
 			textField.text = textToAdd;

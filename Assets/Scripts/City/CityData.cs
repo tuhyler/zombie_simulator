@@ -12,6 +12,7 @@ public class CityData
 	public List<ResourceType> resourcePriorities;
 	public Dictionary<ResourceType, int> resourceGridDict;
 	public List<SingleBuildType> singleBuildList;
+	public int[] lastFiveCoin = new int[5];
 	//public List<int> tradersHere = new();
 
 	//resource manager data

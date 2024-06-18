@@ -443,9 +443,9 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
 
 		int diff = name.Length - 3;
 		if (diff > 0)
-			titleBar.sizeDelta = new Vector2(diff * 20 + 220, 60);
+			titleBar.sizeDelta = new Vector2(diff * 24 + 250, 70);
 		else
-			titleBar.sizeDelta = new Vector2(220, 60);
+			titleBar.sizeDelta = new Vector2(250, 70);
 	}
 
 	private string SetStringValue(float amount)

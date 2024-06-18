@@ -19,6 +19,9 @@ public class TerrainData : MonoBehaviour
     public Transform main, prop, nonstatic/*, minimapIcon*/;
 
     [SerializeField]
+    public MeshFilter mainMesh;
+
+    [SerializeField]
     public GameObject fog, highlightPlane, highlightPlaneIcon, flatlandFP;
 
     [SerializeField]
@@ -45,7 +48,7 @@ public class TerrainData : MonoBehaviour
     public bool changeLeafColor;
     [HideInInspector] //walkable is when it's not discovered, canWalk is when it is, canPlayerWalk includes battlezones
 	public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
-        showProp = true, hasNonstatic, straightRiver, border, hasBattle, inBattle, canWalk, canPlayerWalk, canSail, canPlayerSail, canFly, canPlayerFly; 
+        showProp = true, hasNonstatic, straightRiver, border, hasBattle, inBattle, canWalk, canPlayerWalk, canSail, canPlayerSail, canFly, canPlayerFly, spring; 
 
     //[HideInInspector]
     //public List<GameObject> enemyBorders = new();
@@ -61,10 +64,10 @@ public class TerrainData : MonoBehaviour
 
     [SerializeField]
     private MeshFilter terrainMesh, minimapIconMesh;
-    private Vector2[] uvs;
-    public Vector2[] UVs { get { return uvs; } }
-    private Vector2 rockUVs;
-    public Vector2 RockUVs { get { return rockUVs; } }
+    //public Vector2[] uvs;
+    //public Vector2[] UVs { get { return uvs; } }
+    //private Vector2 rockUVs;
+    //public Vector2 RockUVs { get { return rockUVs; } }
 
     public RawResourceType rawResourceType;
     public ResourceType resourceType;
@@ -142,13 +145,14 @@ public class TerrainData : MonoBehaviour
 			}
 		}
 
-		if (terrainData.type == TerrainType.Coast || terrainData.type == TerrainType.Flatland || terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill || terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.River)
-			uvs = main.GetComponentInChildren<MeshFilter>().sharedMesh.uv;
+		//if (terrainData.type == TerrainType.Coast || terrainData.type == TerrainType.Flatland || terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill ||
+  //          terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.River)
+  //          uvs = mainMesh.sharedMesh.uv;
 
-		if (rawResourceType == RawResourceType.Rocks)
-        {
-			rockUVs = ResourceHolder.Instance.GetUVs(resourceType);
-        }
+   //     if (rawResourceType == RawResourceType.Rocks)
+   //     {
+			//rockUVs = ResourceHolder.Instance.GetUVs(resourceType);
+   //     }
 
 		if (resourceType == ResourceType.Food && terrainData.terrainDesc == TerrainDesc.Grassland)
         {
@@ -185,7 +189,7 @@ public class TerrainData : MonoBehaviour
 			    int i = 0;
 			    while (i < newUVs.Length)
 			    {
-				    newUVs[i] = rockUVs;
+				    newUVs[i] = ResourceHolder.Instance.GetUVs(resourceType);
 				    i++;
 			    }
 			    mesh.mesh.uv = newUVs;
@@ -202,7 +206,7 @@ public class TerrainData : MonoBehaviour
             //treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
-                ChangeLeafColors(treeHandler, false);
+                ChangeLeafColors(treeHandler, spring);
 		}
 	}
 
@@ -217,7 +221,7 @@ public class TerrainData : MonoBehaviour
             //treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
-                ChangeLeafColors(treeHandler, false);
+                ChangeLeafColors(treeHandler, spring);
 		}
         else if (isHill && rawResourceType == RawResourceType.Rocks)
         {
@@ -231,7 +235,7 @@ public class TerrainData : MonoBehaviour
 			else if (resourceAmount > resourceGraphic.smallThreshold)
 				resourceGraphic.resourceSmallHill.SetActive(true);
 
-			rockUVs = ResourceHolder.Instance.GetUVs(resourceType);
+			//rockUVs = ResourceHolder.Instance.GetUVs(resourceType);
 
 			foreach (MeshFilter mesh in resourceGraphic.GetComponentsInChildren<MeshFilter>())
 			{
@@ -239,7 +243,7 @@ public class TerrainData : MonoBehaviour
 				int i = 0;
 				while (i < newUVs.Length)
 				{
-					newUVs[i] = rockUVs;
+					newUVs[i] = ResourceHolder.Instance.GetUVs(resourceType);
 					i++;
 				}
 				mesh.mesh.uv = newUVs;
@@ -261,14 +265,6 @@ public class TerrainData : MonoBehaviour
 		}
 	}
 
-	//private void PrepareRenderers()
-	//{
-	//    foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
-	//    {
-	//        renderers.Add(renderer);
-	//    }
-	//}
-
 	public void ShowProp(bool v)
     {
         prop.gameObject.SetActive(v);
@@ -284,16 +280,6 @@ public class TerrainData : MonoBehaviour
             flatlandFP.SetActive(v);
 		}
     }
-
-    //public void PrepParticleSystem() //all 3 in mapworld
-    //{
-    //    godRays = Instantiate(godRays);
-    //    godRays.transform.SetParent(world.psHolder, false);
-    //    //godRays.transform.parent = transform;
-    //    //godRays.transform.position = transform.position;
-    //    //godRays.transform.SetParent(transform, false);
-    //    godRays.Pause();
-    //}
 
     public void SetMinimapIcon()
     {
@@ -321,7 +307,7 @@ public class TerrainData : MonoBehaviour
 
     public void SetUVs(Vector2[] uvs)
     {
-        this.uvs = uvs;
+        //this.uvs = uvs;
         terrainMesh.mesh.uv = uvs;
         if (minimapIconMesh)
             minimapIconMesh.mesh.uv = uvs;
@@ -432,21 +418,24 @@ public class TerrainData : MonoBehaviour
 		return leafUVs;
     }
 
-    public void ChangeMountainSnow()
+    public void ChangeMountainUVs(bool desert)
     {
-        Vector2[] mountainUVs = uvs;
-        int i = 0;
+        Vector2[] mountainUVs = mainMesh.sharedMesh.uv;
+
+		int i = 0;
+        float shift = desert ? 0.0625f : -0.0625f;
 
         while (i < mountainUVs.Length)
         {
-            mountainUVs[i].x += 0.375031f;
+            mountainUVs[i].x += shift;
 			i++;
         }
 
-        main.GetComponentInChildren<MeshFilter>().mesh.uv = mountainUVs;
-    }
+        mainMesh.mesh.uv = mountainUVs;
+        nonstatic.GetComponentInChildren<MeshFilter>().mesh.uv = mountainUVs;
+	}
 
-    public void SetRockUVs(Vector2 uv)
+	public void SetRockUVs(Vector2 uv)
     {
         MeshFilter mesh = prop.GetComponentInChildren<MeshFilter>();
         Vector2[] uvs = mesh.mesh.uv;
@@ -947,6 +936,7 @@ public class TerrainData : MonoBehaviour
         data.rawResourceType = rawResourceType;
         data.resourceType = resourceType;
         data.changeLeafColor = changeLeafColor;
+        data.spring = spring;
         data.showProp = showProp;
         data.variant = prefabIndex;
         data.decor = decorIndex;
@@ -969,6 +959,7 @@ public class TerrainData : MonoBehaviour
         rawResourceType = data.rawResourceType;
         resourceType = data.resourceType;
         changeLeafColor = data.changeLeafColor;
+        spring = data.spring;
         showProp = data.showProp;
         prefabIndex = data.variant;
         decorIndex = data.decor;

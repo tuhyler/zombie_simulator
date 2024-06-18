@@ -164,6 +164,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
+      propertyPath: mainMesh
+      value: 
+      objectReference: {fileID: 3972685378587340419}
+    - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
       propertyPath: minimapIcon
       value: 
       objectReference: {fileID: 3367127043606121804}
