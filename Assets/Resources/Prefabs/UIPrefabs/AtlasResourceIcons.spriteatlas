@@ -67,6 +67,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 06b8c2cb02362d8419ea4aa64d760990, type: 3}
   - {fileID: 21300000, guid: bb9210dbeb5c29f409dfecf134330837, type: 3}
   - {fileID: 21300000, guid: 30109eebbfd69f34bb7d2032ed2a7353, type: 3}
+  - {fileID: 21300000, guid: 2214290c035b36247ab7bea078dbe673, type: 3}
   - {fileID: 21300000, guid: 94678d0d3c59cda488118ca3a28d2872, type: 3}
   - {fileID: 21300000, guid: fbc34e2d528690c4b99228f5ac0bd952, type: 3}
   - {fileID: 21300000, guid: e99158de73b9ae245a60f41d8d59651e, type: 3}
@@ -104,6 +105,7 @@ SpriteAtlas:
   - icon_time
   - icon_bronzeware01
   - icon_copper
+  - icon_coal01
   - icon_silk01
   - icon_researchdark
   - icon_jewel

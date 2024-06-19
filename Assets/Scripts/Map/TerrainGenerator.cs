@@ -27,9 +27,9 @@ public class TerrainGenerator : MonoBehaviour
 
     [Header("Natural Resource Percs (sum to 100)")]
     [SerializeField]
-    private int stone = 40;
+    private int stone = 35;
     [SerializeField]
-    private int iron = 10, copper = 10, gold = 5, jewel = 5, clay = 15, cloth = 15;
+    private int iron = 10, copper = 10, coal = 5, gold = 5, jewel = 5, clay = 15, cloth = 15;
 
     [Header("Count of adjacent tiles with resource")]
     [SerializeField]
@@ -41,8 +41,9 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private (int, int) stoneAmounts = (1000, 10000);
     [SerializeField]
-    private (int, int) ironAmounts = (500, 1000), copperAmounts = (500, 1000), goldAmounts = (200, 500), jewelAmounts = (100, 300);
-    private int goldAmount, jewelAmount, ironAmount, copperAmount, stoneAmount, clayAmount, clothAmount, goldPlaced, jewelPlaced, ironPlaced, copperPlaced, stonePlaced;
+    private (int, int) ironAmounts = (500, 1000), copperAmounts = (500, 1000), coalAmounts = (500,1000), goldAmounts = (200, 500), jewelAmounts = (100, 300);
+    private int goldAmount, jewelAmount, ironAmount, copperAmount, coalAmount, stoneAmount, clayAmount, clothAmount, goldPlaced, jewelPlaced, ironPlaced, copperPlaced, coalPlaced, stonePlaced;
+    private ResourceType jewelType;
 
     [SerializeField]
 	private bool startingGame = true, nonBuildTime = false;
@@ -627,8 +628,18 @@ public class TerrainGenerator : MonoBehaviour
         ironPlaced = 0;
 		copperAmount = Mathf.CeilToInt(copper * totalResourcePlacements / 100f);
         copperPlaced = 0;
+        coalAmount = Mathf.CeilToInt(coal * totalResourcePlacements / 100f);
+        coalPlaced = 0;
 		stoneAmount = Mathf.CeilToInt(stone * totalResourcePlacements / 100f);
         stonePlaced = 0;
+        if (newRegion == Region.South)
+            jewelType = ResourceType.Diamond;
+        else if (newRegion == Region.East)
+            jewelType = ResourceType.Ruby;
+        else if (newRegion == Region.West)
+            jewelType = ResourceType.Emerald;
+        else
+            jewelType = ResourceType.Sapphire;
 
         List<Vector3Int> enemyFoodLocs = new(), enemyWaterLocs = new(), enemyResourceLocs = new();
 
@@ -1339,7 +1350,7 @@ public class TerrainGenerator : MonoBehaviour
             FloodPlainCheck(newCloth);
 		}
 
-        GenerateClothTile(random, newCloth);
+        GenerateClothTile(/*random, */newCloth);
 		resourceTiles.Add(newCloth);
         flatlandTiles.Remove(newCloth);
         grasslandTiles.Remove(newCloth);
@@ -1771,7 +1782,7 @@ public class TerrainGenerator : MonoBehaviour
         int zCount = height / resourceFrequency - 1;
 
         //since rounding up, total placements could be low
-        int rocksAmount = stoneAmount + goldAmount + jewelAmount + ironAmount + copperAmount - goldPlaced - jewelPlaced - stonePlaced - ironPlaced - copperPlaced;
+        int rocksAmount = stoneAmount + goldAmount + jewelAmount + ironAmount + copperAmount + coalAmount - goldPlaced - jewelPlaced - stonePlaced - ironPlaced - copperPlaced - coalPlaced;
         int totalResourcePlacements = rocksAmount + clayAmount + clothAmount;
 
         List<Vector3Int> potentialResourceLocs = new();
@@ -1880,7 +1891,7 @@ public class TerrainGenerator : MonoBehaviour
 			{
                 SwampCheck(selectedTile);
                 FloodPlainCheck(selectedTile);
-                GenerateClothTile(random, selectedTile);
+                GenerateClothTile(/*random, */selectedTile);
 				desertTiles.Remove(selectedTile);
 				if (!finalResourceLocs.Contains(selectedTile))
 					finalResourceLocs.Add(selectedTile);
@@ -1934,15 +1945,17 @@ public class TerrainGenerator : MonoBehaviour
 		}
 
         //placing rocks
-        List<ResourceType> resourcesToPlace = new() { ResourceType.GoldOre, ResourceType.Ruby, ResourceType.IronOre, ResourceType.CopperOre, ResourceType.Stone };
+        List<ResourceType> resourcesToPlace = new() { ResourceType.GoldOre, jewelType, ResourceType.IronOre, ResourceType.CopperOre, ResourceType.Coal, ResourceType.Stone };
 		if (goldPlaced >= goldAmount)
 			resourcesToPlace.Remove(ResourceType.GoldOre);
 		if (jewelPlaced >= jewelAmount)
-			resourcesToPlace.Remove(ResourceType.Ruby);
+			resourcesToPlace.Remove(jewelType);
 		if (ironPlaced >= ironAmount)
 			resourcesToPlace.Remove(ResourceType.IronOre);
 		if (copperPlaced >= copperAmount)
 			resourcesToPlace.Remove(ResourceType.CopperOre);
+        if (coalPlaced >= coalAmount)
+            resourcesToPlace.Remove(ResourceType.Coal);
 		if (stonePlaced >= stoneAmount)
 			resourcesToPlace.Remove(ResourceType.Stone);
 		int loopAmount = Math.Min(rocksAmount, potentialResourceLocs.Count);
@@ -1956,11 +1969,13 @@ public class TerrainGenerator : MonoBehaviour
 				if (goldPlaced >= goldAmount)
 					resourcesToPlace.Remove(ResourceType.GoldOre);
 				if (jewelPlaced >= jewelAmount)
-					resourcesToPlace.Remove(ResourceType.Ruby);
+					resourcesToPlace.Remove(jewelType);
 				if (ironPlaced >= ironAmount)
 					resourcesToPlace.Remove(ResourceType.IronOre);
 				if (copperPlaced >= copperAmount)
 					resourcesToPlace.Remove(ResourceType.CopperOre);
+                if (coalPlaced >= coalAmount)
+                    resourcesToPlace.Remove(ResourceType.Coal);
 				if (stonePlaced >= stoneAmount)
 					resourcesToPlace.Remove(ResourceType.Stone);
 			}
@@ -1974,48 +1989,77 @@ public class TerrainGenerator : MonoBehaviour
 			ResourceType type = resourcesToPlace[cycle];
             cycle++;
             //specifying which rocks to place
-            if (type == ResourceType.GoldOre)
+            switch (type)
             {
-                luxury = true;
-                type = ResourceType.GoldOre;
-				index = 2;
-				adjacentCount = goldAdjacent;
-				amountMin = goldAmounts.Item1;
-				amountMax = goldAmounts.Item2;
-                goldPlaced++;
-			}
-            else if (type == ResourceType.Ruby)
-            {
-                luxury = true;
-				index = 1;
-				adjacentCount = jewelAdjacent;
-				amountMin = jewelAmounts.Item1;
-				amountMax = jewelAmounts.Item2;
-                jewelPlaced++;
-			}
-			else if (type == ResourceType.IronOre)
-            {
-				index = 0;
-				adjacentCount = stoneAdjacent;
-				amountMin = ironAmounts.Item1;
-				amountMax = ironAmounts.Item2;
-                ironPlaced++;
-			}
-			else if (type == ResourceType.CopperOre)
-            {
-                index = 0;
-                adjacentCount = stoneAdjacent;
-                amountMin = copperAmounts.Item1;
-                amountMax = copperAmounts.Item2;
-                copperPlaced++;
-			}
-            else if (type == ResourceType.Stone)
-            {
-				index = 0;
-				adjacentCount = stoneAdjacent;
-				amountMin = stoneAmounts.Item1;
-				amountMax = stoneAmounts.Item2;
-                stonePlaced++;
+                case ResourceType.GoldOre:
+                    luxury = true;
+                    type = ResourceType.GoldOre;
+				    index = 2;
+				    adjacentCount = goldAdjacent;
+				    amountMin = goldAmounts.Item1;
+				    amountMax = goldAmounts.Item2;
+                    goldPlaced++;
+                    break;
+                case ResourceType.Ruby:
+                    luxury = true;
+				    index = 1;
+				    adjacentCount = jewelAdjacent;
+				    amountMin = jewelAmounts.Item1;
+				    amountMax = jewelAmounts.Item2;
+                    jewelPlaced++;
+                    break;
+				case ResourceType.Diamond:
+					luxury = true;
+					index = 1;
+					adjacentCount = jewelAdjacent;
+					amountMin = jewelAmounts.Item1;
+					amountMax = jewelAmounts.Item2;
+					jewelPlaced++;
+					break;
+				case ResourceType.Emerald:
+					luxury = true;
+					index = 1;
+					adjacentCount = jewelAdjacent;
+					amountMin = jewelAmounts.Item1;
+					amountMax = jewelAmounts.Item2;
+					jewelPlaced++;
+					break;
+				case ResourceType.Sapphire:
+					luxury = true;
+					index = 1;
+					adjacentCount = jewelAdjacent;
+					amountMin = jewelAmounts.Item1;
+					amountMax = jewelAmounts.Item2;
+					jewelPlaced++;
+					break;
+				case ResourceType.IronOre:
+				    index = 0;
+				    adjacentCount = stoneAdjacent;
+				    amountMin = ironAmounts.Item1;
+				    amountMax = ironAmounts.Item2;
+                    ironPlaced++;
+                    break;
+                case ResourceType.CopperOre:
+                    index = 0;
+                    adjacentCount = stoneAdjacent;
+                    amountMin = copperAmounts.Item1;
+                    amountMax = copperAmounts.Item2;
+                    copperPlaced++;
+                    break;
+                case ResourceType.Coal:
+                    index = 0;
+                    adjacentCount = stoneAdjacent;
+                    amountMin = coalAmounts.Item1;
+                    amountMax = coalAmounts.Item2;
+                    coalPlaced++;
+                    break;
+                case ResourceType.Stone:
+				    index = 0;
+				    adjacentCount = stoneAdjacent;
+				    amountMin = stoneAmounts.Item1;
+				    amountMax = stoneAmounts.Item2;
+                    stonePlaced++;
+                    break;
 			}
             
             Vector3Int randomTile = potentialResourceLocs[random.Next(0, potentialResourceLocs.Count)];
@@ -2141,10 +2185,16 @@ public class TerrainGenerator : MonoBehaviour
 		terrainDict[selectedTile].resourceAmount = -1;
 	}
 
-    private void GenerateClothTile(System.Random random, Vector3Int loc)
+    private void GenerateClothTile(/*System.Random random, */Vector3Int loc)
     {
-		int clothType = random.Next(0, 3);
-		ResourceType type;
+        int clothType /*= random.Next(0, 3)*/;
+        if (newRegion == Region.South)
+            clothType = 0;
+        else if (newRegion == Region.East)
+            clothType = 2;
+        else
+            clothType = 1;
+        ResourceType type;
 		RawResourceType rawType;
 		int index;
 
@@ -2733,7 +2783,7 @@ public class TerrainGenerator : MonoBehaviour
 				else if (jewelAmount - jewelPlaced > 0)
                 {
 					addResource = true;
-					type = ResourceType.Ruby;
+					type = jewelType;
 					resourceLoc = hill ? hillTiles[random.Next(0, hillTiles.Count)] : flatlandTiles[random.Next(0, flatlandTiles.Count)];
 					jewelPlaced++;
 					index = 1;

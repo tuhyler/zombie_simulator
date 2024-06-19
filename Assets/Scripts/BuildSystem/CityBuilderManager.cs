@@ -439,7 +439,7 @@ public class CityBuilderManager : MonoBehaviour
                     if (improvementData.singleBuildType == SingleBuildType.Barracks || improvementData.singleBuildType == SingleBuildType.Shipyard || 
                         improvementData.singleBuildType == SingleBuildType.AirBase)
                     {
-                        foreach (Vector3Int tile in world.GetNeighborsFor(terrainLoc, MapWorld.State.FOURWAYINCREMENT))
+                        foreach (Vector3Int tile in world.GetNeighborsFor(terrainLoc, MapWorld.State.EIGHTWAYINCREMENT))
                         {
                             if (world.GetTerrainDataAt(tile).enemyZone && world.CompletedImprovementCheck(tile))
                             {

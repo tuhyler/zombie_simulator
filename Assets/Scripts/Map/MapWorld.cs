@@ -695,6 +695,7 @@ public class MapWorld : MonoBehaviour
             empire.enemyLeader.SetEmpire(empire);
             allEnemyLeaders.Add(empire.enemyLeader);
 
+            int i = 0;
 			System.Random random = new();
 			foreach (Vector3Int tile in empire.empireCities)
             {
@@ -702,7 +703,8 @@ public class MapWorld : MonoBehaviour
 				data.era = currentEra;
 				data.loc = tile;
 				data.hasWater = true;
-				data.cityName = cityNamePool[random.Next(0, cityNamePool.Count)];
+                data.cityName = empire.enemyLeader.cityNameList[i];
+                i++;
 				if (data.hasWater)
 					data.popSize = random.Next(5, 13);
 				else

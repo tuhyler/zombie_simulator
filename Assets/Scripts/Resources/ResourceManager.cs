@@ -1095,7 +1095,8 @@ public enum ResourceType
     Time,
     Bricks,
     Incense,
-    Spices
+    Spices,
+    Sapphire
 }
 
 public enum RawResourceType

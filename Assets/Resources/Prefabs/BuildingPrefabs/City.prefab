@@ -264,15 +264,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceSellList: 
   resourceStorageLevel: 0
-  initialResources:
-  - resourceType: 2
-    resourceAmount: 100
-  - resourceType: 7
-    resourceAmount: 100
-  - resourceType: 6
-    resourceAmount: 100
-  - resourceType: 31
-    resourceAmount: 100
+  initialResources: []
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0
