@@ -43,7 +43,7 @@ MonoBehaviour:
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 1
-  trainTime: 5
+  trainTime: 30
   cargoCapacity: 100
   goldDropRange: {x: 0, y: 0}
   transportationType: 1

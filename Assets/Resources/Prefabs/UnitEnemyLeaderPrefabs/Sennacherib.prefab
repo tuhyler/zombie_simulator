@@ -281,8 +281,33 @@ PrefabInstance:
       objectReference: {fileID: 8300000, guid: a98bb4598a5764c40a472c225799f04a, type: 3}
     - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
         type: 3}
+      propertyPath: cityNameList.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
+        type: 3}
       propertyPath: leaderUnitList.Array.size
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
+        type: 3}
+      propertyPath: cityNameList.Array.data[0]
+      value: Nineveh
+      objectReference: {fileID: 0}
+    - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
+        type: 3}
+      propertyPath: cityNameList.Array.data[1]
+      value: Assur
+      objectReference: {fileID: 0}
+    - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
+        type: 3}
+      propertyPath: cityNameList.Array.data[2]
+      value: Harran
+      objectReference: {fileID: 0}
+    - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
+        type: 3}
+      propertyPath: cityNameList.Array.data[3]
+      value: Nimrud
       objectReference: {fileID: 0}
     - target: {fileID: 5600760566544119047, guid: 1ead2e24e1999ee4eb697f099f97bd9d,
         type: 3}
