@@ -84,17 +84,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cityImprovement: {fileID: 0}
   producedResourceIndex: 0
+  improvementData: {fileID: 0}
   currentLabor: 0
-  tempLabor: 0
-  tempLaborPercsList: []
   producerLoc: {x: 0, y: 0, z: 0}
   productionTimer: 0
+  cityImprovementStats: {fileID: 0}
+  uiTimeProgressBar: {fileID: 0}
   isWaitingForStorageRoom: 0
   isWaitingforResources: 0
   hitResourceMax: 0
   isWaitingForResearch: 0
   isUpgrading: 0
-  unloadLabor: 0
   isProducing: 0
   producedResource:
     resourceType: 0

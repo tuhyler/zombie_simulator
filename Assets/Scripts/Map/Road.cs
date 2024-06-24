@@ -5,6 +5,9 @@ public class Road : MonoBehaviour
     private MeshFilter meshFilter;
     public MeshFilter MeshFilter { get { return meshFilter; } }
 
+    [HideInInspector]
+    public Mesh colliderMesh;
+    
     private SelectionHighlight selectionHighlight;
     public SelectionHighlight SelectionHighlight { get {  return selectionHighlight; } }
 
@@ -16,6 +19,7 @@ public class Road : MonoBehaviour
     private void Awake()
     {
         meshFilter = GetComponentInChildren<MeshFilter>();
+        colliderMesh = GetComponentInChildren<MeshCollider>().sharedMesh;
         selectionHighlight = GetComponent<SelectionHighlight>();
     }
 

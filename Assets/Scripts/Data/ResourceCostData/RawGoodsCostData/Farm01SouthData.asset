@@ -40,7 +40,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 2
     resourceAmount: 1
-  producedResourceTime: 0f000000
+  producedResourceTime: 3c000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0
@@ -48,7 +48,7 @@ MonoBehaviour:
   specificTerrain: 0
   workEthicChange: 0
   purchaseAmountChange: 0
-  maxLabor: 1
+  maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
@@ -66,3 +66,4 @@ MonoBehaviour:
   attackBonus: 0
   singleBuildType: 0
   buildOnRoad: 0
+  cityBonus: 0

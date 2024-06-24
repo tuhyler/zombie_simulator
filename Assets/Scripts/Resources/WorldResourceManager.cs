@@ -23,7 +23,7 @@ public class WorldResourceManager : MonoBehaviour
             ResourceType resourceType = resourceValue.resourceType;
             if (resourceType == ResourceType.None)
                 continue;
-            resourceDict[resourceType] = 0;
+            resourceDict[resourceType] = resourceValue.resourceAmount;
         }
 
         UpdateUI();

@@ -49,7 +49,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 8486d880e04a89142b6ed543b2904529, type: 3}
   - {fileID: 21300000, guid: fbcdb2a0f26417a4684d20bc6364eec4, type: 3}
   - {fileID: 21300000, guid: 1aa4d2c07e15f894d81bb10208a6f9ab, type: 3}
-  - {fileID: 21300000, guid: 3fec7bf01285d084da1fdc911262a52e, type: 3}
   - {fileID: 21300000, guid: 2f2bb811bc16fbf468e00051e800e0d9, type: 3}
   - {fileID: 21300000, guid: 4d81c72186815354a85713d78e481257, type: 3}
   - {fileID: 21300000, guid: f348982132094e94d8a089d5f8d3ea17, type: 3}
@@ -96,6 +95,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 3ff616e39f4e038498ac3d8be47e4c3e, type: 3}
   - {fileID: 21300000, guid: b82919f30ea37bf49ab7c4f5b445ceed, type: 3}
   - {fileID: 21300000, guid: 15e89b14f7d52bc43a8792ab9d89cb4e, type: 3}
+  - {fileID: 21300000, guid: eff5bf34bfc279c4385832c7b2d36202, type: 3}
   - {fileID: 21300000, guid: 98e84444996eba34398f279ebc9ebcd2, type: 3}
   - {fileID: 21300000, guid: 348e4844b44894d45944f025be33ecb7, type: 3}
   - {fileID: 21300000, guid: 6ed44f546ef9cdd4e88ada4f09596d5f, type: 3}
@@ -119,6 +119,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 2bdf2fa5e18d81d4eaf3c313f9a70383, type: 3}
   - {fileID: 21300000, guid: 7ff2b1b5679db3e49b92b46c126d7b51, type: 3}
   - {fileID: 21300000, guid: a4ab15b5ffbfb554cbf20f939e4de92d, type: 3}
+  - {fileID: 21300000, guid: c9fc3bb547040824293168fa88c1360d, type: 3}
   - {fileID: 21300000, guid: b67b48c5c655dc643b59828ac6baf045, type: 3}
   - {fileID: 21300000, guid: fca792e573b32a946905b4d202c05d2e, type: 3}
   - {fileID: 21300000, guid: f5e075e59f3420849871d6ed5a0272e3, type: 3}
@@ -170,6 +171,8 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 582da869dd2205a41bc0788c0d17b213, type: 3}
   - {fileID: 21300000, guid: 6d624e6916e23a24fa193dad1143bac0, type: 3}
   - {fileID: 21300000, guid: 5529a4a93e971f54fbe83c3da0146264, type: 3}
+  - {fileID: 21300000, guid: 848534b9f319b124682e7bfff9973a8b, type: 3}
+  - {fileID: 21300000, guid: fc44e0c964825514ba770568af78f78b, type: 3}
   - {fileID: 21300000, guid: 6e5466c9305c2e545bd04514bf524718, type: 3}
   - {fileID: 21300000, guid: 910eb3d9676ddda4bb1e087077168c0f, type: 3}
   - {fileID: 21300000, guid: e9dab4f9a7b063d44a953ec6a60331eb, type: 3}
@@ -182,6 +185,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 84a27e7aa33ecb5438c2eff2ed602483, type: 3}
   - {fileID: 21300000, guid: 0256638ab96cd0948b80ba1e4bcfa1d6, type: 3}
   - {fileID: 21300000, guid: f38c00aa9a643e243b06a0b8983b96f9, type: 3}
+  - {fileID: 21300000, guid: ee396fbacee74844f9f4bf0c9744a95e, type: 3}
   - {fileID: 21300000, guid: 0a0cb9dab3b52cd4f9a598795745fb84, type: 3}
   - {fileID: 21300000, guid: 38ab9eeaab4cb7244abeb37fe5a67c9c, type: 3}
   - {fileID: 21300000, guid: 41c5510bf7b82f44c97d28693fb51d09, type: 3}
@@ -247,6 +251,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 1d30fbbf36a9d48429edc0f7fcb53abb, type: 3}
   - {fileID: 21300000, guid: ec2d0cbf569e1614f9a33df24dfff106, type: 3}
   - {fileID: 21300000, guid: 4e118cbf2f598644cb92a14374dd70c0, type: 3}
+  - {fileID: 21300000, guid: df391ebff648ca1468588cdfb773de04, type: 3}
   - {fileID: 21300000, guid: f7597dcf3db9fef43a5911d31c498d38, type: 3}
   - {fileID: 21300000, guid: c0379ddf78ac66e4eb53759a9405802a, type: 3}
   m_PackedSpriteNamesToIndex:
@@ -261,7 +266,6 @@ SpriteAtlas:
   - button_sell
   - laborIconFemale1
   - box_select
-  - icon_powerbig
   - button_unit
   - icon_waterbig
   - icon_strength
@@ -308,6 +312,7 @@ SpriteAtlas:
   - button_buildwater
   - button_remove
   - icon_camp
+  - button_longprettybluesquare
   - icon_cargo
   - panel_lightblue2
   - button_close
@@ -331,6 +336,7 @@ SpriteAtlas:
   - panel_blue_transparent
   - panel_darkgoldsimple
   - button_harbor
+  - button_finance
   - laborIconMany
   - arrow_researchdown
   - arrow_bluegold
@@ -382,6 +388,8 @@ SpriteAtlas:
   - panel_lighterblue
   - button_tradedepot
   - tab_gold
+  - arrow_red
+  - arrow_green
   - icon_transport
   - circle_red_x
   - cone_faded
@@ -394,6 +402,7 @@ SpriteAtlas:
   - button_left
   - button_up
   - button_minus
+  - button_entertainment
   - button_arrowleft
   - bar_gold01
   - laborIconMale1
@@ -459,6 +468,7 @@ SpriteAtlas:
   - arrow_lightblue
   - button_upgrade
   - arrow_researchup_lightblue
+  - icon_purchaseamount
   - check_black
   - arrow_researchup
   m_RenderDataMap: {}

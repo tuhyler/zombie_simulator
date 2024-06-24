@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class GameAssets : MonoBehaviour
 {
-    private static GameAssets instance;
+    //private static GameAssets instance;
 
-    public static GameAssets Instance { 
-        get {
-            if (instance == null) instance = Instantiate(Resources.Load<GameAssets>("GameAssets"));
-            return instance; 
-        } 
-    }
+    //public static GameAssets Instance { 
+    //    get {
+    //        if (instance == null) instance = Instantiate(Resources.Load<GameAssets>("GameAssets"));
+    //        return instance; 
+    //    } 
+    //}
 
     public GameObject popUpTextPrefab;
     public GameObject popUpResourceNumbersPrefab;
@@ -21,7 +21,6 @@ public class GameAssets : MonoBehaviour
     public GameObject cityGrowthProgressPrefab2;
     //public GameObject timeProgressPrefab;
     public GameObject resourceBubble;
-    public GameObject resourceInfoHolder;
     public GameObject resourceInfoPanel;
     public GameObject uiTimeProgressPrefab;
     public GameObject speechBubble;

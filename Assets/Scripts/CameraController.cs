@@ -114,6 +114,8 @@ public class CameraController : MonoBehaviour
 
     public void CenterCameraNoFollow(Vector3 pos)
     {
+        Vector3 forward = transform.forward * -2;
+        pos += forward;
         followTransform = null;
         newPosition = pos;
     }
@@ -125,7 +127,8 @@ public class CameraController : MonoBehaviour
 
     public void CenterCameraInstantly(Vector3 pos)
     {
-        followTransform = null;
+		Vector3 forward = transform.forward * -2;
+		followTransform = null;
         newPosition = pos;
         transform.position = pos;
     }

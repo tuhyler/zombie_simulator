@@ -136,12 +136,12 @@ public class CityImprovement : MonoBehaviour
         allConsumedResources.Add(data.consumedResources4);
     }
 
-    public void PlayPlacementAudio(AudioClip clip)
-    {
-        audioSource.volume = 1;
-        audioSource.clip = clip;
-        audioSource.Play();
-    }
+    //public void PlayPlacementAudio(AudioClip clip)
+    //{
+    //    audioSource.volume = 1;
+    //    audioSource.clip = clip;
+    //    audioSource.Play();
+    //}
 
     public void SetMinimapIcon(TerrainData td)
     {
@@ -829,8 +829,8 @@ public class CityImprovement : MonoBehaviour
         {
             //Resource Producer
 		    data.currentLabor = resourceProducer.currentLabor;
-            data.tempLabor = resourceProducer.tempLabor;
-            data.unloadLabor = resourceProducer.unloadLabor;
+            //data.tempLabor = resourceProducer.tempLabor;
+            //data.unloadLabor = resourceProducer.unloadLabor;
             data.isWaitingForStorageRoom = resourceProducer.isWaitingForStorageRoom;
             data.hitResourceMax = resourceProducer.hitResourceMax;
             data.isWaitingforResources = resourceProducer.isWaitingforResources;
@@ -839,7 +839,7 @@ public class CityImprovement : MonoBehaviour
             data.isProducing = resourceProducer.isProducing;
 		    data.productionTimer = resourceProducer.productionTimer;
 		    data.producedResource = producedResource;
-		    data.tempLaborPercsList = resourceProducer.tempLaborPercsList;
+		    //data.tempLaborPercsList = resourceProducer.tempLaborPercsList;
             data.goldNeeded = resourceProducer.goldNeeded;  
         }
 
@@ -866,9 +866,9 @@ public class CityImprovement : MonoBehaviour
         {
 		    //Resource Producer
 			resourceProducer.currentLabor = data.currentLabor;
-			resourceProducer.tempLabor = data.tempLabor;
+			//resourceProducer.tempLabor = data.tempLabor;
             resourceProducer.hitResourceMax = data.hitResourceMax;
-			resourceProducer.unloadLabor = data.unloadLabor;
+			//resourceProducer.unloadLabor = data.unloadLabor;
 			resourceProducer.isWaitingForStorageRoom = data.isWaitingForStorageRoom;
 			resourceProducer.isWaitingforResources = data.isWaitingforResources;
 			//resourceProducer.isWaitingToUnload = data.isWaitingToUnload;
@@ -876,7 +876,7 @@ public class CityImprovement : MonoBehaviour
 			resourceProducer.isProducing = data.isProducing;
 			resourceProducer.productionTimer = data.productionTimer;
 		    producedResource = data.producedResource;
-			resourceProducer.tempLaborPercsList = data.tempLaborPercsList;
+			//resourceProducer.tempLaborPercsList = data.tempLaborPercsList;
             resourceProducer.goldNeeded = data.goldNeeded;
 
             if (resourceProducer.isProducing)
@@ -884,7 +884,8 @@ public class CityImprovement : MonoBehaviour
 			    if (!resourceProducer.isWaitingforResources && !resourceProducer.isWaitingForStorageRoom && !resourceProducer.hitResourceMax && !resourceProducer.isWaitingForResearch)
                 {
 					resourceProducer.SetResourceManager(city.resourceManager);
-					resourceProducer.LoadProducingCoroutine();
+                    if (!resourceProducer.improvementData.cityBonus)
+					    resourceProducer.LoadProducingCoroutine();
 
                     //work around to get lights showing on all polys, something to do with combinemeshes
                     if (workLights.Count > 0)
@@ -952,8 +953,9 @@ public enum SingleBuildType
     Shipyard,
     Airport,
     AirBase,
-    Market,
+    FinanceCenter,
     Monument,
     Well,
-    Walls
+    Walls,
+    Entertainment
 }

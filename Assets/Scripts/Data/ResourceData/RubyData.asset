@@ -19,7 +19,7 @@ MonoBehaviour:
   ResourceGatheringTime: 30
   ResourceGatheringAmount: 1
   resourcePrice: 6
-  resourceQuantityPerPop: 1
+  resourceQuantityPerPop: 0.2
   rawResource: 3
   rocksType: 2
   resourceCategory: 1

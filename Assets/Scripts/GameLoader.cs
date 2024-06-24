@@ -27,6 +27,7 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
 	public Dictionary<City, (List<(Vector3Int, int)>, Dictionary<ResourceType, List<(Vector3Int, int)>>, Dictionary<ResourceType, List<Vector3Int>>, List<(Vector3Int, int)>, List<int>, 
 		List<int>, List<int>)> cityWaitingDict = new();
+	public Dictionary<City, List<Vector3Int>> cityBonusDict = new();
 	[HideInInspector]
 	public List<Unit> unitUpgradeList = new();
 	//[HideInInspector]
@@ -236,7 +237,7 @@ public class GameLoader : MonoBehaviour
 		gameData.maxResearchLevel = world.maxResearchLevel;
 		gameData.currentEra = world.currentEra;
 		gameData.startingRegion = world.startingRegion;
-		gameData.currentWorkedTileDict = new(world.currentWorkedTileDict);
+		//gameData.currentWorkedTileDict = new(world.currentWorkedTileDict);
 		gameData.cityWorkedTileDict = new(world.cityWorkedTileDict);
 		gameData.cityImprovementQueueList = new(world.cityImprovementQueueList);
 		gameData.unclaimedSingleBuildList = new(world.unclaimedSingleBuildList);
@@ -415,7 +416,8 @@ public class GameLoader : MonoBehaviour
 		world.maxResearchLevel = gameData.maxResearchLevel;
 		world.GenerateMap(gameData.allTerrain);
 		world.resourceDiscoveredList = new(gameData.resourceDiscoveredList);
-		world.LoadDiscoveredResources();
+		world.SetSellableResourceList();
+		//world.LoadDiscoveredResources();
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(20);
@@ -465,8 +467,8 @@ public class GameLoader : MonoBehaviour
 		world.popGrowth = gameData.popGrowth;
 		world.popLost = gameData.popLost;
 		world.researchTree.LoadCurrentResearch(gameData.currentResearch, gameData.researchAmount);
-		world.currentWorkedTileDict = new(gameData.currentWorkedTileDict);
-		gameData.currentWorkedTileDict.Clear();
+		//world.currentWorkedTileDict = new(gameData.currentWorkedTileDict);
+		//gameData.currentWorkedTileDict.Clear();
 		world.cityWorkedTileDict = new(gameData.cityWorkedTileDict);
 		gameData.cityWorkedTileDict.Clear();
 		world.cityImprovementQueueList = new(gameData.cityImprovementQueueList);
@@ -714,18 +716,16 @@ public class GameLoader : MonoBehaviour
 			city.SetResourceWaitList(resourceWaitDict);
 			city.SetResourceMaxWaitList(resourceMaxWaitDict);
 			city.SetUnloadWaitList(unloadWaitList);
-			//city.SetProducerWaitingList(producersWaiting);
-			//city.SetProducerStorageRoomWaitingList(producersStorageWaiting);
-			//city.SetWaitingToUnloadProducerList(producersUnloadWaiting);
-			//city.SetWaitingToUnloadResearchList(researchUnloadWaiting);
 			city.SetWaitList(waitList);
 			city.SetWaitList(seaWaitList);
 			city.SetWaitList(airWaitList);
-			//city.SetSeaWaitList(seaWaitList);
-			//city.SetTraderRouteWaitingList(tradersWaiting);
-			//city.SetTradersHereList(tradersHere);
 		}
 		cityWaitingDict.Clear();
+
+		//city bonus dict
+		foreach (City city in cityBonusDict.Keys)
+			city.SetCityBonus(cityBonusDict[city]);
+		cityBonusDict.Clear();
 
 		//traders start loading and unloading after line positions have been set
 		//for (int i = 0; i < traderLoadUnloadList.Count; i++)

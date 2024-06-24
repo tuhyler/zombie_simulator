@@ -9,7 +9,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
     public MapWorld world;
     public TMP_Text title, level, costTitle, producesTitle, descriptionTitle, descriptionText, health, speed, strength, workEthicText, housingText, waterText;
     public Image mainImage, strengthImage, waterImage;
-    public Sprite inventorySprite, strengthSprite, powerSprite, waterSprite;
+    public Sprite inventorySprite, strengthSprite, powerSprite, waterSprite, purchaseAmountSprite;
     public GameObject produceHolder, descriptionHolder, workEthicImage, housingImage;
     public RectTransform allContents, /*resourceProduceAllHolder, */imageLine, resourceProducedHolder, resourceCostHolder, unitInfo, spaceHolder, cityStatsDescription;
     public VerticalLayoutGroup resourceProduceLayout;
@@ -103,7 +103,8 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces,
-        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, int power, bool wonder, Era era, bool utility, bool rocks = false)
+        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, int power, float purchaseAmount,
+        bool wonder, Era era, bool utility, bool rocks = false)
     {
         mainImage.sprite = mainSprite;
         this.title.text = displayTitle;
@@ -134,6 +135,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
         int produceContentsHeight = 460;
         bool arrowBuffer = false;
         bool showCityStatsDesc = false;
+        bool cityBonus = false;
 
 		//reseting produce section layout
 		//resourceProduceLayout.padding.top = 0;
@@ -173,14 +175,26 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
             housingText.gameObject.SetActive(false);
         }
 
-		if (water > 0 || power > 0)
+		if (water > 0 || power > 0 || purchaseAmount > 0)
 		{
             bool isWater = water > 0;
-            waterImage.sprite = isWater ? waterSprite : powerSprite;
+            bool isPurchaseAmount = purchaseAmount > 0;
+            if (isPurchaseAmount)
+                waterImage.sprite = purchaseAmountSprite;
+            else
+                waterImage.sprite = isWater ? waterSprite : powerSprite;
             waterImage.gameObject.SetActive(true);
 			waterText.gameObject.SetActive(true);
-            int num = isWater ? water : power;
-			waterText.text = "+" + num.ToString();
+            if (isPurchaseAmount)
+            {
+                waterText.text = "+" + purchaseAmount;
+                waterText.GetComponent<RectTransform>().sizeDelta = new Vector2(75, 50);
+            }
+            else
+            {
+				waterText.text = isWater ? "+" + water : "+" + power;
+				waterText.GetComponent<RectTransform>().sizeDelta = new Vector2(55, 50);
+			}
 			showCityStatsDesc = true;
 		}
         else
@@ -192,6 +206,19 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
 		cityStatsDescription.gameObject.SetActive(showCityStatsDesc);
 
 		producesTitle.text = "Produces / Requires";
+
+        if (producesCount > 0)
+        {
+            produceHolder.SetActive(true);
+
+            if (produces[0].resourceType == ResourceType.None)
+                cityBonus = true;
+        }
+		else
+		{
+			produceHolder.SetActive(false);
+			produceContentsHeight -= 140;
+		}
 
         if (description.Length > 0 || showCityStatsDesc)
         {
@@ -258,6 +285,11 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
 				//produceContentsHeight = 160;
 				//produceHolderHeight = 110;
 			}
+            else if (cityBonus)
+            {
+				producesTitle.text = "Cost per Cycle";
+				resourceProduceLayout.childAlignment = TextAnchor.UpperCenter;
+			}
             else if (wonder)
             {
 				descriptionTitle.text = "Reward";
@@ -299,6 +331,14 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
             if (consumes.Count > 0)
                 firstResourceProduceLayout.padding.left = -(consumes[0].Count - 1) * (resourcePanelSize / 2);
 		}
+        else if (cityBonus)
+        {
+			unitInfo.gameObject.SetActive(false);
+			resourceProduceLayout.childAlignment = TextAnchor.UpperCenter;
+
+			if (consumes.Count > 0)
+				firstResourceProduceLayout.padding.left = -(consumes[0].Count - 1) * (resourcePanelSize / 2);
+		}
         else if (wonder)
         {
 			unitInfo.gameObject.SetActive(false);
@@ -322,16 +362,6 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
             firstResourceProduceLayout.padding.left = 0;
 		}
 
-        if (producesCount > 0)
-        {
-            produceHolder.SetActive(true);
-        }
-		else
-		{
-			produceHolder.SetActive(false);
-			produceContentsHeight -= 140;
-		}
-
 		for (int i = 0; i < produceConsumesHolders.Count; i++)
         {   
             if (i >= producesCount)
@@ -341,7 +371,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
             else
             {
                 produceConsumesHolders[i].gameObject.SetActive(true);
-                GenerateProduceInfo(produces[i], consumes[i], i, produceTimeList[i], rocks);
+                GenerateProduceInfo(produces[i], consumes[i], i, produceTimeList[i], rocks, cityBonus);
 
                 //if (maxCount < consumes[i].Count + 1)
                 //    maxCount = consumes[i].Count + 1;
@@ -431,7 +461,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
 		PositionCheck();
 	}
 
-    private void GenerateResourceInfo(List<ResourceValue> resourcesInfo, List<UIResourceInfoPanel> resourcesToShow, int produceTime)
+    private void GenerateResourceInfo(List<ResourceValue> resourcesInfo, List<UIResourceInfoPanel> resourcesToShow, int produceTime, bool cityBonus = false)
     {
         int resourcesCount = resourcesInfo.Count;
 
@@ -443,7 +473,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
             }
             else if (i == resourcesCount) //for adding production time
             {
-                if (produceTime > 0)
+                if (produceTime > 0 && !cityBonus)
                 {
                     resourcesToShow[i].gameObject.SetActive(true);
                     resourcesToShow[i].SetResourceAmount(produceTime);
@@ -467,7 +497,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
         }
     }
 
-    private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex, int produceTime, bool rocks)
+    private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex, int produceTime, bool rocks, bool cityBonus)
     {
         if (producedResource.resourceType != ResourceType.None)
         {
@@ -504,7 +534,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
         {
             producesInfo[produceIndex].gameObject.SetActive(false);
             firstArrow.SetActive(false);
-            GenerateResourceInfo(consumedResources, consumesInfo[produceIndex], produceTime);
+            GenerateResourceInfo(consumedResources, consumesInfo[produceIndex], produceTime, cityBonus);
 		}
     }
 

@@ -109,7 +109,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2311649316462798009}
   - component: {fileID: -11843151354040455}
-  - component: {fileID: -548530054223577924}
   - component: {fileID: -1354641546340956128}
   - component: {fileID: 7800520638858068917}
   - component: {fileID: 3658065025757672615}
@@ -217,39 +216,6 @@ MonoBehaviour:
   resourcePriorities: 
   lastFiveCoin: 0000000000000000000000000000000000000000
   tradersHere: []
---- !u!114 &-548530054223577924
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7185426163474996275}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae28bb5c725c1504ab89962d03a6f96a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cityImprovement: {fileID: 0}
-  producedResourceIndex: 0
-  currentLabor: 0
-  tempLabor: 0
-  tempLaborPercsList: []
-  producerLoc: {x: 0, y: 0, z: 0}
-  productionTimer: 0
-  isWaitingForStorageRoom: 0
-  isWaitingforResources: 0
-  hitResourceMax: 0
-  isWaitingForResearch: 0
-  isUpgrading: 0
-  unloadLabor: 0
-  isProducing: 0
-  producedResource:
-    resourceType: 0
-    resourceAmount: 0
-  producedResources: []
-  consumedResources: []
-  consumedResourceTypes: 
-  goldNeeded: 0
 --- !u!114 &-1354641546340956128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,9 +228,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f06b93f5898e54691a69ddceb7609c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceSellList: 
   resourceStorageLevel: 0
-  initialResources: []
+  initialResources:
+  - resourceType: 2
+    resourceAmount: 50
+  - resourceType: 6
+    resourceAmount: 100
+  - resourceType: 7
+    resourceAmount: 100
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0

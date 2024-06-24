@@ -43,7 +43,7 @@ MonoBehaviour:
   specificTerrain: 0
   workEthicChange: 0
   purchaseAmountChange: 0
-  maxLabor: 5
+  maxLabor: 0
   housingIncrease: 1
   cityHousing: 1
   waterIncrease: 0
@@ -61,3 +61,4 @@ MonoBehaviour:
   attackBonus: 0
   singleBuildType: 0
   buildOnRoad: 0
+  cityBonus: 0

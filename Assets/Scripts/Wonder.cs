@@ -91,7 +91,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     private void Awake()
     {
         stop = this;
-        uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
+        uiTimeProgressBar = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/TimeProgressBar2"), transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
         uiTimeProgressBar.transform.SetParent(transform, false);
         isConstructing = true;
         highlight = GetComponent<SelectionHighlight>();

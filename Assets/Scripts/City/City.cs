@@ -64,6 +64,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public List<SingleBuildType> singleBuildList = new(); //just to prevent building additional ones at same city
     public Dictionary<SingleBuildType, Vector3Int> singleBuildDict = new();
+    private List<CityImprovement> cityBonusImprovements = new();
 
     [HideInInspector]
     public ResourceManager resourceManager;
@@ -709,21 +710,27 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         int labor = world.GetCurrentLaborForTile(chosenTile);
         labor--;
+        ResourceProducer resourceProducer = world.GetResourceProducer(chosenTile);
+        resourceProducer.UpdateCurrentLaborData(labor);
 
-        if (labor == 0) //removing from world dicts when zeroed out
+		if (labor == 0) //removing from world dicts when zeroed out
         {
-            world.RemoveFromCurrentWorked(chosenTile);
+            //world.RemoveFromCurrentWorked(chosenTile);
             world.RemoveFromCityLabor(chosenTile);
-            world.GetResourceProducer(chosenTile).StopProducing();
-            //resourceManager.RemoveKeyFromGenerationDict(chosenTile);
+            resourceProducer.StopProducing();
         }
         else
         {
-            world.AddToCurrentFieldLabor(chosenTile, labor);
+            resourceProducer.RemoveLaborCheck(this);
         }
+        
+        //world.AddToCurrentFieldLabor(chosenTile, labor);
 
         if (activeCity)
+        {
+            resourceProducer.UpdateCityImprovementStats();
 			world.cityBuilderManager.UpdateCityLaborUIs();
+        }
 	}
 
     public void PlayResourceSplash()
@@ -917,7 +924,12 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             yield return foodConsumptionWait;
             countDownTimer--;
             if (activeCity)
+            {
                 uiTimeProgressBar.SetTime(countDownTimer);
+
+                for (int i = 0; i < cityBonusImprovements.Count; i++)
+                    cityBonusImprovements[i].resourceProducer.uiTimeProgressBar.SetTime(countDownTimer);
+            }
         }
 
         //check food first
@@ -960,9 +972,15 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             }
         }
 
+        for (int i = 0; i < cityBonusImprovements.Count; i++)
+            cityBonusImprovements[i].resourceProducer.RestartCityBonusCheck(activeCity);
+
         resourceManager.cycleCount++;
         if (world.uiProfitabilityStats.activeStatus)
             world.uiProfitabilityStats.UpdateCityProfitability(this);
+
+        if (world.cityBuilderManager.uiMarketPlaceManager.activeStatus && world.cityBuilderManager.uiMarketPlaceManager.city == this)
+            world.cityBuilderManager.uiMarketPlaceManager.UpdatePrices();
 
         if (growing)
             ContinueGrowthCycle();         
@@ -975,6 +993,84 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         lastFiveCoin[4] = gold;
     }
+
+    public void AddCityBonus(CityImprovement improvement, bool start, int labor)
+    {
+        if (start)
+            cityBonusImprovements.Add(improvement);
+
+        if (improvement.GetImprovementData.workEthicChange != 0)
+        {
+            workEthic += improvement.GetImprovementData.workEthicChange * labor;
+            improvementWorkEthic += improvement.GetImprovementData.workEthicChange;
+
+			if (activeCity)
+			{
+				world.cityBuilderManager.uiInfoPanelCity.UpdateWorkEthic(workEthic);
+				world.cityBuilderManager.UpdateCityWorkEthic();
+			}
+		}
+       
+        if (improvement.GetImprovementData.purchaseAmountChange != 0)
+        {
+            purchaseAmountMultiple += improvement.GetImprovementData.purchaseAmountChange * labor;
+
+			if (activeCity)
+			{
+				world.cityBuilderManager.uiInfoPanelCity.UpdatePurchaseAmount(purchaseAmountMultiple);
+
+				if (world.cityBuilderManager.uiMarketPlaceManager.activeStatus)
+					world.cityBuilderManager.uiMarketPlaceManager.UpdatePurchaseAmounts();
+			}
+		}
+
+        if (improvement.GetImprovementData.powerIncrease != 0)
+        {
+            powerCount += improvement.GetImprovementData.powerIncrease * labor;
+
+			if (activeCity)
+                world.cityBuilderManager.uiInfoPanelCity.UpdatePower(powerCount);
+		}
+    }
+
+    public void RemoveCityBonus(CityImprovement improvement, bool finish, int labor)
+    {
+        if (finish)
+            cityBonusImprovements.Remove(improvement);
+
+		if (improvement.GetImprovementData.workEthicChange != 0)
+        {
+			workEthic -= improvement.GetImprovementData.workEthicChange * labor;
+			improvementWorkEthic -= improvement.GetImprovementData.workEthicChange;
+
+			if (activeCity)
+            {
+				world.cityBuilderManager.uiInfoPanelCity.UpdateWorkEthic(workEthic);
+			    world.cityBuilderManager.UpdateCityWorkEthic();
+            }
+		}
+		
+        if (improvement.GetImprovementData.purchaseAmountChange != 0)
+        {
+			purchaseAmountMultiple -= improvement.GetImprovementData.purchaseAmountChange * labor;
+
+            if (activeCity)
+            {
+				world.cityBuilderManager.uiInfoPanelCity.UpdatePurchaseAmount(purchaseAmountMultiple);
+
+                if (world.cityBuilderManager.uiMarketPlaceManager.activeStatus)
+                    world.cityBuilderManager.uiMarketPlaceManager.UpdatePurchaseAmounts();
+            }
+		}
+		
+        if (improvement.GetImprovementData.powerIncrease != 0)
+        {
+			powerCount -= improvement.GetImprovementData.powerIncrease * labor;
+
+            if (activeCity)
+                world.cityBuilderManager.uiInfoPanelCity.UpdatePower(powerCount);
+        }
+	}
 
     public void StartSendAttackWait()
     {
@@ -1396,7 +1492,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         Vector3 cityPos = cityLoc;
         //cityPos.z -= 1.5f; //bottom center of tile
         cityPos.y += 1.5f; //above tile
-        GameObject gameObject = Instantiate(GameAssets.Instance.cityGrowthProgressPrefab2, cityPos, Quaternion.Euler(90, 0, 0));
+        GameObject gameObject = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/CityGrowthProgressBar2"), cityPos, Quaternion.Euler(90, 0, 0));
         //gameObject.transform.SetParent(world.objectPoolItemHolder, false);
         uiTimeProgressBar = gameObject.GetComponent<UITimeProgressBar>();
         //uiTimeProgressBar.SetAdditionalText = "Growth: ";
@@ -1520,7 +1616,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             world.AddToCityLabor(terrainLocation, cityLoc);
             resourceProducer.SetResourceManager(resourceManager);
             resourceProducer.UpdateResourceGenerationData();
-			resourceProducer.StartProducing();
+			resourceProducer.StartProducing(true);
         }
         else
         {
@@ -1534,15 +1630,20 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         resourceProducer.UpdateCurrentLaborData(labor);
         ResourceType resourceType = resourceProducer.producedResource.resourceType;
 
-        for (int i = 0; i < laborChange; i++)
+        if (resourceType != ResourceType.None)
         {
-            ChangeResourcesWorked(resourceType, 1);
-            int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
-            if (activeCity && world.cityBuilderManager.uiLaborHandler.activeStatus)
-                world.cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, resourceManager.GetResourceGenerationValues(resourceType));
+            for (int i = 0; i < laborChange; i++)
+            {
+                ChangeResourcesWorked(resourceType, 1);
+                int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
+                if (activeCity && world.cityBuilderManager.uiLaborHandler.activeStatus)
+                    world.cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, resourceManager.GetResourceGenerationValues(resourceType));
+            }
         }
 
-        world.AddToCurrentFieldLabor(terrainLocation, labor);
+        if (activeCity)
+            resourceProducer.UpdateCityImprovementStats();
+        //world.AddToCurrentFieldLabor(terrainLocation, labor);
         return (remainingLabor, maxxed);
     }
 
@@ -1787,49 +1888,49 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		}
 	}
 
-	public bool AddToQueue(ImprovementDataSO improvementData, Vector3Int worldLoc, Vector3Int loc, bool upgrade)
-    {
-        QueueItem item;
-        item.queueName = improvementData.improvementNameAndLevel;
-        item.queueLoc = loc;
-        item.upgrade = upgrade;
+	//public bool AddToQueue(ImprovementDataSO improvementData, Vector3Int worldLoc, Vector3Int loc, bool upgrade) //three in citybuildermanager
+ //   {
+ //       QueueItem item;
+ //       item.queueName = improvementData.improvementNameAndLevel;
+ //       item.queueLoc = loc;
+ //       item.upgrade = upgrade;
         
-        bool building = false;
+ //       bool building = false;
 
-		if (loc == Vector3Int.zero)
-        {
-            if (queueItemList.Contains(item))
-            {
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Item already in queue");
-				return false;
-			}
+	//	if (loc == Vector3Int.zero)
+ //       {
+ //           if (queueItemList.Contains(item))
+ //           {
+	//			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Item already in queue");
+	//			return false;
+	//		}
 
-            building = true;
-        }
-        else
-        {
-            if (improvementQueueDict.ContainsKey(loc) || world.CheckQueueLocation(worldLoc))
-            {
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Location already queued");
-				return false;
-			}
+ //           building = true;
+ //       }
+ //       else
+ //       {
+ //           if (improvementQueueDict.ContainsKey(loc) || world.CheckQueueLocation(worldLoc))
+ //           {
+	//			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Location already queued");
+	//			return false;
+	//		}
 
-            improvementQueueDict[loc] = item;
-        }
+ //           improvementQueueDict[loc] = item;
+ //       }
 
-        queueItemList.Add(item);
-		world.cityBuilderManager.PlaySelectAudio(world.cityBuilderManager.queueClip);
-		if (!building)
-            world.AddLocationToQueueList(worldLoc, cityLoc);
+ //       queueItemList.Add(item);
+	//	world.cityBuilderManager.PlaySelectAudio(world.cityBuilderManager.queueClip);
+	//	if (!building)
+ //           world.AddLocationToQueueList(worldLoc, cityLoc);
 
-		if (upgrade)
-			world.cityBuilderManager.CreateQueuedArrow(item, improvementData, worldLoc, building);
-		else
-			world.cityBuilderManager.CreateQueuedGhost(item, improvementData, worldLoc, building);
+	//	if (upgrade)
+	//		world.cityBuilderManager.CreateQueuedArrow(item, improvementData, worldLoc, building);
+	//	else
+	//		world.cityBuilderManager.CreateQueuedGhost(item, improvementData, worldLoc, building);
 
-        world.cityBuilderManager.uiQueueManager.AddToQueueList(item, cityLoc);
-		return true;
-    }
+ //       world.cityBuilderManager.uiQueueManager.AddToQueueList(item, cityLoc);
+	//	return true;
+ //   }
 
     public void Select(Color color)
     {
@@ -1900,8 +2001,13 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
 		//resource manager
 		foreach (ResourceType type in resourceManager.resourceDict.Keys)
-			data.allResourceInfoDict[type] = (resourceManager.resourceDict[type], resourceManager.resourcePriceDict[type], resourceManager.resourceMinHoldDict[type],
-                resourceManager.resourceMaxHoldDict[type], resourceManager.resourceSellHistoryDict[type], resourceManager.resourceSellList.Contains(type));
+        {
+            if (world.sellableResourceList.Contains(type))
+                data.allResourceInfoDict[type] = (resourceManager.resourceDict[type], resourceManager.resourcePriceDict[type], resourceManager.resourceMinHoldDict[type],
+                    resourceManager.resourceMaxHoldDict[type], resourceManager.resourceSellHistoryDict[type], resourceManager.resourceSellList.Contains(type), resourceManager.resourcePriceChangeDict[type]);
+            else
+                data.allNonSellableResourceInfoDict[type] = (resourceManager.resourceDict[type], resourceManager.resourceMaxHoldDict[type]);
+        }
 
 		data.warehouseStorageLevel = resourceManager.resourceStorageLevel;
         data.pauseGrowth = resourceManager.pauseGrowth;
@@ -1966,6 +2072,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
 		for (int i = 0; i < resourceManager.cityGoldWaitList.Count; i++)
             data.goldWaitList.Add((resourceManager.cityGoldWaitList[i].WaitLoc, resourceManager.cityGoldWaitList[i].waitId));
+
+        for (int i = 0; i < cityBonusImprovements.Count; i++)
+            data.cityBonusList.Add(cityBonusImprovements[i].loc);
 
         foreach (ResourceType type in resourceManager.cityResourceWaitDict.Keys)
         {
@@ -2047,17 +2156,20 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             resourceManager.resourceMinHoldDict[type] = data.allResourceInfoDict[type].Item3;
             resourceManager.resourceMaxHoldDict[type] = data.allResourceInfoDict[type].Item4;
             resourceManager.resourceSellHistoryDict[type] = data.allResourceInfoDict[type].Item5;
+            resourceManager.resourcePriceChangeDict[type] = data.allResourceInfoDict[type].Item7;
 
             if (data.allResourceInfoDict[type].Item6)
-            {
-                if (!resourceManager.resourceSellList.Contains(type))
-                    resourceManager.resourceSellList.Add(type);
-            }
+                resourceManager.resourceSellList.Add(type);
             else
-            {
                 resourceManager.resourceSellList.Remove(type);
-            }
         }
+
+        foreach (ResourceType type in data.allNonSellableResourceInfoDict.Keys)
+        {
+            resourceManager.resourceDict[type] = data.allNonSellableResourceInfoDict[type].Item1;
+            resourceManager.resourceMaxHoldDict[type] = data.allNonSellableResourceInfoDict[type].Item2;
+        }
+
         resourceManager.resourceStorageLevel = data.warehouseStorageLevel;
         resourceManager.pauseGrowth = data.pauseGrowth;
         resourceManager.growthDeclineDanger = data.growthDeclineDanger;
@@ -2143,8 +2255,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             if (world.TileHasCityImprovement(goldWaitList[i].Item1))
             {
-                if (world.CheckImprovementIsProducer(goldWaitList[i].Item1))
-                    resourceManager.cityGoldWaitList.Add(world.GetResourceProducer(goldWaitList[i].Item1));
+                //if (world.CheckImprovementIsProducer(goldWaitList[i].Item1))
+                resourceManager.cityGoldWaitList.Add(world.GetResourceProducer(goldWaitList[i].Item1));
             }
             else if (goldWaitList[i].Item2 >= 0)
             {
@@ -2169,8 +2281,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		    {
 			    if (world.TileHasCityImprovement(resourceWaitDict[type][i].Item1))
 			    {
-				    if (world.CheckImprovementIsProducer(resourceWaitDict[type][i].Item1))
-                        resourceManager.cityResourceWaitDict[type].Add(world.GetResourceProducer(resourceWaitDict[type][i].Item1));
+				    //if (world.CheckImprovementIsProducer(resourceWaitDict[type][i].Item1))
+                    resourceManager.cityResourceWaitDict[type].Add(world.GetResourceProducer(resourceWaitDict[type][i].Item1));
 			    }
 			    else if (resourceWaitDict[type][i].Item2 >= 0)
 			    {
@@ -2206,8 +2318,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
 			if (world.TileHasCityImprovement(unloadWaitList[i].Item1))
 			{
-				if (world.CheckImprovementIsProducer(unloadWaitList[i].Item1))
-					resourceManager.unloadWaitList.Add(world.GetResourceProducer(unloadWaitList[i].Item1));
+				//if (world.CheckImprovementIsProducer(unloadWaitList[i].Item1))
+				resourceManager.unloadWaitList.Add(world.GetResourceProducer(unloadWaitList[i].Item1));
 			}
 			else if (unloadWaitList[i].Item2 >= 0)
 			{
@@ -2236,5 +2348,11 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 				}
 			}
 		}
+    }
+
+    public void SetCityBonus(List<Vector3Int> cityBonusList)
+    {
+        for (int i = 0; i < cityBonusList.Count; i++)
+            world.GetResourceProducer(cityBonusList[i]).LoadProducingCoroutine();
     }
 }

@@ -21,7 +21,8 @@ public class CityData
 	//public List<ResourceType> resourceSellList;
 	//public Dictionary<ResourceType, int> resourceMinHoldDict;
 	//public Dictionary<ResourceType, int> resourceSellHistoryDict;
-	public Dictionary<ResourceType, (int, int, int, int, int, bool)> allResourceInfoDict = new(); //putting it all into one to reduce storage size
+	public Dictionary<ResourceType, (int, int, int, int, int, bool, int)> allResourceInfoDict = new(); //putting it all into one to reduce storage size
+	public Dictionary<ResourceType, (int, int)> allNonSellableResourceInfoDict = new();
 	public bool pauseGrowth, growthDeclineDanger;
 	public int starvationCount, noHousingCount, noWaterCount, cycleCount;
 
@@ -39,7 +40,7 @@ public class CityData
 	public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, enemyReady, issueRefund = true;
 
 	//waiting lists
-	public List<Vector3Int> /*waitingforResourceProducerList = new(), *//*waitingForProducerStorageList = new(), waitingToUnloadProducerList = new(),*/ waitingToUnloadResearchList = new();
+	public List<Vector3Int> cityBonusList = new();
 	public List<(Vector3Int, int)> goldWaitList = new(), unloadWaitList = new();
 	public Dictionary<ResourceType, List<(Vector3Int, int)>> resourceWaitDict = new();
 	public Dictionary<ResourceType, List<Vector3Int>> resourceMaxWaitDict = new();

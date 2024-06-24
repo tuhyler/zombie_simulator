@@ -451,7 +451,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 55, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9204000730736086874
 CanvasRenderer:
@@ -939,7 +939,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 55, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7131262033300021506
 CanvasRenderer:
@@ -2088,7 +2088,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 55, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8904660831610761315
 CanvasRenderer:
@@ -2243,6 +2243,8 @@ MonoBehaviour:
   strengthSprite: {fileID: 21300000, guid: f348982132094e94d8a089d5f8d3ea17, type: 3}
   powerSprite: {fileID: 21300000, guid: 97c9b3c8315bd654a8ead3474d04a14e, type: 3}
   waterSprite: {fileID: 21300000, guid: 4ab88835954676043b42fe09d9fd6f26, type: 3}
+  purchaseAmountSprite: {fileID: 21300000, guid: df391ebff648ca1468588cdfb773de04,
+    type: 3}
   produceHolder: {fileID: 7791384119688600741}
   descriptionHolder: {fileID: 3864407777522916775}
   workEthicImage: {fileID: 1517845142136471380}

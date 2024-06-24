@@ -54,6 +54,7 @@ public class ImprovementDataSO : ScriptableObject
     public int attackBonus = 0;
     public SingleBuildType singleBuildType;
     public bool buildOnRoad = false;
+    public bool cityBonus = false;
     //public List<Vector3Int> stallLocs;
     //public List<Vector3Int> noWalkAreas;
 }

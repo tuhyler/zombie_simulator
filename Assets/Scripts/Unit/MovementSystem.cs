@@ -171,7 +171,7 @@ public class MovementSystem : MonoBehaviour
     {
         for (int i = 0; i < 30; i++) //grow pool 30 at a time
         {
-            GameObject print = Instantiate(GameAssets.Instance.shoePrintPrefab);
+            GameObject print = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/ShoePrintHolder"));
             print.gameObject.transform.SetParent(unitMovement.world.cityBuilderManager.objectPoolHolder, false);
             AddToShoePrintPool(print);
         }
@@ -198,7 +198,7 @@ public class MovementSystem : MonoBehaviour
     {
         for (int i = 0; i < 30; i++) //grow pool 30 at a time
         {
-            GameObject chevron = Instantiate(GameAssets.Instance.chevronPrefab);
+            GameObject chevron = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/ChevronHolder"));
             chevron.gameObject.transform.SetParent(unitMovement.world.cityBuilderManager.objectPoolHolder, false);
             AddToChevronPool(chevron);
         }

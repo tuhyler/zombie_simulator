@@ -49,9 +49,12 @@ public class UILaborHandler : MonoBehaviour
     {
         foreach (ResourceType resourceType in city.GetResourcesWorked())
         {
-            laborOptionsDict[resourceType].ToggleVisibility(true);
-            laborOptionsDict[resourceType].SetUICount(city.GetResourcesWorkedResourceCount(resourceType), city.resourceManager.GetResourceGenerationValues(resourceType));
-            laborOptions.Add(laborOptionsDict[resourceType]);
+            if (resourceType != ResourceType.None)
+            {
+                laborOptionsDict[resourceType].ToggleVisibility(true);
+                laborOptionsDict[resourceType].SetUICount(city.GetResourcesWorkedResourceCount(resourceType), city.resourceManager.GetResourceGenerationValues(resourceType));
+                laborOptions.Add(laborOptionsDict[resourceType]);
+            }
         }
     }
 
@@ -77,16 +80,16 @@ public class UILaborHandler : MonoBehaviour
             if (uiCityLaborCostPanel.isOpen)
                 ToggleCityLaborCost();
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
+            allContents.anchoredPosition3D = originalLoc + new Vector3(600f, 0, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f).setEaseOutSine();
+            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x - 600f, 0.3f).setEaseOutSine();
             //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
         {
             activeStatus = false;
             uiCityLaborCostPanel.ToggleVisibility(false, true);
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 600f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
 

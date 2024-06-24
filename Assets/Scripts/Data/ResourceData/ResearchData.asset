@@ -16,7 +16,14 @@ MonoBehaviour:
   resourceStorageMultiplier: 0
   resourceName: Research
   resourceIcon: {fileID: 21300000, guid: fbc34e2d528690c4b99228f5ac0bd952, type: 3}
-  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 5
+  ResourceGatheringAmount: 1
   resourcePrice: 1
-  resourceQuantityPerPop: 1
+  resourceQuantityPerPop: 0
+  rawResource: 0
+  rocksType: 0
+  resourceCategory: 0
+  requirement: 
+  uvCoordinatesForRocks: {x: 0, y: 0}
+  forVisual: 0
+  sellResource: 0

@@ -195,8 +195,8 @@ public class MapWorld : MonoBehaviour
     public Dictionary<string, int> upgradeableObjectMaxLevelDict = new();
 
     //for assigning labor in cities
-    public Dictionary<Vector3Int, int> currentWorkedTileDict = new(); //to see how much labor is assigned to tile
-    private Dictionary<Vector3Int, int> maxWorkedTileDict = new(); //the max amount of labor that can be assigned to tile
+    //public Dictionary<Vector3Int, int> currentWorkedTileDict = new(); //to see how much labor is assigned to tile
+    //private Dictionary<Vector3Int, int> maxWorkedTileDict = new(); //the max amount of labor that can be assigned to tile
     public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict = new(); //the city worked tiles belong to
 
     //for workers
@@ -265,7 +265,7 @@ public class MapWorld : MonoBehaviour
     //handling discovering resources
     List<UIResourceSelectionGrid> resourceSelectionGridList = new();
     [HideInInspector]
-    public HashSet<ResourceType> resourceDiscoveredList = new();
+    public HashSet<ResourceType> resourceDiscoveredList = new(), sellableResourceList = new();
 
     [HideInInspector]
     public HashSet<string> newUnitsAndImprovements = new();
@@ -343,7 +343,7 @@ public class MapWorld : MonoBehaviour
 			    buildPanelGO.transform.SetParent(builderHandler.objectHolder, false);
 			    buildOption.SetBuildOptionData(builderHandler);
 
-                if (data.availableInitially || (showAllBuildOptions && data.improvementLevel == 1))
+                if (data.availableInitially || (showAllBuildOptions /*&& data.improvementLevel == 1*/))
                     SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
             }
         }
@@ -366,7 +366,7 @@ public class MapWorld : MonoBehaviour
         {
             if (data.unitDisplayName == "Azai")
             {
-                if (data.availableInitially)
+                if (data.availableInitially || showAllBuildOptions)
                     SetUpgradeableObjectMaxLevel("Azai", data.unitLevel);
 
 				continue;
@@ -378,7 +378,7 @@ public class MapWorld : MonoBehaviour
 			buildPanelGO.transform.SetParent(cityBuilderManager.uiUnitBuilder.objectHolder, false);
 			buildOption.SetBuildOptionData(cityBuilderManager.uiUnitBuilder);
 
-            if (data.availableInitially)
+            if (data.availableInitially || showAllBuildOptions)
                 SetUpgradeableObjectMaxLevel(data.unitType.ToString(), data.unitLevel);
 		}
 
@@ -1206,9 +1206,9 @@ public class MapWorld : MonoBehaviour
         string[] buildingArray;
 
         if (hasWater)
-            buildingArray = new string[3] { buildingEraDict["Monument"], buildingEraDict["Market"], buildingEraDict["Walls"] };
+            buildingArray = new string[2] { buildingEraDict["Monument"], buildingEraDict["Walls"] };
         else
-            buildingArray = new string[4] { buildingEraDict["Monument"], buildingEraDict["Well"], buildingEraDict["Market"], buildingEraDict["Walls"] };
+            buildingArray = new string[3] { buildingEraDict["Monument"], buildingEraDict["Well"], buildingEraDict["Walls"] };
 
         for (int i = 0; i < buildingArray.Length; i++)
         {
@@ -1608,6 +1608,8 @@ public class MapWorld : MonoBehaviour
 
         GameLoader.Instance.cityWaitingDict[city] = (data.goldWaitList, data.resourceWaitDict, data.resourceMaxWaitDict, data.unloadWaitList,
             data.waitList, data.seaWaitList, data.airWaitList);
+
+        GameLoader.Instance.cityBonusDict[city] = data.cityBonusList;
 	}
 
     private void CreateBuilding(ImprovementDataSO buildingData, City city, CityImprovementData data)
@@ -1944,7 +1946,7 @@ public class MapWorld : MonoBehaviour
 			}
 
 			//setting labor info (harbors have no labor)
-			AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
+			//AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
 			cityImprovement.SetInactive();
 
             if (enemy)
@@ -2553,43 +2555,43 @@ public class MapWorld : MonoBehaviour
 
         //resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
-        
-		//for (int i = 0; i < roadLocsList.Count; i++)
-		//    Debug.Log(roadLocsList[i]);
-		//      List<int> num = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-		//      List<int> newNum = new();
+        //for (int i = 0; i < roadLocsList.Count; i++)
+        //    Debug.Log(roadLocsList[i]);
+        //      List<int> num = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-		//      for (int i = 0; i < 10; i++)
-		//      {
-		//          int rand = num[UnityEngine.Random.Range(0, num.Count)];
-		//          num.Remove(rand);
-		//          newNum.Add(rand);
-		//      }
+        //      List<int> newNum = new();
 
-		//      for (int i = 0; i < newNum.Count; i++)
-		//      {
-		//          Debug.Log(newNum[i]);
-		//      }
+        //      for (int i = 0; i < 10; i++)
+        //      {
+        //          int rand = num[UnityEngine.Random.Range(0, num.Count)];
+        //          num.Remove(rand);
+        //          newNum.Add(rand);
+        //      }
 
-		//      for (int i = 0; i < 10; i++)
-		//      {
-		//          for (int j = i + 1; j < 10; j++)
-		//          {
-		//              if (newNum[i] < newNum[j])
-		//              {
-		//                  int oldNum = newNum[j];
-		//                  newNum.Remove(oldNum);
-		//                  newNum.Insert(i, oldNum);
-		//              }
-		//          }
-		//      }
+        //      for (int i = 0; i < newNum.Count; i++)
+        //      {
+        //          Debug.Log(newNum[i]);
+        //      }
 
-		//for (int i = 0; i < newNum.Count; i++)
-		//{
-		//	Debug.Log(newNum[i]);
-		//}
-	}
+        //      for (int i = 0; i < 10; i++)
+        //      {
+        //          for (int j = i + 1; j < 10; j++)
+        //          {
+        //              if (newNum[i] < newNum[j])
+        //              {
+        //                  int oldNum = newNum[j];
+        //                  newNum.Remove(oldNum);
+        //                  newNum.Insert(i, oldNum);
+        //              }
+        //          }
+        //      }
+
+        //for (int i = 0; i < newNum.Count; i++)
+        //{
+        //	Debug.Log(newNum[i]);
+        //}
+    }
 
 	public void SetMountainMiddle(TerrainData td, int i, bool grassland)
     {
@@ -3107,6 +3109,9 @@ public class MapWorld : MonoBehaviour
             return;
         
         if (uiMainMenu.activeStatus || mapHandler.activeStatus)
+            return;
+
+        if (unitMovement.uiTradeRouteManager.activeStatus && unitMovement.uiTradeRouteManager.uiTradeResourceNum.activeStatus)
             return;
         
         if (mainPlayer.isSelected)
@@ -4488,17 +4493,26 @@ public class MapWorld : MonoBehaviour
         return resourceDiscoveredList.Contains(type);
     }
 
-    public void LoadDiscoveredResources()
+    public void SetSellableResourceList()
     {
         foreach (ResourceType type in resourceDiscoveredList)
         {
-			if (type == ResourceType.Gold || type == ResourceType.Research || resourceDiscoveredList.Contains(type))
-				return;
-
-			UpdateResourceSelectionGrids(type);
-			cityBuilderManager.uiMarketPlaceManager.UpdateMarketPlaceManager(type);
-		}
+            if (ResourceHolder.Instance.GetSell(type))
+                sellableResourceList.Add(type);
+        }
     }
+
+  //  public void LoadDiscoveredResources()
+  //  {
+  //      foreach (ResourceType type in resourceDiscoveredList)
+  //      {
+		//	if (type == ResourceType.Gold || type == ResourceType.Research || resourceDiscoveredList.Contains(type))
+		//		return;
+
+		//	UpdateResourceSelectionGrids(type);
+		//	cityBuilderManager.uiMarketPlaceManager.UpdateMarketPlaceManager(type);
+		//}
+  //  }
 
     public void DiscoverResource(ResourceType type)
     {
@@ -5305,6 +5319,10 @@ public class MapWorld : MonoBehaviour
             return;
 
         resourceDiscoveredList.Add(type);
+
+        if (ResourceHolder.Instance.GetSell(type))
+            sellableResourceList.Add(type);
+
         GameLoader.Instance.gameData.resourceDiscoveredList.Add(type);
     }
 
@@ -6376,34 +6394,34 @@ public class MapWorld : MonoBehaviour
         cityImprovementQueueList.Remove(location);  
     }
 
-    public void RemoveQueueItemCheck(Vector3Int location)
-    {
-		if (cityImprovementQueueList.ContainsKey(location))
-        {
-            City city = GetCity(cityImprovementQueueList[location]);
-            Vector3Int localLocation = location - city.cityLoc;
+  //  public void RemoveQueueItemCheck(Vector3Int location) //two in worker
+  //  {
+		//if (cityImprovementQueueList.ContainsKey(location))
+  //      {
+  //          City city = GetCity(cityImprovementQueueList[location]);
+  //          Vector3Int localLocation = location - city.cityLoc;
 
-            if (city.activeCity && cityBuilderManager.uiQueueManager.activeStatus)
-            {
-                QueueItem item = city.improvementQueueDict[localLocation];
-                cityBuilderManager.RemoveQueueGhostImprovement(item);
+  //          if (city.activeCity && cityBuilderManager.uiQueueManager.activeStatus)
+  //          {
+  //              QueueItem item = city.improvementQueueDict[localLocation];
+  //              cityBuilderManager.RemoveQueueGhostImprovement(item);
 
-				List<UIQueueItem> tempQueueItemList = new(cityBuilderManager.uiQueueManager.uiQueueItemList);
-				for (int i = 0; i < tempQueueItemList.Count; i++)
-				{
-					if (tempQueueItemList[i].item.queueLoc == item.queueLoc)
-					{
-                        cityBuilderManager.uiQueueManager.RemoveFromQueue(tempQueueItemList[i], city.cityLoc);
-						break;
-					}
-				}
-            }
-            else
-            {
-    			city.RemoveFromQueue(localLocation);
-            }
-        }
-    }
+		//		List<UIQueueItem> tempQueueItemList = new(cityBuilderManager.uiQueueManager.uiQueueItemList);
+		//		for (int i = 0; i < tempQueueItemList.Count; i++)
+		//		{
+		//			if (tempQueueItemList[i].item.queueLoc == item.queueLoc)
+		//			{
+  //                      cityBuilderManager.uiQueueManager.RemoveFromQueue(tempQueueItemList[i], city.cityLoc);
+		//				break;
+		//			}
+		//		}
+  //          }
+  //          else
+  //          {
+  //  			city.RemoveFromQueue(localLocation);
+  //          }
+  //      }
+  //  }
 
     public void SetRoads(Vector3Int tile, Road road, bool straight)
     {
@@ -6537,6 +6555,7 @@ public class MapWorld : MonoBehaviour
 
 			road.gameObject.SetActive(true);
 			roadManager.roadMeshList.Add(road.MeshFilter);
+            roadManager.colliderMeshList.Add(road.colliderMesh);
 		}
 
         roadManager.CombineMeshes();
@@ -7412,16 +7431,16 @@ public class MapWorld : MonoBehaviour
 	}
 
     //for assigning labor
-    public void AddToCurrentFieldLabor(Vector3Int pos, int current)
-    {
-        currentWorkedTileDict[pos] = current;
-    }
+    //public void AddToCurrentFieldLabor(Vector3Int pos, int current)
+    //{
+    //    currentWorkedTileDict[pos] = current;
+    //}
 
-    public void AddToMaxLaborDict(Vector3 pos, int max) //only adding to max labor when improvements are built, hence Vector3
-    {
-        Vector3Int posInt = RoundToInt(pos);
-        maxWorkedTileDict[posInt] = max;
-    }
+    //public void AddToMaxLaborDict(Vector3 pos, int max) //only adding to max labor when improvements are built, hence Vector3
+    //{
+    //    Vector3Int posInt = RoundToInt(pos);
+    //    maxWorkedTileDict[posInt] = max;
+    //}
 
     public void AddToCityLabor(Vector3Int pos, Vector3Int? cityLoc)
     {
@@ -7430,20 +7449,20 @@ public class MapWorld : MonoBehaviour
 
     public int GetCurrentLaborForTile(Vector3Int pos)
     {
-        if (currentWorkedTileDict.ContainsKey(pos))
-            return currentWorkedTileDict[pos];
+        if (CheckIfTileIsWorked(pos))
+            return cityImprovementDict[pos].resourceProducer.currentLabor;
         return 0;
     }
 
     public int GetMaxLaborForTile(Vector3Int pos)
     {
-        return maxWorkedTileDict[pos];
+        return cityImprovementDict[pos].GetImprovementData.maxLabor;
     }
 
-    public bool CheckImprovementIsProducer(Vector3Int pos)
-    {
-        return cityImprovementDict[pos].resourceProducer != null;
-    }
+    //public bool CheckImprovementIsProducer(Vector3Int pos)
+    //{
+    //    return cityImprovementDict[pos].resourceProducer != null;
+    //}
 
     private Vector3Int? GetCityLaborForTile(Vector3Int pos)
     {
@@ -7457,18 +7476,18 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckIfTileIsWorked(Vector3Int pos)
     {
-        return currentWorkedTileDict.ContainsKey(pos);
+        return cityImprovementDict.ContainsKey(pos) && cityImprovementDict[pos].resourceProducer.currentLabor > 0; //every non-city center improvement is a producer
     }
 
     public bool CompletedImprovementCheck(Vector3Int pos)
     {
-        return maxWorkedTileDict.ContainsKey(pos);
+        return cityImprovementDict.ContainsKey(pos) && !cityImprovementDict[pos].isConstruction;
     }
 
     public bool CheckIfTileIsMaxxed(Vector3Int pos)
     {
-        if (currentWorkedTileDict.ContainsKey(pos))
-            return maxWorkedTileDict[pos] == currentWorkedTileDict[pos];
+        if (CheckIfTileIsWorked(pos))
+            return cityImprovementDict[pos].GetImprovementData.maxLabor == cityImprovementDict[pos].resourceProducer.currentLabor;
         return false;
     }
 
@@ -7482,32 +7501,29 @@ public class MapWorld : MonoBehaviour
         world.Remove(tile);
     }
 
-    public void RemoveFromCurrentWorked(Vector3Int pos)
-    {
-        if (currentWorkedTileDict.ContainsKey(pos))
-        {
-            currentWorkedTileDict.Remove(pos);
-        }
-    }
+    //public void RemoveFromCurrentWorked(Vector3Int pos)
+    //{
+    //    currentWorkedTileDict.Remove(pos);
+    //}
 
-    public void RemoveFromMaxWorked(Vector3Int pos) //only removing when improvements are destroyed
-    {
-        maxWorkedTileDict.Remove(pos);
-    }
+    //public void RemoveFromMaxWorked(Vector3Int pos) //only removing when improvements are destroyed
+    //{
+    //    maxWorkedTileDict.Remove(pos);
+    //}
 
     public void RemoveFromCityLabor(Vector3Int pos)
     {
         if (cityImprovementDict[pos].GetImprovementData.singleBuildType != SingleBuildType.None)
             return;
         
-        if (cityWorkedTileDict.ContainsKey(pos))
-            cityWorkedTileDict.Remove(pos);
+        //if (cityWorkedTileDict.ContainsKey(pos))
+        cityWorkedTileDict.Remove(pos);
     }
 
     public void RemoveSingleBuildFromCityLabor(Vector3Int pos)
     {
-        if (cityWorkedTileDict.ContainsKey(pos))
-            cityWorkedTileDict.Remove(pos);
+        //if (cityWorkedTileDict.ContainsKey(pos))
+        cityWorkedTileDict.Remove(pos);
     }
 
     public void CityCanvasCheck()

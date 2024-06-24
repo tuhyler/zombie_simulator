@@ -252,7 +252,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "Really? You will help me? That's great!"
+			speakerText = "Really? You will help me?"
 		};
 		conversationDict["first_labor"].Add(first_labor14);
 
@@ -310,7 +310,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "It's easy! We can get more people by simply gathering food, shelter, and water, and they will come."
+			speakerText = "It's easy! We can get more people by simply gathering food, building shelter, and providing water, and they will come."
 		};
 		conversationDict["tutorial3b"].Add(tutorial3b3);
 
@@ -319,7 +319,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Let's start by getting some lumber to build a hut!"
+			speakerText = "We already have some food and water, so let's start by getting some lumber to build a hut!"
 		};
 		conversationDict["tutorial3b"].Add(tutorial3b4);
 		#endregion
@@ -423,7 +423,7 @@ public class Conversations : MonoBehaviour
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Now let's give him something to do! We need to figure out how to build a rocket, right? So let's build a " +
-			"place where we can research the necessary technology. To do that we need a lot of stone."
+			"place where we can research the necessary technology. To do that, we need to get a lot of stone."
 		};
 		conversationDict["tutorial7"].Add(tutorial72);
 		#endregion
@@ -471,7 +471,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Look! Our new pop is researching now! So long as you have food and money to give him, our people will be happy to research till your heart's content."
+			speakerText = "Look! Our new pop is researching now! So long as you have food and money to provide, our people will be happy to research till your heart's content."
 		};
 		conversationDict["tutorial11"].Add(tutorial111);
 
@@ -738,7 +738,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "You know, you speak like someone who is perpetually practicing for a Shakespeare play."
+			speakerText = "You speak like someone who is perpetually practicing for a Shakespeare play."
 		};
 		conversationDict["first_infantry"].Add(first_infantry11);
 		#endregion

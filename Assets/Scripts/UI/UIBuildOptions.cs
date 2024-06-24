@@ -26,7 +26,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private Image objectImage, strengthImage, waterImage;
 
     [SerializeField]
-    private Sprite inventorySprite, rocksNormal, rocksLuxury, rocksChemical, waterIcon, powerIcon;
+    private Sprite inventorySprite, rocksNormal, rocksLuxury, rocksChemical, waterIcon, powerIcon, purchaseAmountIcon;
 
     [SerializeField]
     private GameObject resourceInfoPanel, productionPanel, descriptionPanel, workEthicImage, housingImage, newIcon;
@@ -107,6 +107,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         List<ResourceValue> objectCost;
         bool arrowBuffer = false;
 		bool showCityStatsDesc = false;
+        bool cityBonus = false;
 
 		if (isUnitPanel)
         {
@@ -192,14 +193,20 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 				showCityStatsDesc = true;
 			}
 
-            if (buildData.waterIncrease > 0 || buildData.powerIncrease > 0)
+            if (buildData.waterIncrease > 0 || buildData.powerIncrease > 0 || buildData.purchaseAmountChange > 0)
             {
                 bool isWater = buildData.waterIncrease > 0;
+                bool isPurchaseAmount = buildData.purchaseAmountChange > 0;
                 waterImage.gameObject.SetActive(true);
-                waterImage.sprite = isWater ? waterIcon : powerIcon;
+                if (isPurchaseAmount)
+                    waterImage.sprite = purchaseAmountIcon;
+                else
+                    waterImage.sprite = isWater ? waterIcon : powerIcon;
                 waterText.gameObject.SetActive(true);
-                int num = isWater ? buildData.waterIncrease : buildData.powerIncrease;
-                waterText.text = "+" + num.ToString();
+                if (isPurchaseAmount)
+                    waterText.text = "+" + buildData.purchaseAmountChange;
+                else
+					waterText.text = isWater ? "+" + buildData.waterIncrease.ToString() : "+" + buildData.powerIncrease.ToString();
 				showCityStatsDesc = true;
 			}
 
@@ -240,9 +247,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         int maxCount = objectCost.Count;
         int maxConsumed = 0;
 
+        if (producedCount > 0 && objectProduced[0].resourceType == ResourceType.None)
+            cityBonus = true;
+
         for (int i = 0; i < producedCount; i++)
         {
-            if (!isUnitPanel)
+            if (!isUnitPanel && objectProduced[i].resourceType != ResourceType.None)
             {
                 ResourceValue productionTime;
                 productionTime.resourceType = ResourceType.Time;
@@ -256,7 +266,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             if (buildData != null && buildData.rawResourceType == RawResourceType.Rocks)
                 rocks = true;
 
-            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], objectConsumed[i], rocks);
+            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], objectConsumed[i], rocks, cityBonus);
 
             if (maxCount < objectConsumed[i].Count + 1)
             {
@@ -310,7 +320,9 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             
             if (showCityStatsDesc)
             {
-				allContentsHeight += objectDescription.Length > 0 ? 60 : 100;
+				allContentsHeight += objectDescription.Length > 0 ? 70 : 110;
+                if (cityBonus)
+                    allContentsHeight -= 5;
                 descriptionTitle.text = "Benefits";
 			}
 
@@ -319,6 +331,10 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 unitDescription.gameObject.SetActive(true);
                 producesTitle.text = "Cost per Growth Cycle";
                 descriptionTitle.text = "Unit Info";
+            }
+            else if (cityBonus)
+            {
+                producesTitle.text = "Cost per Cycle";
             }
             else
             {
@@ -365,11 +381,11 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 			descriptionShift.y -= resourcePanelSize * (producedCount - 1);
 		descriptionPanel.transform.localPosition = descriptionShift;
         imageLine.sizeDelta = new Vector2(imageLineWidth, 4);
-        if (isUnitPanel)
+        if (isUnitPanel || cityBonus)
             resourceProducedHolder.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.UpperCenter;
     }
 
-    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, bool cost/*, int producedResourceTime*/)
+    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, bool cost, bool cityBonus = false/*, int producedResourceTime*/)
     {
         foreach (ResourceValue value in resources)
         {
@@ -385,7 +401,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
             if (cost)
                 costResourcePanels.Add(uiResourceCostPanel);
-            else if (isUnitPanel)
+            else if (isUnitPanel || cityBonus)
             {
                 transform.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.UpperCenter;
                 transform.GetComponent<RectTransform>().sizeDelta = new Vector2(resources.Count * 90, 90);
@@ -393,7 +409,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, /*int producedResourceTime, */List<ResourceValue> consumedResources, bool rocks)
+    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, /*int producedResourceTime, */List<ResourceValue> consumedResources, bool rocks, bool cityBonus)
     {
         int i = 0;
         foreach (Transform selection in transform)
@@ -401,7 +417,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             if (selection.TryGetComponent(out UIResourceInfoPanel uiResourceInfoPanel))
             {
                 //uiResourceInfoPanel.resourceAmount.text = Mathf.RoundToInt(producedResource.resourceAmount * (60f / producedResourceTime)).ToString();
-                if (isUnitPanel)
+                if (isUnitPanel || cityBonus)
                 {
                     selection.gameObject.SetActive(false);
                 }
@@ -433,7 +449,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                         producedResourcePanels.Add(uiResourceInfoPanel);
                 }
             }
-            else if (i == 1 && isUnitPanel)
+            else if (i == 1 && (isUnitPanel || cityBonus))
             {
                 selection.gameObject.SetActive(false);
             }
@@ -453,7 +469,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             i++;
         }
 
-        GenerateResourceInfo(transform, consumedResources, false);
+        GenerateResourceInfo(transform, consumedResources, false, cityBonus);
     }
 
     public void SetResourceTextToDefault()

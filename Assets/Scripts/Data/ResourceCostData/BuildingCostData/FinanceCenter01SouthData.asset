@@ -10,39 +10,43 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Market01SouthData
+  m_Name: FinanceCenter01SouthData
   m_EditorClassIdentifier: 
   secondaryData: []
-  prefabLoc: BuildingPrefabs/Bazaar01
+  prefabLoc: ImprovementPrefabs/MarketSouth01
   audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 1
-  isBuildingImprovement: 0
+  isBuildingImprovement: 1
   improvementName: Market
   improvementDisplayName: Bazaar
   improvementLevel: 1
   improvementNameAndLevel: Market-1
-  improvementDescription: Increases goods purchased amount by 25% per labor
+  improvementDescription: 
   buildingLocation: {x: -0.1, y: 0, z: 0.6}
   image: {fileID: 21300000, guid: fb5244d8238bfa24294e1f4cd843bf44, type: 3}
-  mapIcon: {fileID: 0}
+  mapIcon: {fileID: 21300000, guid: c9fc3bb547040824293168fa88c1360d, type: 3}
   improvementCost:
   - resourceType: 6
     resourceAmount: 40
-  consumedResources: []
+  consumedResources:
+  - resourceType: 4
+    resourceAmount: 5
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
-  producedResources: []
-  producedResourceTime: 
+  producedResources:
+  - resourceType: 0
+    resourceAmount: 1
+  producedResourceTime: 3c000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
   terrainType: 5
   specificTerrain: 0
   workEthicChange: 0
-  purchaseAmountChange: 0.5
+  purchaseAmountChange: 0.25
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
@@ -54,10 +58,11 @@ MonoBehaviour:
   adjustForHill: 0
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 20
+  buildTime: 2
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
   attackBonus: 0
   singleBuildType: 7
   buildOnRoad: 0
+  cityBonus: 1

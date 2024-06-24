@@ -57,7 +57,7 @@ public class ConversationHaver : MonoBehaviour
 		if (conversationTopics.Count == 0)
 			unit.somethingToSay = false;
 		unit.sayingSomething = true;
-		world.cameraController.followTransform = transform;
+		world.cameraController.CenterCameraNoFollow(unit.transform.position);
 		//world.cameraController.CenterCameraNoFollow(transform.position);
 		world.cameraController.someoneSpeaking = true;
 		if (unit.isPlayer)
