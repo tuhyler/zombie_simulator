@@ -26,8 +26,6 @@ MonoBehaviour:
   unitCost:
   - resourceType: 6
     resourceAmount: 40
-  - resourceType: 19
-    resourceAmount: 10
   cycleCost:
   - resourceType: 4
     resourceAmount: 2
@@ -43,7 +41,7 @@ MonoBehaviour:
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 1
-  trainTime: 30
+  trainTime: 2
   cargoCapacity: 100
   goldDropRange: {x: 0, y: 0}
   transportationType: 1

@@ -172,7 +172,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 	public void SetWorld(MapWorld world, bool enemy = false)
     {
         this.world = world;
-        uiTimeProgressBar.transform.SetParent(world.objectPoolItemHolder, false);
+        //uiTimeProgressBar.transform.SetParent(world.objectPoolItemHolder, false);
 		world.CheckCityPermanentChanges(this);
 		army.SetWorld(world);
         resourceManager.PrepareResourceDictionary();
@@ -1489,11 +1489,11 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
 	private void SetProgressTimeBar()
     {
-        Vector3 cityPos = cityLoc;
+        //Vector3 cityPos = cityLoc;
         //cityPos.z -= 1.5f; //bottom center of tile
-        cityPos.y += 1.5f; //above tile
-        GameObject gameObject = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/CityGrowthProgressBar2"), cityPos, Quaternion.Euler(90, 0, 0));
-        //gameObject.transform.SetParent(world.objectPoolItemHolder, false);
+        //cityPos.y += 1.5f; //above tile
+        GameObject gameObject = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/CityGrowthProgressBar2"), Vector3.zero, Quaternion.Euler(90, 0, 0));
+        gameObject.transform.SetParent(transform, false);
         uiTimeProgressBar = gameObject.GetComponent<UITimeProgressBar>();
         //uiTimeProgressBar.SetAdditionalText = "Growth: ";
         uiTimeProgressBar.SetTimeProgressBarValue(secondsTillGrowthCheck);
