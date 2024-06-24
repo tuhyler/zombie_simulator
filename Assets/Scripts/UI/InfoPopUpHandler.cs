@@ -55,7 +55,7 @@ public class InfoPopUpHandler : MonoBehaviour
     {
         if (warningMessage == null)
         {
-            GameObject popUpGO = Instantiate(GameAssets.Instance.popUpTextPrefab, new Vector3(0, 0, 0), Quaternion.Euler(90, 0, 0));
+            GameObject popUpGO = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/PopUpText"), new Vector3(0, 0, 0), Quaternion.Euler(90, 0, 0));
             popUpGO.transform.SetParent(objectTransform, false);
             warningMessage = popUpGO.GetComponent<InfoPopUpHandler>();
         }

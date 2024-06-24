@@ -19,11 +19,11 @@ MonoBehaviour:
   ResourceGatheringTime: 0
   ResourceGatheringAmount: 1
   resourcePrice: 15
-  resourceQuantityPerPop: 1
+  resourceQuantityPerPop: 0
   rawResource: 0
   rocksType: 0
   resourceCategory: 2
   requirement: 
   uvCoordinatesForRocks: {x: 0, y: 0}
   forVisual: 0
-  sellResource: 1
+  sellResource: 0

@@ -28,6 +28,7 @@ public class RoadManager : MonoBehaviour
     private Transform roadHolder, roadHolderMinimap;
     [HideInInspector]
     public List<MeshFilter> roadMeshList = new();
+    public List<Mesh> colliderMeshList = new();
     
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
@@ -73,6 +74,7 @@ public class RoadManager : MonoBehaviour
         else
         {
             roadMeshList.Add(road.MeshFilter);
+            colliderMeshList.Add(road.colliderMesh);
         }
 
         world.SetRoads(roadPosition, road, straight);
@@ -171,6 +173,7 @@ public class RoadManager : MonoBehaviour
             if (road != null)
             {
                 roadMeshList.Remove(road.MeshFilter);
+                colliderMeshList.Remove(road.colliderMesh);
                 Destroy(road.gameObject);
             }
             if (world.IsSoloRoadOnTileLocation(roadLoc))
@@ -179,6 +182,7 @@ public class RoadManager : MonoBehaviour
                 if (road2 != null)
                 {
                     roadMeshList.Remove(road2.MeshFilter);
+                    colliderMeshList.Remove(road2.colliderMesh);
                     Destroy(road2.gameObject);
                 }
                 world.RemoveSoloRoadLocation(roadLoc);
@@ -351,6 +355,7 @@ public class RoadManager : MonoBehaviour
             if (road == null)
                 continue;
             roadMeshList.Remove(road.MeshFilter);
+            colliderMeshList.Remove(road.colliderMesh);
             Destroy(road.gameObject);
             //for tweening (can't tween with combined meshes, looks weird)
             //LeanTween.scale(road.gameObject, Vector3.zero, 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { Destroy(road.gameObject); } );
@@ -378,7 +383,9 @@ public class RoadManager : MonoBehaviour
         //    meshFilters = roadHolder.GetComponentsInChildren<MeshFilter>();
         //else
         MeshFilter[] meshFilters = roadMeshList.ToArray();
+        Mesh[] combinedFilters = colliderMeshList.ToArray();
         CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+        CombineInstance[] combineColliders = new CombineInstance[combinedFilters.Length];
         int i = 0;
 
         while (i < meshFilters.Length)
@@ -387,13 +394,21 @@ public class RoadManager : MonoBehaviour
             combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
             meshFilters[i].gameObject.SetActive(false);
 
-            i++;
+            combineColliders[i].mesh = combinedFilters[i];
+            combineColliders[i].transform = meshFilters[i].transform.localToWorldMatrix;
+			i++;
         }
 
         MeshFilter meshFilter = roadHolder.GetComponent<MeshFilter>();
         meshFilter.mesh = new Mesh();
         meshFilter.mesh.CombineMeshes(combine);
-        roadHolder.GetComponent<MeshCollider>().sharedMesh = meshFilter.sharedMesh;
+
+        Mesh tempMesh = roadHolder.GetComponent<MeshCollider>().sharedMesh;
+        if (tempMesh == null)
+            tempMesh = colliderMeshList[0];
+        else
+            tempMesh.CombineMeshes(combineColliders);
+        roadHolder.GetComponent<MeshCollider>().sharedMesh = tempMesh;//meshFilter.sharedMesh;
 
         //for minimap roads
         MeshFilter meshFilterMinimap = roadHolderMinimap.GetComponent<MeshFilter>();

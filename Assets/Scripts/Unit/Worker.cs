@@ -61,7 +61,7 @@ public class Worker : Unit
         workerTaskManager = FindObjectOfType<WorkerTaskManager>();
         //resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
         //timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
-        uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
+        uiTimeProgressBar = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/TimeProgressBar2"), transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
 		uiTimeProgressBar.transform.SetParent(transform, false);
         personalResourceManager = GetComponent<PersonalResourceManager>();
 		if (personalResourceManager != null)
@@ -431,7 +431,7 @@ public class Worker : Unit
 
 		RemoveFromOrderQueue();
 		world.SetWorkerWorkLocation(workerTile);
-		world.RemoveQueueItemCheck(workerTile);
+		//world.RemoveQueueItemCheck(workerTile);
 		timePassed = workerTaskManager.roadBuildingTime;
 
 		taskCo = StartCoroutine(BuildRoad(workerTile)); //specific worker (instead of workerUnit) to allow concurrent build
@@ -804,7 +804,7 @@ public class Worker : Unit
 			worker.harvested = true;
 			worker.harvestedForest = clearForest;
 			unitPos.y += 1.5f;
-			GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
+			GameObject resourceGO = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/ResourceBubble"), unitPos, Quaternion.Euler(90, 0, 0));
 			resourceGO.transform.SetParent(world.objectPoolItemHolder, false);
 			GameLoader.Instance.textList.Add(resourceGO);
 			Resource resource = resourceGO.GetComponent<Resource>();
@@ -907,7 +907,7 @@ public class Worker : Unit
 
         isBusy = true;
 		bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
-		world.RemoveQueueItemCheck(workerTile);
+		//world.RemoveQueueItemCheck(workerTile);
 		int totalTime = workerTaskManager.cityBuildTime;
 		buildingCity = true;
 
@@ -1970,7 +1970,7 @@ public class Worker : Unit
             Vector3 unitPos = workerPos;
 			unitPos.y += 1.5f;
             ResourceIndividualSO resourceIndividual = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
-			GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
+			GameObject resourceGO = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/ResourceBubble"), unitPos, Quaternion.Euler(90, 0, 0));
 			GameLoader.Instance.textList.Add(resourceGO);
 			Resource resource = resourceGO.GetComponent<Resource>();
 			resource.SetSprites(resourceIndividual.resourceIcon);

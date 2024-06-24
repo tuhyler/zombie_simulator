@@ -11,7 +11,7 @@ public class ResourceIndividualSO : ScriptableObject
     public int ResourceGatheringTime = 5;
     public int ResourceGatheringAmount = 1;
     public int resourcePrice;
-    public int resourceQuantityPerPop = 1;
+    public float resourceQuantityPerPop = 1;
     public RawResourceType rawResource;
     public RocksType rocksType = RocksType.None;
     public ResourceCategory resourceCategory; //for the resource selection grid

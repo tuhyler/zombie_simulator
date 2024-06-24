@@ -9,7 +9,7 @@ public class CityImprovementData
 	public int rotation; //int because only matters for harbor
 	public bool queued, isConstruction, isUpgrading, isTraining, isWaitingForStorageRoom, isWaitingforResources, isWaitingForResearch, isProducing, hadRoad, hitResourceMax;
 	public int housingIndex, laborCost, timePassed, producedResourceIndex, currentLabor, productionTimer, upgradeLevel, goldNeeded;
-    public float tempLabor, unloadLabor;
+    //public float tempLabor, unloadLabor;
     public ResourceType producedResource;
-    public List<float> tempLaborPercsList;
+    //public List<float> tempLaborPercsList;
 }

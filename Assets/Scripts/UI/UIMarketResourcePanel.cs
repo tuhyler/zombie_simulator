@@ -9,20 +9,20 @@ public class UIMarketResourcePanel : MonoBehaviour
     [HideInInspector]
     public string resourceName;
     [HideInInspector]
-    public int price, amount/*, total*/;
+    public int price, amount, salesForecast/*, total*/;
     [HideInInspector]
     public float purchaseAmount;
     [HideInInspector]
-    public bool sell;
+    public bool sell, canSell;
     [HideInInspector]
     public ResourceType resourceType;
 
     //UI elements
     [SerializeField]
-    public Image resourceImage;
+    public Image resourceImage, priceChangeImage;
 
     [SerializeField]
-    public TMP_Text cityPrice, cityAmount, cityPurchaseAmount/*, cityTotals*/;
+    public TMP_Text cityPrice, cityAmount, cityPurchaseAmount, citySalesForecast/*, cityTotals*/;
 
     [SerializeField]
     public Toggle sellToggle;
@@ -81,6 +81,19 @@ public class UIMarketResourcePanel : MonoBehaviour
 		}
 	}
 
+    public void SetPriceChangeImage(int change)
+    {
+        if (change == 0)
+        {
+            priceChangeImage.gameObject.SetActive(false);
+        }
+        else
+        {
+            priceChangeImage.gameObject.SetActive(true);
+            priceChangeImage.sprite = change > 0 ? uiMarketPlaceManager.arrowUp : uiMarketPlaceManager.arrowDown;
+        }
+    }
+
 	public void SetAmount(int amount)
 	{
 		this.amount = amount;
@@ -99,24 +112,18 @@ public class UIMarketResourcePanel : MonoBehaviour
 		}
 	}
 
+    public void SetForecastedSales(int currentPop)
+    {
+        salesForecast = Mathf.Min(amount, Mathf.RoundToInt(currentPop * purchaseAmount)) * price;
+        citySalesForecast.text = salesForecast.ToString();
+	}
+
     public void SetPurchaseAmount(float amount)
     {
 		purchaseAmount = amount;
 
         double amountDouble = Math.Round(amount, 2);
         cityPurchaseAmount.text = amountDouble.ToString();
-		//if (amount < 1000)
-		//{
-		//	cityPurchaseAmount.text = amount.ToString();
-		//}
-		//else if (amount < 1000000)
-		//{
-		//	cityPurchaseAmount.text = Math.Round(amount * 0.001f, 1) + " k";
-		//}
-		//else if (amount < 1000000000)
-		//{
-		//	cityPurchaseAmount.text = Math.Round(amount * 0.000001f, 1) + " M";
-		//}
 	}
 
 	public void UpdateSellBool()
@@ -125,6 +132,10 @@ public class UIMarketResourcePanel : MonoBehaviour
         {
             uiMarketPlaceManager.city.world.cityBuilderManager.PlaySelectAudio(uiMarketPlaceManager.city.world.cityBuilderManager.checkClip);
             bool isOn = sellToggle.isOn;
+            citySalesForecast.gameObject.SetActive(isOn);
+            sell = isOn;
+            if (isOn)
+                SetForecastedSales(uiMarketPlaceManager.city.currentPop);
             //minimumAmount.gameObject.SetActive(isOn);
             //minimumAmount.interactable = isOn;
             //minimumAmountText.color = isOn ? Color.black : Color.gray;

@@ -49,7 +49,7 @@ public class InfoResourcePopUpHandler : MonoBehaviour
 
     public static InfoResourcePopUpHandler CreateResourceStat(Vector3 position, int number, Sprite image, MapWorld world, bool waste = false)
     {
-        GameObject popUpGO = Instantiate(GameAssets.Instance.popUpResourceNumbersPrefab, position, Quaternion.Euler(90, 0, 0));
+        GameObject popUpGO = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/PopUpResourceNumbers"), position, Quaternion.Euler(90, 0, 0));
         popUpGO.transform.SetParent(world.objectPoolItemHolder,false);
         GameLoader.Instance.textList.Add(popUpGO);
 

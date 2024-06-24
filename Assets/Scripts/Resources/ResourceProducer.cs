@@ -11,13 +11,14 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     [HideInInspector]
     public int producedResourceIndex;
     //private TaskDataSO taskData;
-    private ImprovementDataSO improvementData;
+    [HideInInspector]
+    public ImprovementDataSO improvementData;
     [HideInInspector]
     public int currentLabor;
-    [HideInInspector]
-    public float tempLabor; //if adding labor during production process
-    [HideInInspector]
-    public List<float> tempLaborPercsList = new();
+    //[HideInInspector]
+    //public float tempLabor; //if adding labor during production process
+    //[HideInInspector]
+    //public List<float> tempLaborPercsList = new();
     [HideInInspector]
     public Vector3Int producerLoc;
 
@@ -26,11 +27,14 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     [HideInInspector]
     public int productionTimer;
     //private TimeProgressBar timeProgressBar;
-    private UITimeProgressBar uiTimeProgressBar;
+    [HideInInspector]
+    public CityImprovementStats cityImprovementStats;
+    [HideInInspector]
+    public UITimeProgressBar uiTimeProgressBar;
     [HideInInspector]
     public bool isWaitingForStorageRoom, isWaitingforResources, hitResourceMax, isWaitingForResearch, isUpgrading;
-    [HideInInspector]
-    public float unloadLabor;
+    //[HideInInspector]
+    //public float unloadLabor;
     [HideInInspector]
     public bool isProducing;
     [HideInInspector]
@@ -142,21 +146,42 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         //    isImprovement = true;
 
         //if (isImprovement)
+        SetCityImprovementStats();
         SetProgressTimeBar();
+    }
+
+    public void UpdateCityImprovementStats()
+    {
+        if (improvementData.maxLabor > 0)
+        {
+            cityImprovementStats.SetActive(true);
+            cityImprovementStats.SetLaborNumber(currentLabor + "/" + improvementData.maxLabor);
+
+            if (producedResource.resourceType != ResourceType.None)
+                cityImprovementStats.SetImage(ResourceHolder.Instance.GetIcon(producedResource.resourceType));
+        }
+    }
+
+    private void SetCityImprovementStats()
+    {
+        if (improvementData.maxLabor > 0)
+        {
+			GameObject statsGO = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/CityImprovementStatPanel"), Vector3.zero, Quaternion.Euler(90, 0, 0));
+			statsGO.gameObject.transform.SetParent(cityImprovement.transform, false);
+            cityImprovementStats = statsGO.GetComponent<CityImprovementStats>();
+
+            if (producedResource.resourceType == ResourceType.None)
+                cityImprovementStats.HideImage();
+
+            cityImprovementStats.SetActive(false);
+		}
     }
 
     private void SetProgressTimeBar()
     {
-        Vector3 progressBarLoc = producerLoc; 
-        //progressBarLoc.z -= 1.5f; //bottom center of tile
-        progressBarLoc.y += .5f; //above tile
-        //GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, progressBarLoc, Quaternion.Euler(90, 0, 0));
-        //timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
-
-        GameObject progressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, progressBarLoc, Quaternion.Euler(90, 0, 0));
-        progressBar.transform.SetParent(cityImprovement.world.objectPoolItemHolder, false);
+        GameObject progressBar = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/TimeProgressBar2"), Vector3.zero, Quaternion.Euler(90, 0, 0));
+        progressBar.transform.SetParent(cityImprovement.transform, false);
         uiTimeProgressBar = progressBar.GetComponent<UITimeProgressBar>();
-        //timeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
     }
 
     public void UpdateCurrentLaborData(int currentLabor)
@@ -166,7 +191,8 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
     public void UpdateResourceGenerationData()
     {
-        CalculateResourceGenerationPerMinute();
+        if (!improvementData.cityBonus)
+            CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
     }
 
@@ -223,7 +249,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     {
         if (type == ResourceType.None)
         {
-            if (resourceManager.city.warehouseStorageLimit - resourceManager.resourceStorageLevel >= resourceManager.CalculateResourceProductionAmount(producedResource, tempLabor, cityImprovement))
+            if (resourceManager.city.warehouseStorageLimit - resourceManager.resourceStorageLevel >= resourceManager.CalculateResourceProductionAmount(producedResource, currentLabor, cityImprovement))
                 return true;
             else
                 return false;
@@ -245,7 +271,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             hitResourceMax = false;
 		    cityImprovement.exclamationPoint.SetActive(false);
 
-			int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, unloadLabor, cityImprovement);
+			int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, currentLabor, cityImprovement);
 			int maxLimit = resourceManager.resourceMaxHoldDict[producedResource.resourceType];
             if (resourceManager.city.warehouseStorageLimit - resourceManager.resourceStorageLevel < unloadAmount)
             {
@@ -279,12 +305,12 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             //resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
 
 			cityImprovement.exclamationPoint.SetActive(false);
-			StartProducing();
+			StartProducing(false);
         }
     }
 
     //for producing resources
-    public void StartProducing()
+    public void StartProducing(bool checkResources)
     {
         //CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
         //CalculateResourceConsumedPerMinute();
@@ -304,68 +330,137 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
                 return;
 			}
         }
-        //else if (resourceManager.fullInventory)
-        //{
-        //    AddToStorageRoomWaitList();
-        //    return;
-        //}
-        else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
+        else if (checkResources && !resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
         {
             AddToResourceWaitList();
             return;
         }
 
-        if (resourceManager.city.activeCity)
-            uiTimeProgressBar.gameObject.SetActive(true);
+        if (improvementData.cityBonus)
+        {
+			if (resourceManager.city.activeCity)
+            {
+				uiTimeProgressBar.gameObject.SetActive(true);
+				uiTimeProgressBar.SetProgressBarMask(resourceManager.city.countDownTimer);
+                uiTimeProgressBar.SetTime(resourceManager.city.countDownTimer);
+            }
 
-		productionTimer = improvementData.producedResourceTime[producedResourceIndex];
-		producingCo = StartCoroutine(ProducingCoroutine());
+            resourceManager.city.AddCityBonus(cityImprovement, true, 1);
+			cityImprovement.StartWork(0, false);
+			resourceManager.ConsumeResources(consumedResources, currentLabor, producerLoc);
+		}
+        else
+        {
+            if (resourceManager.city.activeCity)
+                uiTimeProgressBar.gameObject.SetActive(true);
+
+		    productionTimer = improvementData.producedResourceTime[producedResourceIndex];
+		    producingCo = StartCoroutine(ProducingCoroutine());
+        }
     }
 
     public void LoadProducingCoroutine()
     {
-		UpdateResourceGenerationData();
-		cityImprovement.firstStart = true;
-        float percLeft = (float)productionTimer / improvementData.producedResourceTime[producedResourceIndex];
-        producingCo = StartCoroutine(ProducingCoroutine(percLeft, true));
+        if (improvementData.cityBonus)
+        {
+            resourceManager.city.AddCityBonus(cityImprovement, true, currentLabor);
+			UpdateResourceGenerationData();
+			cityImprovement.firstStart = true;
+			cityImprovement.StartWork(0, true);
+		}
+        else
+        {
+            UpdateResourceGenerationData();
+		    cityImprovement.firstStart = true;
+            float percLeft = (float)productionTimer / improvementData.producedResourceTime[producedResourceIndex];
+            producingCo = StartCoroutine(ProducingCoroutine(percLeft, true));
+        }
 	}
 
     public void AddLaborMidProduction()
     {
 		UpdateResourceGenerationData();
 
-		float percWorked;
-        if (isWaitingforResources || isWaitingForStorageRoom || hitResourceMax)
+		//float percWorked;
+        /*if (isWaitingforResources || isWaitingForStorageRoom || hitResourceMax)
+        {
             percWorked = 0;
-        else if (!ConsumeResourcesCheck())
+        }
+        else if (!resourceManager.ConsumeResourcesCheckMidProd(consumedResources, 1)*//*!ConsumeResourcesCheck()*//*)
+        {
             percWorked = 0;
-        else
-            percWorked = (float)productionTimer / improvementData.producedResourceTime[producedResourceIndex];
-        tempLabor += percWorked;
-        tempLaborPercsList.Add(percWorked);
-        resourceManager.ConsumeResources(consumedResources, percWorked, producerLoc);
+        }
+        else*/ if (improvementData.cityBonus)
+        {
+            //percWorked = 1;
+            if (improvementData.cityBonus)
+                resourceManager.city.AddCityBonus(cityImprovement, false, 1);
+        }
+        //else
+        //{
+        //    percWorked = 1/*(float)productionTimer / improvementData.producedResourceTime[producedResourceIndex]*/; //no more partial productions
+        //}
+
+        //tempLabor += percWorked;
+        //tempLaborPercsList.Add(percWorked);
+        resourceManager.ConsumeResources(consumedResources, 1, producerLoc);
     }
 
-    public void RemoveLaborMidProduction()
+    public void RemoveLaborCheck(City city)
+    {
+		RemoveLaborMidProduction();
+		if (isWaitingforResources)
+		{
+			for (int i = 0; i < consumedResources.Count; i++)
+			{
+				if (consumedResources[i].resourceType == ResourceType.Gold)
+				{
+					goldNeeded = consumedResources[i].resourceAmount * currentLabor;
+					city.world.GoldWaitListCheck();
+				}
+				else
+				{
+					city.resourceManager.ResourceWaitListCheck(consumedResources[i].resourceType);
+				}
+			}
+		}
+		else if (isWaitingForStorageRoom)
+		{
+			city.resourceManager.StorageSpaceCheck();
+		}
+		else if (hitResourceMax)
+		{
+			city.resourceManager.ResourceMaxWaitListCheck(producedResource.resourceType);
+		}
+	}
+
+    private void RemoveLaborMidProduction()
     {
 		UpdateResourceGenerationData();
 
-		if (!isWaitingForResearch && !isWaitingforResources && !isWaitingForStorageRoom && !hitResourceMax)
+		if (!isWaitingForResearch && !isWaitingforResources /*&& !isWaitingForStorageRoom && !hitResourceMax*/)
         {
-            int tempLaborPercCount = tempLaborPercsList.Count;
+   //         int tempLaborPercCount = tempLaborPercsList.Count;
 
-            if (tempLaborPercCount > 0)
-            {
-                float tempLaborRemoved = tempLaborPercsList[tempLaborPercCount-1]; //LIFO
-                tempLaborPercsList.RemoveAt(tempLaborPercCount-1);
-                tempLabor -= tempLaborRemoved;
-                resourceManager.PrepareConsumedResource(consumedResources, tempLaborRemoved, producerLoc);
-            }
-            else
-            {
-                resourceManager.PrepareConsumedResource(consumedResources, 1, producerLoc);
-            }
-        }
+   //         if (tempLaborPercCount > 0)
+   //         {
+   //             int index = tempLaborPercCount - 1;
+   //             float tempLaborRemoved = tempLaborPercsList[index]; //LIFO
+   //             tempLaborPercsList.RemoveAt(index);
+   //             tempLabor -= tempLaborRemoved;
+   //             resourceManager.PrepareConsumedResource(consumedResources, tempLaborRemoved, producerLoc);
+                
+   //             if (improvementData.cityBonus && tempLaborRemoved > 0)
+			//	    resourceManager.city.RemoveCityBonus(cityImprovement, false, 1);
+   //         }
+   //         else
+   //         {
+			//}
+            resourceManager.PrepareConsumedResource(consumedResources, 1, producerLoc);
+
+			if (improvementData.cityBonus)
+				resourceManager.city.RemoveCityBonus(cityImprovement, false, 1);
+		}
     }
 
     //public void RestartMidProduction()
@@ -374,10 +469,16 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     //    StartProducing();
     //}
 
+    //checking if is currently paused
+    public bool ProductionPausedCheck()
+    {
+        return isWaitingforResources || isWaitingForStorageRoom || hitResourceMax;
+    }
+
     //checking if one more labor can be added
     public bool ConsumeResourcesCheck()
     {
-        return resourceManager.ConsumeResourcesCheck(consumedResources, 1, this);
+        return resourceManager.ConsumeResourcesCheckMidProd(consumedResources, 1);
     }
 
     //timer for producing resources 
@@ -395,7 +496,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
         if (!load)
         {
-            tempLabor = currentLabor;
+            //tempLabor = currentLabor;
             resourceManager.ConsumeResources(consumedResources, currentLabor, producerLoc);
         }
 
@@ -408,7 +509,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             //timeProgressBar.SetTime(productionTimer);
         }
 
-        int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, tempLabor, cityImprovement);
+        int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, currentLabor, cityImprovement);
         //checking if still researching
         if (improvementData.isResearch)
         {
@@ -417,7 +518,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
                 isWaitingForStorageRoom = true;
                 cityImprovement.exclamationPoint.SetActive(true);
                 cityImprovement.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, false, true);
-                unloadLabor = tempLabor;
+                //unloadLabor = tempLabor;
                 //resourceManager.waitingToUnloadResearch.Add(this);
                 //timeProgressBar.SetToZero();
                 uiTimeProgressBar.SetToFull();
@@ -445,7 +546,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     private void PrepForStorageRoomWaitList()
     {
 		AddToStorageRoomWaitList();
-		unloadLabor = tempLabor;
+		//unloadLabor = tempLabor;
 		uiTimeProgressBar.SetToFull();
 		cityImprovement.StopWork();
 	}
@@ -453,7 +554,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     private void PrepForResourceMaxWaitList()
     {
 		AddToResourceMaxWaitList();
-		unloadLabor = tempLabor;
+		//unloadLabor = tempLabor;
 		uiTimeProgressBar.SetToFull();
 		cityImprovement.StopWork();
 	}
@@ -496,6 +597,25 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 		}
     }
 
+    public void RestartCityBonusCheck(bool active)
+    {
+        if (active)
+        {
+			uiTimeProgressBar.SetProgressBarMask(resourceManager.city.secondsTillGrowthCheck);
+			uiTimeProgressBar.SetTime(resourceManager.city.secondsTillGrowthCheck);
+		}
+        
+        if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
+        {
+            resourceManager.city.RemoveCityBonus(cityImprovement, true, currentLabor);
+            SetUpResourceWaiting();
+        }
+        else
+        {
+			resourceManager.ConsumeResources(consumedResources, currentLabor, producerLoc);
+		}
+	}
+
     private void SetUpResourceWaiting()
     {
 		AddToResourceWaitList();
@@ -507,7 +627,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
     private void ReadyToProduce()
     {
-		tempLaborPercsList.Clear();
+		//tempLaborPercsList.Clear();
 		productionTimer = improvementData.producedResourceTime[producedResourceIndex];
 		producingCo = StartCoroutine(ProducingCoroutine());
 	}
@@ -527,7 +647,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             isWaitingForStorageRoom = false;
             resourceManager.RemoveFromUnloadWaitList(this);
             //resourceManager.RemoveFromStorageRoomWaitList(this);
-			float laborCount = allLabor ? tempLabor : 1;
+			float laborCount = allLabor ? currentLabor : 1;
             resourceManager.PrepareConsumedResource(consumedResources, laborCount, producerLoc);
         }
         else if (isWaitingforResources)
@@ -540,19 +660,27 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             //resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
             isWaitingforResources = false;
 			cityImprovement.world.uiCityImprovementTip.ToggleWaiting(false, cityImprovement);
+
+            if (improvementData.cityBonus)
+				resourceManager.city.RemoveCityBonus(cityImprovement, true, allLabor ? currentLabor : 1);
 		}
         else if (hitResourceMax)
         {
             hitResourceMax = false;
             resourceManager.RemoveFromCityResourceMaxWaitList(this, producedResource.resourceType);
-			float laborCount = allLabor ? tempLabor : 1;
+			float laborCount = allLabor ? currentLabor : 1;
 			resourceManager.PrepareConsumedResource(consumedResources, laborCount, producerLoc);
+		}
+        else if (improvementData.cityBonus)
+        {
+            resourceManager.city.RemoveCityBonus(cityImprovement, true, allLabor ? currentLabor : 1);
+			resourceManager.PrepareConsumedResource(consumedResources, allLabor ? currentLabor : 1, producerLoc);
 		}
         else if (producingCo != null)
         {
             StopCoroutine(producingCo);
             producingCo = null;
-            float laborCount = allLabor ? tempLabor : 1;
+            float laborCount = allLabor ? currentLabor : 1;
             resourceManager.PrepareConsumedResource(consumedResources, laborCount, producerLoc);
         }
 
@@ -571,12 +699,12 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             if (isWaitingForStorageRoom)
             {
                 isWaitingForStorageRoom = false;
-                int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, unloadLabor, cityImprovement);
+                int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, currentLabor, cityImprovement);
 				resourceManager.PrepareResource(unloadAmount, producedResource, producerLoc, cityImprovement);
             }
 
 			cityImprovement.exclamationPoint.SetActive(false);
-			StartProducing();
+			StartProducing(true);
 		}
 	}
 
@@ -631,8 +759,14 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             uiTimeProgressBar.gameObject.SetActive(v);
             if (v)
             {
-                uiTimeProgressBar.SetProgressBarMask(productionTimer);
-                uiTimeProgressBar.SetTime(productionTimer);
+                int time;
+                if (improvementData.cityBonus)
+                    time = resourceManager.city.countDownTimer;
+                else
+                    time = productionTimer;
+
+				uiTimeProgressBar.SetProgressBarMask(time);
+                uiTimeProgressBar.SetTime(time);
             }
         }
     }
@@ -684,5 +818,8 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     public void DestroyProgressBar()
     {
         Destroy(uiTimeProgressBar.gameObject);
+
+        if (cityImprovementStats != null)
+            Destroy(cityImprovementStats.gameObject);
     }
 }

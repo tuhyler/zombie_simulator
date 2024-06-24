@@ -21,7 +21,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
     private Image improvementImage, specialtyImage;//, produceHighlight;
 
     [SerializeField]
-    private Sprite housingSprite, waterSprite, powerSprite;
+    private Sprite housingSprite, waterSprite, powerSprite, purchaseAmountSprite;
 
     [SerializeField]
     private List<Image> highlightList = new();
@@ -190,14 +190,65 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
         else
             level.text = "Level " + data.improvementLevel.ToString() + " " + data.improvementName;
         improvementImage.sprite = data.image;
+        specialtyHolder.SetActive(false);
+        workEthicHolder.SetActive(false);
 
         if (improvement.building)
         {
-            producesHolder.SetActive(false);
             consumesText.text = "Cost Per Cycle";
-            SetResourcePanelInfo(consumesInfo, improvement.GetCycleCost(), 0, false, false, 1, true);
+    
+            if (improvement.GetImprovementData.cityBonus)
+            {
+				SetResourcePanelInfo(producesInfo, producer.producedResources, 0, true, producer.isProducing, 1);
+				SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[0], 0, false, false, 1, true);
+				producesHolder.SetActive(true);
+
+			    if (data.workEthicChange != 0)
+			    {
+				    workEthicHolder.SetActive(true);
+				    string prefix = "+";
+				    workEthicAmount.color = Color.black;
+
+				    if (data.workEthicChange < 0)
+				    {
+					    prefix = "-";
+					    workEthicAmount.color = Color.red;
+				    }
+
+				    workEthicAmount.text = prefix + Mathf.RoundToInt(data.workEthicChange * 100) + "%";
+			    }
+			    else if (data.housingIncrease > 0)
+			    {
+				    specialtyHolder.SetActive(true);
+				    specialtyAmount.text = "+" + data.housingIncrease;
+				    specialtyImage.sprite = housingSprite;
+			    }
+			    else if (data.waterIncrease > 0)
+			    {
+				    specialtyHolder.SetActive(true);
+				    specialtyAmount.text = "+" + data.waterIncrease;
+				    specialtyImage.sprite = waterSprite;
+			    }
+			    else if (data.powerIncrease > 0)
+			    {
+				    specialtyHolder.SetActive(true);
+				    specialtyAmount.text = "+" + data.powerIncrease;
+				    specialtyImage.sprite = powerSprite;
+			    }
+			    else if (data.purchaseAmountChange > 0)
+			    {
+				    specialtyHolder.SetActive(true);
+				    specialtyAmount.text = "+" + data.purchaseAmountChange;
+				    specialtyImage.sprite = purchaseAmountSprite;
+			    }
+			}
+			else
+            {
+                producesHolder.SetActive(false);
+                SetResourcePanelInfo(consumesInfo, improvement.GetCycleCost(), 0, false, false, 1, true);
+            }
 		}
-        else
+		else
         {
             producesHolder.SetActive(true);
             consumesText.text = "Requires";
@@ -211,47 +262,9 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
             else
                 workEthic = improvement.city.workEthic;
 
-            specialtyHolder.SetActive(false);
-            workEthicHolder.SetActive(false);
-
             if (producer.producedResources.Count > 0)
             {
                 SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, producer.isProducing, workEthic);
-            }
-            else
-            {
-				if (data.workEthicChange != 0)
-                {
-                    workEthicHolder.SetActive(true);
-                    string prefix = "+";
-                    workEthicAmount.color = Color.black;
-
-					if (data.workEthicChange < 0)
-                    {
-						prefix = "";
-						workEthicAmount.color = Color.red;
-					}
-
-                    workEthicAmount.text = prefix + Mathf.RoundToInt(data.workEthicChange * 100).ToString() + "%";
-				}
-                else if (data.housingIncrease > 0)
-                {
-					specialtyHolder.SetActive(true);
-					specialtyAmount.text = "+" + data.housingIncrease.ToString();
-                    specialtyImage.sprite = housingSprite;
-				}
-                else if (data.waterIncrease > 0)
-                {
-					specialtyHolder.SetActive(true);
-					specialtyAmount.text = "+" + data.waterIncrease.ToString();
-                    specialtyImage.sprite = waterSprite;
-				}
-                else if (data.powerIncrease > 0)
-                {
-					specialtyHolder.SetActive(true);
-					specialtyAmount.text = "+" + data.powerIncrease.ToString();
-					specialtyImage.sprite = powerSprite;
-				}
             }
             
             SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[highlightIndex], producedTime, false);
@@ -281,14 +294,14 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
         int panelHeight = 340;
         int lineWidth = 280 + multiple;
 
-        if (!improvement.building)
+        if (!improvement.building || improvement.GetImprovementData.cityBonus)
             panelHeight += 140;
 
         if (showCount)
             panelHeight += 75;
         
         if (waiting)
-            panelHeight += 30;
+            panelHeight += 40;
 
         infoHolder.sizeDelta = new Vector2(panelWidth, 190);
         allContents.sizeDelta = new Vector2(panelWidth, panelHeight);
@@ -364,6 +377,10 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
                 {
                     panelList[i].gameObject.SetActive(false);
                 }
+            }
+            else if (resourceList[i].resourceType == ResourceType.None)
+            {
+                panelList[i].gameObject.SetActive(false);
             }
             else
             {
@@ -456,7 +473,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
         {
 			producer.UpdateResourceGenerationData();
             producer.cityImprovement.exclamationPoint.SetActive(false);
-			producer.StartProducing();
+			producer.StartProducing(true);
         }
 
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], produceTimeList[a], false);
@@ -473,8 +490,11 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
         //loc.y = -40f + yChange;
         //produceHighlight.transform.localPosition = loc;
 
-        if (world.cityBuilderManager.SelectedCity != null)
-            world.cityBuilderManager.UpdateLaborNumbers(world.cityBuilderManager.SelectedCity);
+        if (producer.cityImprovement.city != null && producer.cityImprovement.city.activeCity)
+            producer.UpdateCityImprovementStats();
+
+        //if (world.cityBuilderManager.SelectedCity != null)
+        //    world.cityBuilderManager.UpdateLaborNumbers(world.cityBuilderManager.SelectedCity);
     }
 
     public void UpdateProduceNumbers()
@@ -519,7 +539,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
                 waitingForText.gameObject.SetActive(v);
 
                 Vector2 allContentsSize = allContents.sizeDelta;
-                allContentsSize.y += v ? 30 : -30;
+                allContentsSize.y += v ? 40 : -40;
                 allContents.sizeDelta = allContentsSize;
 			}
 

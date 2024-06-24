@@ -19,7 +19,7 @@ MonoBehaviour:
   ResourceGatheringTime: 0
   ResourceGatheringAmount: 1
   resourcePrice: 6
-  resourceQuantityPerPop: 1
+  resourceQuantityPerPop: 0.5
   rawResource: 0
   rocksType: 0
   resourceCategory: 3

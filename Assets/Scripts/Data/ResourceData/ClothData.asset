@@ -26,4 +26,4 @@ MonoBehaviour:
   requirement: 
   uvCoordinatesForRocks: {x: 0, y: 0}
   forVisual: 0
-  sellResource: 0
+  sellResource: 1

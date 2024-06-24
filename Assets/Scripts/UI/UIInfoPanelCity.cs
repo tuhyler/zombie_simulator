@@ -5,7 +5,7 @@ using UnityEngine;
 public class UIInfoPanelCity : MonoBehaviour
 {
     [SerializeField]
-    private TMP_Text nameText, cityPop, availableHousing, unusedLabor, workEthic, waterLevel, powerLevel;
+    private TMP_Text nameText, cityPop, availableHousing, unusedLabor, workEthic, purchaseAmount, waterLevel, powerLevel;
 
     [SerializeField]
     private GameObject cityWarning, renameCityButton, destroyCityButton;
@@ -44,6 +44,7 @@ public class UIInfoPanelCity : MonoBehaviour
 
         unusedLabor.text = SetStringValue(city.unusedLabor);
         UpdateWorkEthic(city.workEthic);
+        UpdatePurchaseAmount(city.purchaseAmountMultiple);
 	}
 
 	private string SetStringValue(int amount)
@@ -119,6 +120,11 @@ public class UIInfoPanelCity : MonoBehaviour
             workEthic.color = Color.white;
         else
             workEthic.color = Color.green;
+    }
+
+    public void UpdatePurchaseAmount(float amount)
+    {
+        purchaseAmount.text = Math.Round(amount, 2).ToString();
     }
 
     public void UpdateWater(int waterPop)

@@ -31,7 +31,14 @@ public class UITimeProgressBar : MonoBehaviour
 
     public void SetTime(int time)
     {
-        timeText.text = string.Format("{0:00}:{1:00}", time / 60, time % 60);
+        if (time < 60)
+            timeText.text = time % 60 + "s";
+        else if (time < 600)
+			timeText.text = string.Format("{0:0}:{1:00}", time / 60, time % 60) + "m";
+        else if (time < 3600)
+			timeText.text = string.Format("{0:00}:{1:00}", time / 60, time % 60) + "m";
+
+        //timeText.text = string.Format("{0:00}:{1:00}", time / 60, time % 60);
         int nextTime = (totalTime - time) + 1;
 
         LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, nextTime * totalTimeFactor, 1f)
@@ -50,7 +57,7 @@ public class UITimeProgressBar : MonoBehaviour
     public void SetToFull()
     {
         progressBarMask.fillAmount = 1;
-        timeText.text = string.Format("{0:00}:{1:00}", 0, 0);
+        timeText.text = "0s";//string.Format("{0:00}:{1:00}", 0, 0);
     }
 
     public void SetTimeProgressBarValue(int totalTime)
