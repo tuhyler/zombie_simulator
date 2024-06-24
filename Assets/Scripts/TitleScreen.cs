@@ -33,10 +33,10 @@ public class TitleScreen : MonoBehaviour
 
 	public void StartContinueGame()
     {
-        if (uiLoadGame.currentSaves.Count > 0)
+        if (uiLoadGame.saveHolder.childCount > 0)
         {
             Cursor.visible = false;
-            GameManager.Instance.LoadGame(uiLoadGame.currentSaves[0]);
+            GameManager.Instance.LoadGame(uiLoadGame.GetNameOfLatestSave());
         }
         else
         {

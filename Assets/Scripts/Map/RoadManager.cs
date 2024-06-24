@@ -251,7 +251,7 @@ public class RoadManager : MonoBehaviour
     {
         List<Vector3Int> land = world.GetNeighborsCoordinates(MapWorld.State.FOURWAYINCREMENT);
         int rotation = 0;
-        if (world.GetTerrainDataAt(land[1]).isLand && world.GetTerrainDataAt(land[3]).isLand)
+        if (world.GetTerrainDataAt(land[1] + roadPosition).isLand && world.GetTerrainDataAt(land[3] + roadPosition).isLand)
             rotation = 90;
 
         CreateRoad(Resources.Load<GameObject>("Prefabs/RoadPrefabs/RoadBridge1"), roadPosition, Quaternion.Euler(0, rotation, 0), false, highlight, level);
@@ -382,6 +382,9 @@ public class RoadManager : MonoBehaviour
         //if (adding)
         //    meshFilters = roadHolder.GetComponentsInChildren<MeshFilter>();
         //else
+        if (roadMeshList.Count == 0)
+            return;
+
         MeshFilter[] meshFilters = roadMeshList.ToArray();
         Mesh[] combinedFilters = colliderMeshList.ToArray();
         CombineInstance[] combine = new CombineInstance[meshFilters.Length];

@@ -42,7 +42,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
-    public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
+    public MeshFilter borderZero, borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
     [SerializeField]
     public UtilityCostDisplay utilityCostDisplay;
     [SerializeField]
@@ -625,18 +625,6 @@ public class MapWorld : MonoBehaviour
             mainPlayer.name = "Koa & co.";
             scottFollow = true;
             azaiFollow = true;
-
-            for (int i = 0; i < allTradeCenters.Count; i++)
-            {
-				if (allTradeCenters[i].isDiscovered)
-                    allTradeCenters[i].tcRep.SetSomethingToSay(allTradeCenters[i].tcRep.tradeRepName + "_intro");
-			}
-
-            foreach (Vector3Int loc in enemyCityDict.Keys)
-            {
-                if (enemyCityDict[loc].enemyCamp.revealed)
-                    enemyCityDict[loc].empire.enemyLeader.SetSomethingToSay(enemyCityDict[loc].empire.enemyLeader.leaderName + "_intro");
-			}
 
 			scott.gameObject.tag = "Player";
             //scott.marker.gameObject.tag = "Player";
@@ -2728,6 +2716,9 @@ public class MapWorld : MonoBehaviour
 
         switch (count.Sum())
         {
+            //case 0:
+            //    uvMap = borderZero.sharedMesh.uv;
+            //    break;
             case 1:
                 rotation = Array.FindIndex(count, x => x == 1) - currentRot;
                 if (rotation < 0)
@@ -8539,7 +8530,20 @@ public class MapWorld : MonoBehaviour
                 {
                     RemoveNPCLoc(azai.currentLocation);
                     azaiFollow = true;
-                    azai.gameObject.tag = "Player";
+					azai.gameObject.tag = "Player";
+
+					for (int i = 0; i < allTradeCenters.Count; i++)
+					{
+						if (allTradeCenters[i].isDiscovered)
+							allTradeCenters[i].tcRep.SetSomethingToSay(allTradeCenters[i].tcRep.tradeRepName + "_intro");
+					}
+
+					foreach (Vector3Int loc in enemyCityDict.Keys)
+					{
+						if (enemyCityDict[loc].enemyCamp.revealed)
+							enemyCityDict[loc].empire.enemyLeader.SetSomethingToSay(enemyCityDict[loc].empire.enemyLeader.leaderName + "_intro");
+					}
+
                     //azai.marker.gameObject.tag = "Player";
 					characterUnits.Add(azai);
 

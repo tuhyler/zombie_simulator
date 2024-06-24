@@ -72,8 +72,6 @@ MonoBehaviour:
   buildDataSO: {fileID: 0}
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 9149838138303090476}
-  lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
-    type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 0}
   exclamationPoint: {fileID: 2079095879819313631}

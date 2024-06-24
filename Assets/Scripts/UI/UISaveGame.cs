@@ -15,7 +15,7 @@ public class UISaveGame : MonoBehaviour
     private MapWorld world;
     
     [SerializeField]
-    private Transform saveHolder;
+    public Transform saveHolder;
 
     [SerializeField]
     private TMP_InputField saveField;
@@ -32,7 +32,7 @@ public class UISaveGame : MonoBehaviour
     [SerializeField]
     private GameObject uiSaveItemGO, screenshotParent, deleteButton;
     private UISaveItem selectedSaveItem;
-    List<UISaveItem> saveItemList = new();
+    //List<UISaveItem> saveItemList = new();
 
     [HideInInspector]
     public List<string> currentSaves = new();
@@ -115,7 +115,7 @@ public class UISaveGame : MonoBehaviour
         for (int i = 0; i < newSaveItems.Count; i++)
         {
             newSaveItems[i].transform.SetParent(saveHolder, false);
-            saveItemList.Add(newSaveItems[i]);
+            //saveItemList.Add(newSaveItems[i]);
         }
 
         //populated = true;
@@ -168,7 +168,7 @@ public class UISaveGame : MonoBehaviour
             //if (world != null)
             //    ClearSaveItems();
 
-            saveItemList.Clear();
+            //saveItemList.Clear();
         }
     }
 
@@ -362,4 +362,9 @@ public class UISaveGame : MonoBehaviour
         selectedSaveItem.transform.SetAsFirstSibling();
         world.StartSaveProcess(selectedSaveItem.saveName);
 	}
+
+    public string GetNameOfLatestSave()
+    {
+        return saveHolder.GetChild(0).GetComponent<UISaveItem>().saveName;
+    }
 }

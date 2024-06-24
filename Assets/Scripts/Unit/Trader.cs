@@ -262,7 +262,11 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 	private void RotateTrader(Vector3Int endLoc)
 	{
-		int rot = Mathf.RoundToInt(world.GetStructure(endLoc).transform.localEulerAngles.y / 90);
+		int rot;
+		if (world.IsTradeCenterOnTile(endLoc))
+			rot = Mathf.RoundToInt(world.GetTradeCenter	(endLoc).transform.localEulerAngles.y / 90);
+		else
+			rot = Mathf.RoundToInt(world.GetStructure(endLoc).transform.localEulerAngles.y / 90);
 
 		if (rot == 3)
 			rot = 0;
