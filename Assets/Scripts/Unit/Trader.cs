@@ -45,9 +45,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	int ICityResourceWait.waitId => id;
 
 	//animations
-	private int isInterruptedHash;
-    private int isLoadingHash;
-    private int isUnloadingHash;
+	private int isInterruptedHash, isLoadingHash, isUnloadingHash;
 
     //private UnitMovement unitMovement;
 
@@ -1259,6 +1257,11 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			if (world.IsCityOnTile(homeCity) && world.GetCity(homeCity).singleBuildDict.ContainsKey(buildDataSO.singleBuildType))
 				world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]).RemoveTraderFromImprovement(this);
 		}
+	}
+
+	public void BendOverBackwards()
+	{
+		unitAnimator.SetTrigger("Bend");
 	}
 
 	//public Vector3Int GetCurrentDestination()

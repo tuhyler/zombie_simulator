@@ -697,7 +697,6 @@ public class ResourceManager : MonoBehaviour
     public int SellResources()
     {
         int goldAdded = 0;
-        int length = Mathf.Max(resourceSellList.Count,2);
 
         int i = 0;
         foreach (ResourceType type in city.world.sellableResourceList)
@@ -731,8 +730,7 @@ public class ResourceManager : MonoBehaviour
 				if (city.activeCity && sellAmount != 0)
                 {
 				    Vector3 cityLoc = city.cityLoc;
-				    cityLoc.y += length * 0.4f;
-				    cityLoc.y += -0.4f * i;
+				    cityLoc.y += 0.4f * i;
 					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(data.resourceType), city.world);
                     i++;
                 }
@@ -745,7 +743,7 @@ public class ResourceManager : MonoBehaviour
         {
             //city.totalGold += goldAdded;
             Vector3 cityLoc = city.cityLoc;
-            cityLoc.y += length * 0.4f + 0.4f;
+            cityLoc.y -= 0.4f;
             InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldAdded, ResourceHolder.Instance.GetIcon(ResourceType.Gold), city.world);
         }
 

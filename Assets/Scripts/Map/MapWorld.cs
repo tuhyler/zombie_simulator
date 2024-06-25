@@ -2716,9 +2716,9 @@ public class MapWorld : MonoBehaviour
 
         switch (count.Sum())
         {
-            //case 0:
-            //    uvMap = borderZero.sharedMesh.uv;
-            //    break;
+            case 0:
+                uvMap = borderZero.sharedMesh.uv;
+                break;
             case 1:
                 rotation = Array.FindIndex(count, x => x == 1) - currentRot;
                 if (rotation < 0)
@@ -7875,19 +7875,36 @@ public class MapWorld : MonoBehaviour
                     return;
 
 				City azaiCity = null;
-				foreach (Vector3Int tile in GetNeighborsFor(GetClosestTerrainLoc(mainPlayer.currentLocation), MapWorld.State.CITYRADIUS))
-				{
-					if (IsCityOnTile(tile))
-					{
-						azaiCity = GetCity(tile);
-						break;
-					}
-				}
+				
+                foreach (City city in cityDict.Values)
+                {
+                    azaiCity = city;
+                    break;
+                }
 
 				Vector3Int azaiLoc = RoundToInt(mainPlayer.transform.position);
 				if (azaiCity != null)
 				{
 					azaiLoc = azaiCity.cityLoc;
+
+                    if ((!mainPlayer.isMoving && mainPlayer.currentLocation == azaiLoc) || (!scott.isMoving && scott.currentLocation == azaiLoc))
+                    {
+                        HashSet<Vector3Int> usedLocs = new();
+
+                        if (!mainPlayer.isMoving)
+                            usedLocs.Add(mainPlayer.currentLocation);
+                        if (!scott.isMoving)
+                            usedLocs.Add(scott.currentLocation);
+                        
+                        foreach (Vector3Int loc in GetNeighborsFor(azaiLoc, State.EIGHTWAY))
+                        {
+                            if (!usedLocs.Contains(loc))
+                            {
+                                azaiLoc = loc;
+                                break;
+                            }
+                        }
+                    }
 				}
 				else
 				{
