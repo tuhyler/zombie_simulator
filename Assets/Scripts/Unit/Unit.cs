@@ -384,12 +384,21 @@ public class Unit : MonoBehaviour
         //checks if tile can still be moved to before moving there
         if (trader)
         {
-            if (!bySea && !trader.atStall && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.returning)
+            if (bySea)
             {
-                if (trader.followingRoute)
-                    trader.InterruptRoute(true);
+                if (world.IsRoadOnTileLocation(endPositionInt))
+                    trader.BendOverBackwards();
+
+            }
+            else
+            {
+                if (!trader.atStall && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.returning)
+                {
+                    if (trader.followingRoute)
+                        trader.InterruptRoute(true);
             
-                yield break;
+                    yield break;
+                }
             }
         }
         else if (isPlayer)

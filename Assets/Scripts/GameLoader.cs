@@ -552,12 +552,22 @@ public class GameLoader : MonoBehaviour
 			world.CreateUnit(gameData.allTransports[i]);
 		gameData.allTransports.Clear();
 		
-		if (gameData.scott.somethingToSay) 
+		if (gameData.scott.somethingToSay)
+		{
 			world.scott.gameObject.SetActive(true);
+
+			if (!world.scottFollow)
+				world.SetNPCLoc(gameData.scott.currentLocation, world.scott);
+		}
 		world.scott.LoadWorkerData(gameData.scott);
 
-		if (gameData.azai.bodyGuardData.somethingToSay) 
+		if (gameData.azai.bodyGuardData.somethingToSay)
+		{
 			world.azai.gameObject.SetActive(true);
+
+			if (!world.azaiFollow)
+				world.SetNPCLoc(gameData.azai.currentLocation, world.azai);
+		} 
 		world.azai.LoadBodyGuardData(gameData.azai);
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
 		//world.mainPlayer.lastClearTile = world.RoundToInt(world.mainPlayer.transform.position);

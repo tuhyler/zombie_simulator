@@ -1,26 +1,8 @@
 fileFormatVersion: 2
-guid: 7c605cda4b7199c41b06e09911f8ec52
+guid: 3df4e8010a09f484ea7c900941e24e7e
 ModelImporter:
   serializedVersion: 21202
-  internalIDToNameTable:
-  - first:
-      74: -9047506303139197731
-    second: Paddle-Alt.001
-  - first:
-      74: 6517714258327031822
-    second: Idle.001
-  - first:
-      74: 8349783037991401334
-    second: LoadLeft
-  - first:
-      74: 7706018048730474432
-    second: UnloadLeft.001
-  - first:
-      74: -5036307896718498814
-    second: IdleSad
-  - first:
-      74: 2664668274445620640
-    second: DuckDown
+  internalIDToNameTable: []
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -115,7 +97,7 @@ ModelImporter:
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 1
+  avatarSetup: 0
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   additionalBone: 0
   userData: 
