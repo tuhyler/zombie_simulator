@@ -184,7 +184,7 @@ MonoBehaviour:
   - Don't juggle aerosol cans near a forest fire
   - Never bring hyenas to your ballet recital
   - Porcupines are NOT for cuddling
-  - Set resource max hold amounts to better manage city inventory level
+  - Set resource max storage amounts to better manage city inventory level
   - Product prices fluctuate based on supply and demand
 --- !u!4 &1087803693
 Transform:

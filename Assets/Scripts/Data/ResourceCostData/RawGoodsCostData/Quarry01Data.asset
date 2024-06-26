@@ -64,10 +64,11 @@ MonoBehaviour:
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 60
+  buildTime: 20
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 1
   attackBonus: 0
   singleBuildType: 0
   buildOnRoad: 0
+  cityBonus: 0

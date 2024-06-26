@@ -107,7 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceImageHolder: {fileID: 8669770263365805431}
   spriteMask: {fileID: 3724268665058619275}
-  gatheringAmount: 1
+  resourceIndividual: {fileID: 0}
 --- !u!65 &7834267464640220677
 BoxCollider:
   m_ObjectHideFlags: 0

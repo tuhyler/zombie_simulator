@@ -1756,7 +1756,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			if (atStall)
 				world.SetTraderStallLoc(world.GetClosestTerrainLoc(currentLocation), currentLocation);
 
-			outline.ToggleOutline(true);
+			if (!bySea && !byAir)
+				outline.ToggleOutline(true);
 		}
 	}
 }

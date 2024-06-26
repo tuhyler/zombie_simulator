@@ -698,11 +698,11 @@ public class UnitMovement : MonoBehaviour
         {
             Worker tempWorker = resource.GetHarvestingWorker();
 
-            if (tempWorker == null)
+            /*if (tempWorker == null)
             {
                 ClearSelection();
             }
-            else if (tempWorker == world.mainPlayer)
+            else*/ if (tempWorker == world.mainPlayer)
             {
                 world.mainPlayer.SendResourceToCity();
             }
@@ -710,15 +710,15 @@ public class UnitMovement : MonoBehaviour
             {
                 world.scott.SendResourceToCity();
             }
-            else
-            {
-                ClearSelection();
-                tempWorker.SendResourceToCity();
-                selectedUnit = tempWorker;
-                SelectWorker();
-				if (!selectedUnit.sayingSomething)
-					PrepareMovement();
-            }
+    //        else
+    //        {
+    //            ClearSelection();
+    //            tempWorker.SendResourceToCity();
+    //            selectedUnit = tempWorker;
+    //            SelectWorker();
+				//if (!selectedUnit.sayingSomething)
+				//	PrepareMovement();
+    //        }
         }
         else
         {
@@ -774,7 +774,8 @@ public class UnitMovement : MonoBehaviour
 
 		unit.finalDestinationLoc = newLoc;
 		unit.MoveThroughPath(path);
-        unit.outline.ToggleOutline(true);
+        if (!unit.bySea && !unit.byAir)
+            unit.outline.ToggleOutline(true);
 		
         if (unit.isSelected)
         {
@@ -919,7 +920,10 @@ public class UnitMovement : MonoBehaviour
 			}
             else
             {
-			    selectedUnit = world.mainPlayer;
+                if (selectedUnit.worker.harvested) //if unit just finished harvesting something, send to closest city
+                    selectedUnit.worker.SendResourceToCity();
+			    
+                selectedUnit = world.mainPlayer;
 
 			    uiPersonalResourceInfoPanel.SetTitleInfo(world.mainPlayer.name, world.mainPlayer.personalResourceManager.resourceStorageLevel, world.mainPlayer.personalResourceManager.resourceStorageLimit);
                 if (world.scottFollow)
@@ -932,8 +936,6 @@ public class UnitMovement : MonoBehaviour
                 if (world.scott.IsOrderListMoreThanZero())
                     ToggleOrderHighlights(true);
 
-                if (selectedUnit.worker.harvested) //if unit just finished harvesting something, send to closest city
-                    selectedUnit.worker.SendResourceToCity();
 
                 Vector3Int terrainLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
                 if (world.IsCityOnTile(terrainLoc) || world.IsTradeCenterOnTile(terrainLoc))
@@ -1217,8 +1219,8 @@ public class UnitMovement : MonoBehaviour
             if (selectedUnit.worker.inEnemyLines)
                 return;
             
-            if (selectedUnit.worker.harvested) //if unit just finished harvesting something, send to closest city
-                selectedUnit.worker.SendResourceToCity();
+            //if (selectedUnit.worker.harvested) //if unit just finished harvesting something, send to closest city
+            //    selectedUnit.worker.SendResourceToCity();
        
             LoadUnloadFinish(true);
             GivingFinish(true);
@@ -2037,7 +2039,8 @@ public class UnitMovement : MonoBehaviour
 			if (selectedUnit.trader.LineCutterCheck())
 				return;
 
-            selectedUnit.outline.ToggleOutline(true);
+            if (!selectedUnit.bySea && !selectedUnit.byAir)
+                selectedUnit.outline.ToggleOutline(true);
 			if (selectedUnit.trader.guarded)
 			{
     			selectedUnit.trader.guardUnit.StopMovementCheck(false);
@@ -2077,7 +2080,8 @@ public class UnitMovement : MonoBehaviour
                     selectedUnit.trader.waitingOnGuard = true;
                     selectedUnit.trader.CheckWarning();
 
-                    guardUnit.outline.ToggleOutline(true);
+                    if (!guardUnit.bySea && !guardUnit.byAir)
+                        guardUnit.outline.ToggleOutline(true);
                     guardUnit.SoloMove(chosenSpot);
 				}
 			}

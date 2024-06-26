@@ -23,7 +23,7 @@ public class UISaveItem : MonoBehaviour, IPointerDownHandler
 	public UISaveGame uiSaveGame;
 
 	[HideInInspector]
-    public string saveName, version, fileName;
+    public string saveName, version, fileName, seed;
 
 	[HideInInspector]
 	public float playTime;

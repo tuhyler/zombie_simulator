@@ -288,7 +288,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 
         for (int i = 0; i < buildOptions.Count; i++)
         {
-			SingleBuildType itemType = SingleBuildType.None;
+			SingleBuildType itemType /*= SingleBuildType.None*/;
 			List<ResourceValue> resourceCosts = new();
 			//bool locked = false;
 			bool hide = false;
@@ -298,7 +298,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
                 if (buildOptions[i].UnitBuildData.unitType != UnitType.Laborer)
                 {
                     if (!cityBuilderManager.world.showAllBuildOptions && (!cityBuilderManager.world.upgradeableObjectMaxLevelDict.ContainsKey(buildOptions[i].UnitBuildData.unitType.ToString()) ||
-					    buildOptions[i].UnitBuildData.unitLevel != cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].UnitBuildData.unitType.ToString()) ||
+					    buildOptions[i].UnitBuildData.unitLevel > cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].UnitBuildData.unitType.ToString()) ||
 					    !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType)))
                     {
 					    buildOptions[i].Hide();
@@ -322,7 +322,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 			else if (buildOptions[i].BuildData != null)
 			{
 				if (!cityBuilderManager.world.showAllBuildOptions && (!cityBuilderManager.world.upgradeableObjectMaxLevelDict.ContainsKey(buildOptions[i].BuildData.improvementName) || 
-                    buildOptions[i].BuildData.improvementLevel != cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].BuildData.improvementName)))
+                    buildOptions[i].BuildData.improvementLevel > cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].BuildData.improvementName)))
 				{
 					buildOptions[i].Hide();
 					continue;
@@ -338,6 +338,9 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 				{
 					if (!resourceManager.city.hasWater && buildOptions[i].BuildData.terrainType == TerrainType.Coast)
 						hide = true;
+
+                    if (buildOptions[i].BuildData.waterIncrease > 0 && resourceManager.city.waterCount > 9000)
+                        hide = true;
 				}
 				else
 				{

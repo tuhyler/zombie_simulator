@@ -32,18 +32,18 @@ MonoBehaviour:
   - resourceType: 6
     resourceAmount: 15
   consumedResources:
-  - resourceType: 26
-    resourceAmount: 2
+  - resourceType: 14
+    resourceAmount: 4
   - resourceType: 28
     resourceAmount: 2
-  - resourceType: 6
+  - resourceType: 10
     resourceAmount: 2
   - resourceType: 4
     resourceAmount: 8
   consumedResources1:
   - resourceType: 15
     resourceAmount: 4
-  - resourceType: 6
+  - resourceType: 10
     resourceAmount: 2
   - resourceType: 4
     resourceAmount: 6
@@ -55,7 +55,7 @@ MonoBehaviour:
     resourceAmount: 2
   - resourceType: 16
     resourceAmount: 2
-  producedResourceTime: 3c0000003c000000
+  producedResourceTime: 1e0000001e000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
@@ -74,7 +74,7 @@ MonoBehaviour:
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 2
+  buildTime: 25
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0

@@ -421,7 +421,8 @@ public class Army : MonoBehaviour
             if (defending && path.Count == 0)
                 path = GridSearch.MoveWherever(world, unit.currentLocation, travelLoc + unitDiff);
             //unit.marker.ToggleVisibility(true);
-            unit.outline.ToggleOutline(true);
+            if (!unit.bySea && !unit.byAir)
+                unit.outline.ToggleOutline(true);
 
 			if (path.Count > 0)
             {    

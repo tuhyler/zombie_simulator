@@ -18,10 +18,10 @@ MonoBehaviour:
   isSecondary: 0
   isBuilding: 1
   isBuildingImprovement: 1
-  improvementName: Market
+  improvementName: Finance Center
   improvementDisplayName: Bazaar
   improvementLevel: 1
-  improvementNameAndLevel: Market-1
+  improvementNameAndLevel: Finance Center-1
   improvementDescription: 
   buildingLocation: {x: -0.1, y: 0, z: 0.6}
   image: {fileID: 21300000, guid: fb5244d8238bfa24294e1f4cd843bf44, type: 3}
@@ -58,7 +58,7 @@ MonoBehaviour:
   adjustForHill: 0
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 2
+  buildTime: 15
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0

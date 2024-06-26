@@ -56,7 +56,7 @@ MonoBehaviour:
   adjustForHill: 0
   hideProp: 1
   hillAdjustment: 0
-  buildTime: 2
+  buildTime: 20
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
