@@ -27,8 +27,11 @@ public class UISaveGame : MonoBehaviour
     public Image screenshot;
 
     [SerializeField]
-    private TMP_Text titleText, playTime, version, saveLoadText; 
-    
+    private TMP_Text titleText, playTime, version, saveLoadText, seed;
+
+    [SerializeField]
+    private GameObject playTimeTitle, versionTitle, seedTitle;
+
     [SerializeField]
     private GameObject uiSaveItemGO, screenshotParent, deleteButton;
     private UISaveItem selectedSaveItem;
@@ -101,6 +104,7 @@ public class UISaveGame : MonoBehaviour
             uiSaveItem.saveItemText.text = saveName;
             uiSaveItem.playTime = gameData.savePlayTime;
             uiSaveItem.version = gameData.saveVersion;
+            uiSaveItem.seed = gameData.seed.ToString();
             //Texture2D texture = new Texture2D(1200, 900, TextureFormat.ARGB32, false);
             //Rect rect = new Rect(0, 0, texture.width, texture.height);
             //texture.LoadImage(Convert.FromBase64String(gameData.saveScreenshot));
@@ -134,7 +138,11 @@ public class UISaveGame : MonoBehaviour
             this.load = load;
             playTime.gameObject.SetActive(false);
 			version.gameObject.SetActive(false);
+            seed.gameObject.SetActive(false);
 			screenshotParent.SetActive(false);
+            playTimeTitle.SetActive(false);
+            versionTitle.SetActive(false);
+            seedTitle.SetActive(false);
 
             if (load)
             {
@@ -198,10 +206,15 @@ public class UISaveGame : MonoBehaviour
         if (selectedSaveItem != null)
             selectedSaveItem.UnselectItem();
 
+        playTimeTitle.SetActive(true);
         playTime.gameObject.SetActive(true);
         playTime.text = ConvertPlayTime(uiSaveItem.playTime);
+        versionTitle.SetActive(true);
         version.gameObject.SetActive(true);
         version.text = uiSaveItem.version;
+        seedTitle.SetActive(true);
+        seed.gameObject.SetActive(true);
+        seed.text = uiSaveItem.seed;
         screenshotParent.SetActive(true);
         screenshot.sprite = uiSaveItem.screenshot;
         saveField.text = uiSaveItem.saveName;
@@ -250,6 +263,10 @@ public class UISaveGame : MonoBehaviour
 		Destroy(selectedSaveItem.gameObject);
 		playTime.gameObject.SetActive(false);
 		version.gameObject.SetActive(false);
+        seed.gameObject.SetActive(false);
+        playTimeTitle.SetActive(false);
+        versionTitle.SetActive(false);
+        seedTitle.SetActive(false);
 		screenshotParent.SetActive(false);
 
         File.Delete(Application.persistentDataPath + "/" + selectedSaveItem.saveName + "Screen.png");
@@ -331,7 +348,7 @@ public class UISaveGame : MonoBehaviour
         world.StartSaveProcess(saveName);
     }
 
-    public void UpdateSaveItems(string saveName, float savePlayTime, string saveVersion/*, Texture2D saveScreenshot*/)
+    public void UpdateSaveItems(string saveName, float savePlayTime, string saveVersion, int seed/*, Texture2D saveScreenshot*/)
     {
         if (newItem)
         {
@@ -345,6 +362,7 @@ public class UISaveGame : MonoBehaviour
 			uiSaveItem.saveItemText.text = saveName;
 			uiSaveItem.playTime = savePlayTime;
 			uiSaveItem.version = saveVersion;
+            uiSaveItem.seed = seed.ToString();
 			//Rect rect = new Rect(0, 0, saveScreenshot.width, saveScreenshot.height);
 			//uiSaveItem.screenshot = Sprite.Create(saveScreenshot, rect, new Vector2(0.5f, 0.5f));
 		}
@@ -352,6 +370,7 @@ public class UISaveGame : MonoBehaviour
         {
             selectedSaveItem.playTime = savePlayTime;
             selectedSaveItem.version = saveVersion;
+            selectedSaveItem.seed = seed.ToString();
 			//Rect rect = new Rect(0, 0, saveScreenshot.width, saveScreenshot.height);
 			//selectedSaveItem.screenshot = Sprite.Create(saveScreenshot, rect, new Vector2(0.5f, 0.5f));
 		}

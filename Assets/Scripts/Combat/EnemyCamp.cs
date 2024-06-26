@@ -349,7 +349,8 @@ public class EnemyCamp
 			List<Vector3Int> path = GridSearch.EnemyMove(world, unit.currentLocation, travelLoc + unitDiff, unit.bySea);
 			unit.marchPosition = unitDiff;
 			//unit.marker.ToggleVisibility(true);
-			unit.outline.ToggleOutline(true);
+			if (!unit.bySea && !unit.byAir)
+				unit.outline.ToggleOutline(true);
 
 			if (path.Count > 0)
 			{

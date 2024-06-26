@@ -229,13 +229,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceStorageLevel: 0
-  initialResources:
-  - resourceType: 2
-    resourceAmount: 50
-  - resourceType: 6
-    resourceAmount: 100
-  - resourceType: 7
-    resourceAmount: 100
+  initialResources: []
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0

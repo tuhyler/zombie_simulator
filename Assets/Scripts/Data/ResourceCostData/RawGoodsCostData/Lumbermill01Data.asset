@@ -40,8 +40,8 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 6
-    resourceAmount: 2
-  producedResourceTime: 0f000000
+    resourceAmount: 1
+  producedResourceTime: 1e000000
   rawMaterials: 1
   rawResourceType: 4
   isResearch: 0
@@ -67,3 +67,4 @@ MonoBehaviour:
   attackBonus: 0
   singleBuildType: 0
   buildOnRoad: 0
+  cityBonus: 0

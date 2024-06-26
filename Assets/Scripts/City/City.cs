@@ -1966,7 +1966,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 			co = null;
         }
 
-        Destroy(uiTimeProgressBar.gameObject);
+        //Destroy(uiTimeProgressBar.gameObject);
     }
 
     public CityData SaveCityData()

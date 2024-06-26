@@ -301,11 +301,11 @@ public class ProceduralGeneration
         int limit;
 
         if (resourceFrequency == 3)
-            limit = 1; //100%
+            limit = 4; //75%
         else if (resourceFrequency == 4)
-            limit = 4; //75% 
+            limit = 6; //50% 
         else
-            limit = 6; //50%
+            limit = 12; //25%
         
         foreach (Vector3Int tile in mountainMap.Keys)
         {

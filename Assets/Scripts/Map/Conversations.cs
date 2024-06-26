@@ -735,7 +735,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry11 = new()
 		{
-			speakerImage = "KoaHappy",
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
 			speakerText = "You speak like someone who is perpetually practicing for a Shakespeare play."

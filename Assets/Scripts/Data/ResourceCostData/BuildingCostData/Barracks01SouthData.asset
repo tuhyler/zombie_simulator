@@ -30,7 +30,7 @@ MonoBehaviour:
   - resourceType: 6
     resourceAmount: 20
   - resourceType: 31
-    resourceAmount: 100
+    resourceAmount: 75
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
@@ -56,10 +56,11 @@ MonoBehaviour:
   adjustForHill: 0
   hideProp: 1
   hillAdjustment: 0
-  buildTime: 30
+  buildTime: 25
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
   attackBonus: 50
   singleBuildType: 1
   buildOnRoad: 0
+  cityBonus: 0

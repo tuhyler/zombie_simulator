@@ -1376,7 +1376,7 @@ public class Military : Unit
 		{
 			if (buildDataSO.inMilitary)
 			{
-				if (!data.atHome)
+				if (!data.atHome && !bySea && !byAir)
 					outline.ToggleOutline(true);
 
 				transferring = data.transferring;

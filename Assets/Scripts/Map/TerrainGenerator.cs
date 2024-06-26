@@ -39,9 +39,9 @@ public class TerrainGenerator : MonoBehaviour
 
     [Header("Range of Resource Amounts")]
     [SerializeField]
-    private (int, int) stoneAmounts = (1000, 10000);
+    private (int, int) stoneAmounts = (2000, 4000);
     [SerializeField]
-    private (int, int) ironAmounts = (500, 1000), copperAmounts = (500, 1000), coalAmounts = (500,1000), goldAmounts = (200, 500), jewelAmounts = (100, 300);
+    private (int, int) ironAmounts = (2000, 4000), copperAmounts = (2000, 4000), coalAmounts = (3000,5000), goldAmounts = (500, 1000), jewelAmounts = (200, 400);
     private int goldAmount, jewelAmount, ironAmount, copperAmount, coalAmount, stoneAmount, clayAmount, clothAmount, goldPlaced, jewelPlaced, ironPlaced, copperPlaced, coalPlaced, stonePlaced;
     private ResourceType jewelType;
 
@@ -751,7 +751,7 @@ public class TerrainGenerator : MonoBehaviour
                         SetMountainMiddle(td, j, grassland, td.main.rotation);
 				}
 
-                if (startingGame)
+                if (startingGame && !nonBuildTime)
                 {
                     if (grassland)
                     {
@@ -2034,21 +2034,21 @@ public class TerrainGenerator : MonoBehaviour
 					break;
 				case ResourceType.IronOre:
 				    index = 0;
-				    adjacentCount = stoneAdjacent;
+				    adjacentCount = goldAdjacent;
 				    amountMin = ironAmounts.Item1;
 				    amountMax = ironAmounts.Item2;
                     ironPlaced++;
                     break;
                 case ResourceType.CopperOre:
                     index = 0;
-                    adjacentCount = stoneAdjacent;
+                    adjacentCount = goldAdjacent;
                     amountMin = copperAmounts.Item1;
                     amountMax = copperAmounts.Item2;
                     copperPlaced++;
                     break;
                 case ResourceType.Coal:
                     index = 0;
-                    adjacentCount = stoneAdjacent;
+                    adjacentCount = goldAdjacent;
                     amountMin = coalAmounts.Item1;
                     amountMax = coalAmounts.Item2;
                     coalPlaced++;
@@ -2138,8 +2138,8 @@ public class TerrainGenerator : MonoBehaviour
 			desertTiles.Remove(newFood);
 		}
 
-        //put fish every fourth tile on average
-        int fishCount = potentialWaterResourceLocs.Count / 4;
+        //put fish every fifth tile on average
+        int fishCount = potentialWaterResourceLocs.Count / 5;
         for (int i = 0; i < fishCount; i++)
         {
             Vector3Int newWater = potentialWaterResourceLocs[random.Next(0, potentialWaterResourceLocs.Count)];
@@ -2791,10 +2791,13 @@ public class TerrainGenerator : MonoBehaviour
 					amountMax = jewelAmounts.Item2;
 				}
 
-                if (hill)
-                    data = terrainDict[resourceLoc].terrainData.grassland ? grasslandHillResourceSO : desertHillResourceSO;
-				else
-                    data = terrainDict[resourceLoc].terrainData.grassland ? grasslandResourceSO : desertResourceSO;
+                if (addResource)
+                {
+                    if (hill)
+                        data = terrainDict[resourceLoc].terrainData.grassland ? grasslandHillResourceSO : desertHillResourceSO;
+				    else
+                        data = terrainDict[resourceLoc].terrainData.grassland ? grasslandResourceSO : desertResourceSO;
+                }
 			}
 
             if (addResource)
@@ -2854,7 +2857,10 @@ public class TerrainGenerator : MonoBehaviour
 			else
 				rotation = Quaternion.LookRotation(direction, Vector3.up);
 
-            GameObject leaderGO = Instantiate(chosenLeader, empire.capitalCity, rotation);
+            Vector3 leaderLoc = empire.capitalCity;
+            if (terrainDict[empire.capitalCity].isHill)
+                leaderLoc.y += 0.4f;
+            GameObject leaderGO = Instantiate(chosenLeader, leaderLoc, rotation);
 			leaderGO.transform.SetParent(enemyCityHolder, false);
 			MilitaryLeader leader = leaderGO.GetComponent<MilitaryLeader>();
             empire.enemyLeader = leader;

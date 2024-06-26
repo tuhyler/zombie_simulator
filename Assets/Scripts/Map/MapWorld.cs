@@ -1418,7 +1418,8 @@ public class MapWorld : MonoBehaviour
                     if (!tdUnit.isDiscovered)
                         unit.HideUnit();
                     //else if (tdUnit.CompareTag("Forest") || tdUnit.CompareTag("Forest Hill") || IsBuildLocationTaken(tdUnit.TileCoordinates))
-                    unit.outline.ToggleOutline(true);
+                    if (!unit.bySea && !unit.byAir)
+                        unit.outline.ToggleOutline(true);
 					    //unit.marker.ToggleVisibility(true);
 			    }
                 else
@@ -2179,7 +2180,8 @@ public class MapWorld : MonoBehaviour
 				Unit unit = enemyGO.GetComponent<Unit>();
 				unit.SetMinimapIcon(enemyUnitHolder);
                 //if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
-                unit.outline.ToggleOutline(true);
+                if (!unit.bySea && !unit.byAir)
+                    unit.outline.ToggleOutline(true);
 					//unit.marker.ToggleVisibility(true);
 				unit.SetReferences(this);
 				unit.currentLocation = data.currentLocation;
@@ -2354,7 +2356,7 @@ public class MapWorld : MonoBehaviour
         Cursor.visible = true;
         canvasHolder.SetActive(true);
         float playTime = (DateTime.Now - currentTime).Seconds;
-		uiMainMenu.uiSaveGame.UpdateSaveItems(saveName, playTime, version/*, newTexture*/);
+		uiMainMenu.uiSaveGame.UpdateSaveItems(saveName, playTime, version, seed/*, newTexture*/);
         //Destroy(texture);
         GameLoader.Instance.SaveGame(saveName, playTime, version/*, bytesString*/);
     }
@@ -4707,7 +4709,8 @@ public class MapWorld : MonoBehaviour
 		Unit unit = enemyGO.GetComponent<Unit>();
         unit.SetMinimapIcon(enemyUnitHolder);
         //if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
-        unit.outline.ToggleOutline(true);
+        if (!unit.bySea && !unit.byAir)
+            unit.outline.ToggleOutline(true);
 			//unit.marker.ToggleVisibility(true);
 
 		Vector3 unitScale = unit.transform.localScale;
@@ -5541,6 +5544,15 @@ public class MapWorld : MonoBehaviour
 				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
 				unit.outline.ToggleOutline(false);
 			}
+
+            foreach (Vector3Int loc in npcPosDict.Keys)
+            {
+                if (npcPosDict[loc].buildDataSO.unitDisplayName == "Scott" || npcPosDict[loc].buildDataSO.unitDisplayName == "Azai")
+                {
+                    npcPosDict[loc].unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+                    break;
+                }
+            }
 		}
         else
         {
@@ -5693,7 +5705,8 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
                     unit.battleCam = false;
-					unit.outline.ToggleOutline(outlineOn);
+                    if (!unit.bySea && !unit.byAir)
+    					unit.outline.ToggleOutline(outlineOn);
 					//unit.MarkerCheck();
 				}
 			}
@@ -5714,7 +5727,8 @@ public class MapWorld : MonoBehaviour
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
                 unit.battleCam = false;
-				unit.outline.ToggleOutline(true);
+                if (!unit.bySea && !unit.byAir)
+    				unit.outline.ToggleOutline(true);
 				//unit.MarkerCheck();
 			}
 		}

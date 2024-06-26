@@ -372,7 +372,8 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
                     panelList[i].SetResourceAmount(producedTime);
                     panelList[i].SetResourceType(ResourceType.Time);
                     panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
-                }
+					panelList[i].resourceAmountText.color = Color.white;
+				}
                 else
                 {
                     panelList[i].gameObject.SetActive(false);
