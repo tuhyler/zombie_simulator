@@ -192,7 +192,7 @@ public class UIResearchReward : MonoBehaviour
 
     public void Complete(Sprite newBackground)
     {
-        rewardBackground.sprite = originalSprite;
+        //rewardBackground.sprite = originalSprite;
         rewardBackground.sprite = newBackground;
     }
 
@@ -205,7 +205,7 @@ public class UIResearchReward : MonoBehaviour
             researchItem.researchTree.researchTooltip.SetInfo(improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel,
                 improvementData.workEthicChange, improvementData.improvementDescription, improvementData.improvementCost, produces, consumes, produceTime, false, 0, 0, 0, 0,
                 improvementData.housingIncrease, improvementData.waterIncrease, improvementData.powerIncrease, improvementData.purchaseAmountChange, false, Era.None, false, 
-                improvementData.rawResourceType == RawResourceType.Rocks);
+                improvementData.rawResourceType == RawResourceType.Rocks, improvementData.cityBonus);
         else if (unitData != null)
             researchItem.researchTree.researchTooltip.SetInfo(unitData.image, Regex.Replace(unitData.unitType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1"), unitData.unitDisplayName, 
                 unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost, produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, 

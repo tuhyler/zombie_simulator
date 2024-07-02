@@ -410,6 +410,9 @@ public class MapWorld : MonoBehaviour
             if (unit.unitType == UnitType.Infantry && !unit.empireUnit)
                 ambushUnitDict[unit.unitEra] = unit.unitNameAndLevel;
         }
+
+        if (showAllBuildOptions)
+            AaddGold(1000);
     }
 
     public void CursorCheck()
@@ -622,7 +625,7 @@ public class MapWorld : MonoBehaviour
         {
             characterUnits.Add(scott);
             characterUnits.Add(azai);
-            mainPlayer.name = "Koa & co.";
+            mainPlayer.name = "Koa & Co.";
             scottFollow = true;
             azaiFollow = true;
 
@@ -1587,9 +1590,11 @@ public class MapWorld : MonoBehaviour
 
 		city.LightFire(td.isHill);
 
+		uiProfitabilityStats.CreateNewProfitabilityCityStats(city, true);
 		AddCityBuildingDict(cityTile);
 
         city.LoadCityData(data);
+        unitMovement.workerTaskManager.SetCityBools(city, cityTile);
 
         //building buildings
         foreach (CityImprovementData improvementData in data.cityBuildings)
@@ -2342,10 +2347,10 @@ public class MapWorld : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
         //ScreenCapture.CaptureScreenshot("Assets/Resources/SaveScreens/test.png");
-        int height = Mathf.RoundToInt(Screen.width * 0.625f);
-        int width = height / 4 * 3;
-        Texture2D texture = new Texture2D(height, width, TextureFormat.ARGB32, false);
-        texture.ReadPixels(new Rect((Screen.width - height), (Screen.height - width), texture.width, texture.height), 0, 0);
+        int width = Mathf.RoundToInt(Screen.width * 0.75f);
+        int height = width / 4 * 3;
+        Texture2D texture = new Texture2D(width, height, TextureFormat.ARGB32, false);
+        texture.ReadPixels(new Rect((Screen.width - width), (Screen.height - height), texture.width, texture.height), 0, 0);
         texture.Apply();
         byte[] bytes = texture.EncodeToPNG();
         //string bytesString = Convert.ToBase64String(bytes);
@@ -5433,7 +5438,7 @@ public class MapWorld : MonoBehaviour
         
         if (GetCityDevelopment(cityDict[cityLoc].singleBuildDict[SingleBuildType.Barracks]).isTraining)
             cityBuilderManager.RemoveImprovement(cityDict[cityLoc].singleBuildDict[SingleBuildType.Barracks], 
-                GetCityDevelopment(cityDict[cityLoc].singleBuildDict[SingleBuildType.Barracks]), true, false);
+                GetCityDevelopment(cityDict[cityLoc].singleBuildDict[SingleBuildType.Barracks]), true, cityDict[cityLoc], false);
 
 		cityDict[cityLoc].army.targetCamp = camp;
         cityDict[cityLoc].army.defending = true;
@@ -6499,6 +6504,11 @@ public class MapWorld : MonoBehaviour
         return tradeStopDict.ContainsKey(tile) && tradeStopDict[tile].center != null;
     }
 
+    public bool IsTradeCenterMainOnTile(Vector3Int tile)
+    {
+        return tradeStopDict.ContainsKey(tile) && tradeStopDict[tile].center != null && tradeStopDict[tile].mainLoc == tile;
+	}
+
     public bool IsEnemyCityOnTile(Vector3Int tile)
     {
         return enemyCityDict.ContainsKey(tile);
@@ -6769,8 +6779,9 @@ public class MapWorld : MonoBehaviour
 
     public TerrainData GetTerrainDataAt(Vector3Int tileWorldPosition)
     {
-        world.TryGetValue(tileWorldPosition, out TerrainData td);
-        return td;
+        return world[tileWorldPosition];
+        //world.TryGetValue(tileWorldPosition, out TerrainData td);
+        //return td;
     }
 
     public bool TileExists(Vector3Int tile)
@@ -7225,11 +7236,11 @@ public class MapWorld : MonoBehaviour
 
     public void AddStructure(Vector3Int position, GameObject structure) //method to add building to dict
     {
-        if (buildingPosDict.ContainsKey(position))
-        {
-            Debug.LogError($"There is a structure already at this position {position}");
-            return;
-        }
+        //if (buildingPosDict.ContainsKey(position))
+        //{
+        //    Debug.LogError($"There is a structure already at this position {position}");
+        //    return;
+        //}
 
         buildingPosDict[position] = structure;
     }
@@ -7860,7 +7871,11 @@ public class MapWorld : MonoBehaviour
 							}
 						}
 					}
-					scott.transform.position = scottLoc;
+
+                    Vector3 scottPos = scottLoc;
+                    if (GetTerrainDataAt(RoundToInt(scottPos)).isHill)
+                        scottPos.y += 1f;
+					scott.transform.position = scottPos;
 
 					Vector3 goScale = scott.transform.localScale;
 					//AddUnitPosition(scottLoc, scott);
@@ -7885,7 +7900,7 @@ public class MapWorld : MonoBehaviour
 				}
 				break;
             case "first_infantry":
-                if (source != "Hunting Research Complete")
+                if (source != "Agriculture Research Complete")
                     return;
 
 				City azaiCity = null;
@@ -7931,7 +7946,11 @@ public class MapWorld : MonoBehaviour
 						}
 					}
 				}
-				azai.transform.position = azaiLoc;
+
+				Vector3 azaiPos = azaiLoc;
+				if (GetTerrainDataAt(RoundToInt(azaiPos)).isHill)
+					azaiPos.y += 1f;
+				azai.transform.position = azaiPos;
 
 				Vector3 azaiScale = azai.transform.localScale;
                 azai.currentLocation = azaiLoc;
@@ -8316,7 +8335,35 @@ public class MapWorld : MonoBehaviour
 							mainPlayer.conversationHaver.SetSomethingToSay("new_city", scott);
 							GameLoader.Instance.gameData.tutorialData.newCity = true;
                             break;
-                    }
+                        case "Finished Building Finance Center":
+                            if (GameLoader.Instance.gameData.tutorialData.newFinance)
+                                return;
+
+							mainPlayer.conversationHaver.SetSomethingToSay("new_finance_center", scott);
+                            GameLoader.Instance.gameData.tutorialData.newFinance = true;
+							break;
+                        case "Finished Building Entertainment Center":
+							if (GameLoader.Instance.gameData.tutorialData.newEntertainment)
+								return;
+
+							mainPlayer.conversationHaver.SetSomethingToSay("new_entertainment_center", scott);
+							GameLoader.Instance.gameData.tutorialData.newEntertainment = true;
+							break;
+						case "Finished Building Ceramist":
+							if (GameLoader.Instance.gameData.tutorialData.newProducer)
+								return;
+
+							mainPlayer.conversationHaver.SetSomethingToSay("new_producer", scott);
+							GameLoader.Instance.gameData.tutorialData.newProducer = true;
+							break;
+						case "Finished Building Weaver":
+							if (GameLoader.Instance.gameData.tutorialData.newProducer)
+								return;
+
+							mainPlayer.conversationHaver.SetSomethingToSay("new_producer", scott);
+							GameLoader.Instance.gameData.tutorialData.newProducer = true;
+							break;
+					}
 
                     break;
 			}
@@ -8411,7 +8458,7 @@ public class MapWorld : MonoBehaviour
                 else if (number == 17)
 				{
                     RemoveNPCLoc(scott.currentLocation);
-                    mainPlayer.gameObject.name = "Koa & co.";
+                    mainPlayer.gameObject.name = "Koa & Co.";
                     scottFollow = true;
 					scott.gameObject.tag = "Player";
                     //scott.marker.gameObject.tag = "Player";

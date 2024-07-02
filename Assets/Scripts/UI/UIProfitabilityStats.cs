@@ -131,14 +131,17 @@ public class UIProfitabilityStats : MonoBehaviour, IImmoveable
 			cityStats.UpdateStats();
 	}
 
-	public void CreateNewProfitabilityCityStats(City city)
+	public void CreateNewProfitabilityCityStats(City city, bool load)
 	{
 		UIProfitabilityCityStats cityStats = Instantiate(Resources.Load<UIProfitabilityCityStats>("Prefabs/UIPrefabs/ProfitabilityCityStats"));
 		cityStats.transform.SetParent(cityStatsHolder, false);
 		cityStats.city = city;
 		cityStats.cityNameText.text = city.cityName;
 		cityStats.cityName = city.cityName;
+		if (load)
+			cityStats.UpdateStats();
 		cityStatDict[city] = cityStats;
+
 
 		if (activeStatus)
 			cityStats.UpdateStats();

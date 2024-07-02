@@ -79,8 +79,8 @@ public class CityBuilderManager : MonoBehaviour
     [HideInInspector]
     public ImprovementDataSO improvementData;
 
-    [HideInInspector]
-    public ResourceManager resourceManager;
+    //[HideInInspector]
+    //public ResourceManager resourceManager;
 
     [HideInInspector]
     public int laborChange/*, placesToWork*/;
@@ -239,7 +239,7 @@ public class CityBuilderManager : MonoBehaviour
             if (improvementSelected.building && !removingImprovement && !upgradingImprovement)
             {
                 City city = improvementSelected.city;
-                if (city == null) //for orphan barracks or harbors
+                if (city == null && laborChange == 0) //for orphan barracks or harbors
 				{
                     world.CloseTooltip();
                     return;
@@ -268,7 +268,7 @@ public class CityBuilderManager : MonoBehaviour
 					world.OpenImprovementTooltip(improvementSelected);
                     return;
 				}
-                else if (type == SingleBuildType.FinanceCenter || type == SingleBuildType.Entertainment)
+                else if (type == SingleBuildType.FinanceCenter || type == SingleBuildType.EntertainmentCenter)
                 {
 					if (laborChange != 0)
                     {
@@ -325,29 +325,29 @@ public class CityBuilderManager : MonoBehaviour
                         constructingTiles.Remove(terrainLocation);
                     }
 
-					if (RemoveImprovement(terrainLocation, improvementSelected, false))
+					if (RemoveImprovement(terrainLocation, improvementSelected, false, selectedCity))
 					    PlaySelectAudio(removeClip);
                 }
                 else if (laborChange != 0) //for changing labor counts in tile
                 {
-                    if (improvementSelected.isConstruction || !tilesToChange.Contains(terrainLocation))
+                    //if (improvementSelected.isConstruction || !tilesToChange.Contains(terrainLocation))
+                    //{
+                    //	ResetCityUIToBase();
+                    //}
+                    if (improvementSelected.isConstruction)
                     {
-						uiLaborAssignment.ResetLaborAssignment();
-					}
-       //             if (improvementSelected.isConstruction)
-       //             {
-       //                 UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Still building...");
-       //                 return;
-       //             }
-       //             else if (!tilesToChange.Contains(terrainLocation))
-       //             {
-       //                 if (laborChange > 0 && selectedCity.unusedLabor == 0)
-							//UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No more available labor");
-       //                 else if (laborChange < 0 && !world.CheckIfTileIsWorked(terrainLocation))
-							//UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No more labor to remove");
-       //                 else
-						 //   UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not here");
-       //             }
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Still building...");
+                        return;
+                    }
+                    else if (!tilesToChange.Contains(terrainLocation))
+                    {
+                        if (laborChange > 0 && selectedCity.unusedLabor == 0)
+                            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No more available labor");
+                        else if (laborChange < 0 && !world.CheckIfTileIsWorked(terrainLocation))
+                            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No more labor to remove");
+                        else
+                            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not here");
+                    }
                     else
                     {
                         ChangeLaborCount(terrainLocation);
@@ -494,7 +494,7 @@ public class CityBuilderManager : MonoBehaviour
 							constructingTiles.Remove(terrainLoc);
 						}
 
-					    if (RemoveImprovement(terrainLoc, improvement, false))
+					    if (RemoveImprovement(terrainLoc, improvement, false, selectedCity))
                             PlaySelectAudio(removeClip);
                     } 
                 }
@@ -1010,9 +1010,9 @@ public class CityBuilderManager : MonoBehaviour
         world.GetTerrainDataAt(selectedCity.cityLoc).EnableHighlight(Color.green);
         DrawBorders();
         autoAssign.isOn = selectedCity.autoAssignLabor;
-		resourceManager = selectedCity.resourceManager;
-        resourceManager.UpdateUI(selectedCity.GetResourceValues());
-        uiCityTabs.ToggleVisibility(true, resourceManager);
+		//resourceManager = selectedCity.resourceManager;
+        selectedCity.resourceManager.UpdateUI(selectedCity.GetResourceValues());
+        uiCityTabs.ToggleVisibility(true, selectedCity.resourceManager);
         uiResourceManager.ToggleVisibility(true, selectedCity);
         CenterCamOnCity();
         uiInfoPanelCity.SetAllData(selectedCity);
@@ -1224,7 +1224,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void UpgradeSelectedImprovementQueueCheck(Vector3Int tempBuildLocation, CityImprovement selectedImprovement, List<ResourceValue> upgradeCost, List<ResourceValue> refundCost)
     {
-        string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
+        //string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
 
         //queue information
         //if (isQueueing)
@@ -1240,11 +1240,17 @@ public class CityBuilderManager : MonoBehaviour
         //    return;
         //}
 
-        if (!selectedImprovement.building)
+        if (selectedImprovement.building)
+        {
+			PlaySelectAudio(buildClip);
+		}
+        else
+        {
             PlaySelectAudio(constructionClip);
+		    tilesToChange.Remove(tempBuildLocation);
+            world.GetTerrainDataAt(tempBuildLocation).DisableHighlight();
+        }
 		    //PlayConstructionAudio();
-		tilesToChange.Remove(tempBuildLocation);
-        world.GetTerrainDataAt(tempBuildLocation).DisableHighlight();
         UpgradeSelectedImprovementPrep(tempBuildLocation, selectedImprovement, selectedCity, upgradeCost, refundCost);
     }
 
@@ -1262,7 +1268,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (cityCenterBuilding)
         {
-            RemoveImprovement(upgradeLoc, selectedImprovement, true);
+            RemoveImprovement(upgradeLoc, selectedImprovement, true, city);
             CreateBuilding(data, city, true);
         }
         else
@@ -1290,25 +1296,8 @@ public class CityBuilderManager : MonoBehaviour
             }
 
             resourceProducer.StopProducing(true);
+            ResetProducerLabor(city, upgradeLoc, resourceProducer);
             resourceProducer.UpdateCurrentLaborData(0);
-
-            if (city.activeCity)
-            {
-                int currentLabor = world.GetCurrentLaborForTile(upgradeLoc);
-                city.unusedLabor += currentLabor;
-                city.usedLabor -= currentLabor;
-
-                RemoveLaborFromDicts(upgradeLoc);
-                if (resourceProducer.improvementData.maxLabor > 0)
-                    resourceProducer.cityImprovementStats.SetActive(false);
-                UpdateCityLaborUIs();
-                uiInfoPanelCity.SetAllData(selectedCity);
-                uiResourceManager.SetCityCurrentStorage(city.resourceManager.resourceStorageLevel);
-            }
-            else
-            {
-                RemoveLaborFromDicts(upgradeLoc);
-            }
             
             if (city.autoAssignLabor && city.unusedLabor > 0)
                 city.AutoAssignmentsForLabor();
@@ -1319,7 +1308,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void UpgradeSelectedImprovement(Vector3Int upgradeLoc, CityImprovement selectedImprovement, City city, ImprovementDataSO data)
     {
-        RemoveImprovement(upgradeLoc, selectedImprovement, true);
+        RemoveImprovement(upgradeLoc, selectedImprovement, true, city);
         BuildImprovement(data, upgradeLoc, city, true);
     }
 
@@ -1877,10 +1866,10 @@ public class CityBuilderManager : MonoBehaviour
             Vector3 cityLoc = city.cityLoc;
             cityLoc.y += data.improvementCost.Count * 0.4f;
 
-            resourceManager.resourceCount = 0;
+            city.resourceManager.resourceCount = 0;
             foreach (ResourceValue resourceValue in data.improvementCost)
             {
-                int resourcesReturned = resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
+                int resourcesReturned = city.resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
                 Vector3 cityLoc2 = cityLoc;
                 cityLoc2.y += -.4f * i;
                 InfoResourcePopUpHandler.CreateResourceStat(cityLoc2, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType), world);
@@ -1920,7 +1909,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (data.workEthicChange != 0)
                 UpdateCityWorkEthic();
-            uiResourceManager.SetCityCurrentStorage(resourceManager.resourceStorageLevel);
+            uiResourceManager.SetCityCurrentStorage(city.resourceManager.resourceStorageLevel);
             uiInfoPanelCity.SetAllData(selectedCity);
         }
 
@@ -2078,9 +2067,7 @@ public class CityBuilderManager : MonoBehaviour
         buildLocation.y = 0;
 
         if (!upgradingImprovement)
-        {
             city.resourceManager.SpendResource(improvementData.improvementCost, buildLocation);
-        }
 
         if (city.activeCity)
             uiResourceManager.SetCityCurrentStorage(city.resourceManager.resourceStorageLevel);
@@ -2088,9 +2075,7 @@ public class CityBuilderManager : MonoBehaviour
         //rotating harbor so it's closest to city
         int rotation = 0;
 		if (improvementData.singleBuildType == SingleBuildType.Harbor)
-		{
             rotation = HarborRotation(tempBuildLocation, city.cityLoc);
-        }
 
         //adding improvement to world dictionaries
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
@@ -2161,7 +2146,8 @@ public class CityBuilderManager : MonoBehaviour
 
         if (upgradingImprovement)
         {
-            resourceProducer.SetUpgradeProgressTimeBar(improvementData.buildTime);
+            if (improvementData.producedResourceTime.Count > 0)
+                resourceProducer.SetUpgradeProgressTimeBar(improvementData.producedResourceTime[0]);
             FinishImprovement(city, improvementData, tempBuildLocation);
         }
         else
@@ -2474,7 +2460,7 @@ public class CityBuilderManager : MonoBehaviour
     }
 
     //boolean is to see to play sound or not
-    public bool RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, bool upgradingImprovement, bool destroyingCity = false, bool enemy = false)
+    public bool RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, bool upgradingImprovement, City city, bool destroyingCity = false, bool enemy = false)
     {
         ImprovementDataSO improvementData = selectedImprovement.GetImprovementData;
         //remove building
@@ -2498,7 +2484,7 @@ public class CityBuilderManager : MonoBehaviour
 		if (selectedImprovement.isTraining)
 		{
 			if (!destroyingCity && !enemy)
-                ReplaceImprovementCost(selectedImprovement.upgradeCost, improvementLoc);
+                ReplaceImprovementCost(city, selectedImprovement.upgradeCost, improvementLoc);
 
 			if (!selectedImprovement.isUpgrading)
 			{
@@ -2522,7 +2508,7 @@ public class CityBuilderManager : MonoBehaviour
 		else if (selectedImprovement.isUpgrading)
         {
             if (!destroyingCity && !enemy)
-                ReplaceImprovementCost(selectedImprovement.upgradeCost, improvementLoc);
+                ReplaceImprovementCost(city, selectedImprovement.upgradeCost, improvementLoc);
             selectedImprovement.StopUpgradeProcess(resourceProducer);
             selectedImprovement.StopUpgrade();
 
@@ -2546,7 +2532,7 @@ public class CityBuilderManager : MonoBehaviour
 			return false;
 		}
 		
-        if (!upgradingImprovement) //not redundant, for when actually removing
+        if (!upgradingImprovement) 
         {
             //putting the labor back
             ResourceType resourceType = resourceProducer.producedResource.resourceType;
@@ -2566,11 +2552,13 @@ public class CityBuilderManager : MonoBehaviour
             }
 
             resourceProducer.StopProducing(true);
+            if (!selectedImprovement.isConstruction)
+                ResetProducerLabor(city, improvementLoc, resourceProducer);
             resourceProducer.UpdateCurrentLaborData(0);
 
             //replacing the cost
             if (!destroyingCity && !enemy)
-                ReplaceImprovementCost(improvementData.improvementCost, improvementLoc);
+                ReplaceImprovementCost(city, improvementData.improvementCost, improvementLoc);
 
             if (updateCity)
                 uiResourceManager.SetCityCurrentStorage(selectedCity.resourceManager.resourceStorageLevel);
@@ -2601,12 +2589,12 @@ public class CityBuilderManager : MonoBehaviour
 					td.SwitchFromRoad();
 			}
             
-            if (!selectedImprovement.isConstruction && selectedImprovement.city != null)
-            {
-                int currentLabor = world.GetCurrentLaborForTile(improvementLoc);
-                selectedImprovement.city.unusedLabor += currentLabor;
-                selectedImprovement.city.usedLabor -= currentLabor;
-            }
+            //if (!selectedImprovement.isConstruction && selectedImprovement.city != null)
+            //{
+            //    int currentLabor = world.GetCurrentLaborForTile(improvementLoc);
+            //    selectedImprovement.city.unusedLabor += currentLabor;
+            //    selectedImprovement.city.usedLabor -= currentLabor;
+            //}
         }
 
         if (!upgradingImprovement && !selectedImprovement.isConstruction)
@@ -2668,11 +2656,11 @@ public class CityBuilderManager : MonoBehaviour
         Destroy(improvement);
 
         //updating world dicts
-        if (!upgradingImprovement)
-        {
-            RemoveLaborFromDicts(improvementLoc);
-            //world.RemoveFromMaxWorked(improvementLoc);
-        }
+        //if (!upgradingImprovement)
+        //{
+        //    RemoveLaborFromDicts(improvementLoc);
+        //    //world.RemoveFromMaxWorked(improvementLoc);
+        //}
         world.RemoveStructure(improvementLoc);
         developedTiles.Remove(improvementLoc);
 
@@ -2735,15 +2723,15 @@ public class CityBuilderManager : MonoBehaviour
         return true;
     }
 
-	private void ReplaceImprovementCost(List<ResourceValue> replaceCost, Vector3 improvementLoc)
+	private void ReplaceImprovementCost(City city, List<ResourceValue> replaceCost, Vector3 improvementLoc)
     {
         int i = 0;
         improvementLoc.y += replaceCost.Count * 0.4f;
 
-        resourceManager.resourceCount = 0;
+        city.resourceManager.resourceCount = 0;
         foreach (ResourceValue resourceValue in replaceCost) //adding back 100% of cost (if there's room)
         {
-            int resourcesReturned = resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
+            int resourcesReturned = city.resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
             Vector3 loc = improvementLoc;
             loc.y += -.4f * i;
             i++;
@@ -3012,9 +3000,25 @@ public class CityBuilderManager : MonoBehaviour
         world.TutorialCheck("Change Labor");
     }
 
+    private void ResetProducerLabor(City city, Vector3Int loc, ResourceProducer producer)
+    {
+		int currentLabor = world.GetCurrentLaborForTile(loc);
+		city.unusedLabor += currentLabor;
+		city.usedLabor -= currentLabor;
+    	RemoveLaborFromDicts(loc);
+
+		if (city.activeCity)
+		{
+			if (producer.improvementData.maxLabor > 0)
+				producer.cityImprovementStats.SetActive(false);
+			UpdateCityLaborUIs();
+			uiInfoPanelCity.SetAllData(selectedCity);
+			uiResourceManager.SetCityCurrentStorage(city.resourceManager.resourceStorageLevel);
+		}
+	}
+
     private void RemoveLaborFromDicts(Vector3Int terrainLocation)
     {
-        //world.RemoveFromCurrentWorked(terrainLocation);
         world.RemoveFromCityLabor(terrainLocation);
     }
 
@@ -3337,7 +3341,7 @@ public class CityBuilderManager : MonoBehaviour
                     improvement.city = null;
 
                     if (improvement.isUpgrading || improvement.isTraining || improvement.isConstruction)
-                        RemoveImprovement(tile, improvement, true, true);
+                        RemoveImprovement(tile, improvement, true, city, true);
 				}
 			}
         }
@@ -3542,8 +3546,8 @@ public class CityBuilderManager : MonoBehaviour
             world.somethingSelected = false;
             uiTradeCenter.ToggleVisibility(false);
             selectedTradeCenter.DisableHighlight();
-            if (world.GetClosestTerrainLoc(world.mainPlayer.transform.position) == selectedTradeCenter.mainLoc)
-                selectedTradeCenter.ToggleClear(true);
+            //if (world.GetClosestTerrainLoc(world.mainPlayer.transform.position) == selectedTradeCenter.mainLoc)
+            //    selectedTradeCenter.ToggleClear(true);
 
             selectedTradeCenter = null;
         }

@@ -16,8 +16,7 @@ public class Conversations : MonoBehaviour
 
 		//doing this here instead of in inspector so I can search text more easily
 
-		//Koa & co.
-		#region Koa & co.
+		#region Koa & Co.
 		#region just_landed
 		conversationDict["just_landed"] = new();
 
@@ -258,7 +257,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor15 = new()
 		{
-			speakerImage = "KoaQuestion",
+			speakerImage = "KoaThinking",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Well, let me think... I need to make a rocket, the peak of all human accomplishments, but you and I don't know how to make anything, " +
@@ -735,10 +734,10 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry11 = new()
 		{
-			speakerImage = "KoaQuestion",
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "You speak like someone who is perpetually practicing for a Shakespeare play."
+			speakerText = "Cool, thanks for the help! You know, you speak like someone who is perpetually practicing for a Shakespeare play."
 		};
 		conversationDict["first_infantry"].Add(first_infantry11);
 		#endregion
@@ -888,14 +887,52 @@ public class Conversations : MonoBehaviour
 			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
-			speakerText = "Yes, but I will need to be better prepared. I will need to fully recover my health and will most certainly need a better weapon. " +
-			"Let us return to a nearby city and upgrade the current weapon I have."
+			speakerText = "Yes, but I need to be better prepared. I need to fully recover my health and will most certainly need a better weapon. " +
+			"Let us return to a nearby city and upgrade the current weapon and armor I have, which I assume will also make me much more devastatingly handsome."
 		};
 		conversationDict["azaidefeat"].Add(azaidefeat3);
 		#endregion
+		#region new_finance_center
+		conversationDict["new_finance_center"] = new();
+
+		ConversationItem new_finance_center1= new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "We just built our first finance center! Adding labor to these centers will increase the amount of goods purchased each cycle for every " +
+			"sellable item (except for food). These centers are a great way to increase our sales!"
+		};
+		conversationDict["new_finance_center"].Add(new_finance_center1);
+		#endregion
+		#region new_entertainment_center
+		conversationDict["new_entertainment_center"] = new();
+
+		ConversationItem new_entertainment_center1 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "We just built our first entertainment center! Adding labor to these centers will make the pop of our cities very happy, " +
+			"thus increasing their work ethic and the amount of goods they produce!"
+		};
+		conversationDict["new_entertainment_center"].Add(new_entertainment_center1);
+		#endregion
+		#region new_producer
+		conversationDict["new_producer"] = new();
+
+		ConversationItem new_producer1 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "We just built our first goods producer! It's difficult to run an economy just on food sales alone, so selling higher priced goods created by producers, " +
+			"such as pottery or cloth, can generate much higher sales for us!"
+		};
+		conversationDict["new_producer"].Add(new_producer1);
+		#endregion
 		#endregion
 
-		//Haniya
 		#region Haniya
 		#region intro
 		conversationDict["Haniya_intro"] = new();
@@ -1148,7 +1185,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem haniya_quest06 = new()
 		{
-			speakerImage = "AzaiAwkward",
+			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Haniya",
 			speakerText = "Haniya, will our completion of your request make you happy?"
@@ -2192,7 +2229,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Natakamani",
-			speakerText = "Hi, Natakamani! And I am Koa, king of the pickle ball court!"
+			speakerText = "Hi, Natakamani! And I am Koa, king of this land I just fell on, apparently."
 		};
 		conversationDict["Natakamani_intro"].Add(natakamani_intro2);
 
@@ -2354,7 +2391,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Natakamani",
-			speakerText = "Yes! *Look at watch* Oh, shoot, looks like it broke when I fell from the sky."
+			speakerText = "Yes! *Looks at watch* Oh, shoot, looks like it broke when I fell from the sky."
 		};
 		conversationDict["Natakamani_quest0"].Add(natakamani_quest012);
 
@@ -2372,7 +2409,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Natakamani",
-			speakerText = "*Missing the sarcasm* I know! Isn't it splendid to hear about? Anyways, we'll find stones for you, and we'll return when we do, Mr. Natakamani!"
+			speakerText = "I know! Isn't it splendid to hear about? Anyways, we'll find stones for you, and we'll return when we do, Mr. Natakamani!"
 		};
 		conversationDict["Natakamani_quest0"].Add(natakamani_quest014);
 		#endregion
@@ -2498,7 +2535,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "NatakamaniSarcasm",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
-			speakerText = "*In a mocking voice* \"Look, there's a large swathe of dark clouds coming this way, I'm guessing that means it will rain soon.\" \"Wow, how did you know that?? Are you from the future!?\""
+			speakerText = "\"Look, there's a large swathe of dark clouds coming this way, I guess that means it will rain soon.\" \"Wow, how did you know that?? Are you from the future!?\""
 		};
 		conversationDict["Natakamani_quest1"].Add(natakamani_quest15);
 
@@ -2534,7 +2571,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "NatakamaniQuestion",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
-			speakerText = "Moving on, I don't suppose you men would you be able to get us some stone sculptures, could you? We're thinking of using them " +
+			speakerText = "Moving on, I don't suppose you men would you be able to get us some pottery, could you? We're thinking of using them " +
 			"to decorate a memorial we are building, and we'd need about 10 of them."
 		};
 		conversationDict["Natakamani_quest1"].Add(natakamani_quest19);
@@ -2574,7 +2611,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaAnnoyed",
 			speakerName = "Koa",
 			speakerDirection = "Natakamani",
-			speakerText = "*Begrudingly* Let me guess, you looked outside your window and saw that it was sunny?"
+			speakerText = "Let me guess, you looked outside your window and saw that it was sunny?"
 		};
 		conversationDict["Natakamani_quest1_complete"].Add(natakamani_quest1_complete3);
 
@@ -2909,7 +2946,7 @@ public class Conversations : MonoBehaviour
 			speakerName = "Koa",
 			speakerDirection = "Natakamani",
 			speakerText = "Oh geez, I don't know how to explain this one. A video game is a game that you play, but it's not built out of physical objects, " +
-			"but instead out of, uh, light, which are arranged into images, and you can control the images and move them around."
+			"but instead out of, uh, light, which is arranged into images, and you can control the images and move them around."
 		};
 		conversationDict["Natakamani_quest4"].Add(natakamani_quest43);
 
@@ -2937,7 +2974,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "NatakamaniSurprised",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
-			speakerText = "That's absolutely incredible actually, you've harnessed light! You've taken a vital ingredient of life and used it to further develop " +
+			speakerText = "That's amazing actually, you've harnessed light! You've taken a vital ingredient of life and used it to further develop " +
 			"your people! And I trust your people use it solely with good intentions?"
 		};
 		conversationDict["Natakamani_quest4"].Add(natakamani_quest46);
@@ -2947,7 +2984,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaGuilty",
 			speakerName = "Koa",
 			speakerDirection = "Natakamani",
-			speakerText = "Um... correct! People on my planet definitely don't use it to do bad things... "
+			speakerText = "Um... correct! People on my planet definitely don't use it for any bad things... "
 		};
 		conversationDict["Natakamani_quest4"].Add(natakamani_quest47);
 		#endregion
@@ -3006,7 +3043,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "NatakamaniSad",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
-			speakerText = "The sun dial was built to honor her, the memorial with the statues was hers, the spices were for the final feast in her name, the stone slabs " +
+			speakerText = "The sun dial was built to honor her, the memorial with the pottery was hers, the spices were for the final feast in her name, the stone slabs " +
 			"were to create her pyramid headstone, and the diamonds are for the jewelry to adorn her tomb, to be with her eternally."
 		};
 		conversationDict["Natakamani_quest4_complete"].Add(natakamani_quest4_complete5);
@@ -3016,7 +3053,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaSad",
 			speakerName = "Koa",
 			speakerDirection = "Natakamani",
-			speakerText = "Oh, I had no idea, I'm sorry about your loss. I hope that we were helpful to you during this trying time."
+			speakerText = "Oh, we had no idea, I'm sorry about your loss. I hope that we were helpful to you during this trying time."
 		};
 		conversationDict["Natakamani_quest4_complete"].Add(natakamani_quest4_complete6);
 

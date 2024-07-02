@@ -138,6 +138,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 2c9941e623d6bf240998e57546ceb20c, type: 3}
   - {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   - {fileID: 21300000, guid: 44cd4d07c81b20f42a249f2c1f7eaadc, type: 3}
+  - {fileID: 21300000, guid: 78a95717ccde9bd44a0bd9bf18ddea8f, type: 3}
   - {fileID: 21300000, guid: a5f14027d71de91479fbad27a74d6089, type: 3}
   - {fileID: 21300000, guid: 86a7a527d4f181e4e8e11875d636b24b, type: 3}
   - {fileID: 21300000, guid: b4af0e27e55246c46be131f03b7aad4b, type: 3}
@@ -355,6 +356,7 @@ SpriteAtlas:
   - button_queue
   - icon_trader
   - scrollbar_gold02_hor
+  - panel_lightblue02
   - bar_healthredgreen
   - button_square02
   - button_stoproute

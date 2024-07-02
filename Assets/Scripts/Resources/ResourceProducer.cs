@@ -213,13 +213,15 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     {
         uiTimeProgressBar.SetTimeProgressBarValue(time);
         uiTimeProgressBar.SetToZero();
+        uiTimeProgressBar.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
     }
 
     public void HideConstructionProgressTimeBar()
     {
         if (improvementData.producedResourceTime.Count > 0)
             uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime[producedResourceIndex]);
-        uiTimeProgressBar.gameObject.SetActive(false);
+		uiTimeProgressBar.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+		uiTimeProgressBar.gameObject.SetActive(false);
     }
 
     public void SetNewProgressTime()
@@ -283,8 +285,12 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             }
             else
             {
-                uiTimeProgressBar.gameObject.SetActive(true);
-                uiTimeProgressBar.SetToZero();
+                if (resourceManager.city.activeCity)
+                {
+                    uiTimeProgressBar.gameObject.SetActive(true);
+                    uiTimeProgressBar.SetToZero();
+                }
+
                 RestartProductionCheck(unloadAmount);
             }
         }
@@ -554,9 +560,9 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     private void PrepForResourceMaxWaitList()
     {
 		AddToResourceMaxWaitList();
-		//unloadLabor = tempLabor;
-		uiTimeProgressBar.SetToFull();
-		cityImprovement.StopWork();
+        //uiTimeProgressBar.SetToFull();
+        uiTimeProgressBar.gameObject.SetActive(false);
+        cityImprovement.StopWork();
 	}
 
     private void RestartProductionCheck(int unloadAmount)
@@ -815,11 +821,11 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         }
     }
 
-    public void DestroyProgressBar()
-    {
-        Destroy(uiTimeProgressBar.gameObject);
+    //public void DestroyProgressBar()
+    //{
+    //    Destroy(uiTimeProgressBar.gameObject);
 
-        if (cityImprovementStats != null)
-            Destroy(cityImprovementStats.gameObject);
-    }
+    //    if (cityImprovementStats != null)
+    //        Destroy(cityImprovementStats.gameObject);
+    //}
 }

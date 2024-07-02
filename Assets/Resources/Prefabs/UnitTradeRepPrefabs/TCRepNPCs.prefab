@@ -278,7 +278,6 @@ MonoBehaviour:
   buildDataSO: {fileID: 0}
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 0}
-  lightBeam: {fileID: 0}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 3136344403743662241}
   exclamationPoint: {fileID: 0}
@@ -339,9 +338,8 @@ MonoBehaviour:
   happyDiscount: 0
   ecstaticDiscount: 0
   questGoals: []
-  questRewardsInGold: 
   questHints: []
-  waitForNextQuest: 10
+  waitForNextQuest: 60
   purchasedAmountBaseThreshold: 500
   currentQuest: 0
   purchasedAmount: 0

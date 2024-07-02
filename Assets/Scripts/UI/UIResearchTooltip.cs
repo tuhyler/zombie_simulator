@@ -104,7 +104,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces,
         List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, int power, float purchaseAmount,
-        bool wonder, Era era, bool utility, bool rocks = false)
+        bool wonder, Era era, bool utility, bool rocks = false, bool cityBonus = false)
     {
         mainImage.sprite = mainSprite;
         this.title.text = displayTitle;
@@ -135,12 +135,6 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
         int produceContentsHeight = 460;
         bool arrowBuffer = false;
         bool showCityStatsDesc = false;
-        bool cityBonus = false;
-
-		//reseting produce section layout
-		//resourceProduceLayout.padding.top = 0;
-		//resourceProduceLayout.spacing = 0;
-		//int produceLayoutPadding = 10;
 
 		if (workEthic != 0)
 		{
@@ -188,7 +182,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
             if (isPurchaseAmount)
             {
                 waterText.text = "+" + purchaseAmount;
-                waterText.GetComponent<RectTransform>().sizeDelta = new Vector2(75, 50);
+                waterText.GetComponent<RectTransform>().sizeDelta = new Vector2(80, 50);
             }
             else
             {
@@ -210,9 +204,6 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
         if (producesCount > 0)
         {
             produceHolder.SetActive(true);
-
-            if (produces[0].resourceType == ResourceType.None)
-                cityBonus = true;
         }
 		else
 		{

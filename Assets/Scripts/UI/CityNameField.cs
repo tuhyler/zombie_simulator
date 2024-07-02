@@ -32,17 +32,7 @@ public class CityNameField : MonoBehaviour
 
     public void ToggleVisibility(bool v)
     {
-        if (v)
-        {
-            gameObject.SetActive(true);
-            
-            //gameObject.LeanScale() = Vector3.zero;
-            //LeanTween.scale(gameObject, Vector3.one, 0.1f);
-        }
-        else
-        {
-            gameObject.SetActive(false);
-        }
+        gameObject.SetActive(v);
     }
 
     public void SetCityNameFieldSize(string cityName)

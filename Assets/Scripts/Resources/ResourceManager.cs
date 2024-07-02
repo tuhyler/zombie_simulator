@@ -35,7 +35,7 @@ public class ResourceManager : MonoBehaviour
     //private bool growth;
     [HideInInspector]
     public bool pauseGrowth, growthDeclineDanger;
-    public int cyclesToWait = 2;
+    public int cyclesToWaitToDecline = 2;
     [HideInInspector]
     public int starvationCount, noHousingCount, noWaterCount,  cycleCount;
     
@@ -98,6 +98,15 @@ public class ResourceManager : MonoBehaviour
             ResourceType resourceType = resourceData.resourceType;
             resourceDict[resourceType] = resourceData.resourceAmount; //assigns the initial values for each resource
             resourceStorageLevel += resourceData.resourceAmount /** city.world.resourceStorageMultiplierDict[resourceType]*/;
+        }
+
+        if (city.world.showAllBuildOptions)
+        {
+            resourceDict[ResourceType.Food] = 50;
+            resourceDict[ResourceType.Lumber] = 100;
+            resourceDict[ResourceType.Stone] = 50;
+            resourceDict[ResourceType.Bricks] = 100;
+            resourceStorageLevel += 300;
         }
     }
 
@@ -530,7 +539,7 @@ public class ResourceManager : MonoBehaviour
                 {
 					ResourceProducer waiter = cityResourceMaxWaitDict[type][0];
 					RemoveFromResourceMaxWaitList(type);
-                    waiter.Restart(ResourceType.None); //None since all it's doing is unloading finished product
+                    waiter.Restart(ResourceType.None); //None since all it's doing is unloading finished production
                 }
                 else
                 {
@@ -711,11 +720,8 @@ public class ResourceManager : MonoBehaviour
 
 			if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
 			{
-                int totalDemand;
-				if (data.resourceType == ResourceType.Food)
-                    totalDemand = Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop);
-                else
-					totalDemand = Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop * city.purchaseAmountMultiple);
+                int totalDemand = data.resourceType == ResourceType.Food ? Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop) :
+					Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop * city.purchaseAmountMultiple);
 				
                 int demandDiff = resourceDict[data.resourceType] - totalDemand;
                 int currentPrice = resourcePriceDict[data.resourceType];
@@ -832,7 +838,7 @@ public class ResourceManager : MonoBehaviour
             if (city.activeCity)
                 city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(true);
 
-            if (starvationCount >= cyclesToWait) //decreasing if starving for 2 cycles
+            if (starvationCount >= cyclesToWaitToDecline) //decreasing if starving for 2 cycles
             {
                 //remove priority is as follows: TradeDepot, Airport, Harbor, Barracks, Airbase, Shipyard, regular pop.
                 if (city.singleBuildDict.ContainsKey(SingleBuildType.TradeDepot) && city.world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.TradeDepot]).unitsWithinCount > 0)
@@ -880,7 +886,7 @@ public class ResourceManager : MonoBehaviour
         {
             noHousingCount++;
 
-			if (noHousingCount >= cyclesToWait)
+			if (noHousingCount >= cyclesToWaitToDecline)
             {
                 city.PopulationDeclineCheck(false, false);
 				city.world.popLost++;
@@ -926,7 +932,7 @@ public class ResourceManager : MonoBehaviour
         {
             noWaterCount++;
 
-			if (noWaterCount >= cyclesToWait)
+			if (noWaterCount >= cyclesToWaitToDecline)
             {
                 city.PopulationDeclineCheck(false, false);
 				city.world.popLost++;

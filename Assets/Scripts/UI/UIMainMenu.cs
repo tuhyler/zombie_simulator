@@ -55,6 +55,7 @@ public class UIMainMenu : MonoBehaviour, IImmoveable
 
 		if (v)
 		{
+			world.UnselectAll();
 			opening = true;
 			world.cameraController.paused = true;
 			playerInput.paused = true;
@@ -69,7 +70,6 @@ public class UIMainMenu : MonoBehaviour, IImmoveable
 			world.iImmoveable = this;
 
 			activeStatus = true;
-			world.UnselectAll();
 			//world.openingImmoveable = true;
 			world.immoveableCanvas.gameObject.SetActive(true);
 			world.BattleCamCheck(true);

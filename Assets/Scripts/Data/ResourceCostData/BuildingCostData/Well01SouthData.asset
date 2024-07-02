@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Well01SouthData
   m_EditorClassIdentifier: 
+  showOrder: 4
   secondaryData: []
   prefabLoc: BuildingPrefabs/Well01
   audio: {fileID: 0}
@@ -63,3 +64,4 @@ MonoBehaviour:
   attackBonus: 0
   singleBuildType: 9
   buildOnRoad: 0
+  cityBonus: 0

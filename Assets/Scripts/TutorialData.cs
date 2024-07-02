@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class TutorialData
 {
-    public bool built2ndHouse, builtFarm, gathered, builtInfantry, builtTrader, hadAmbush, hadPopLoss, hadPopAdd, openedTRM, addedStop, addedResource, choseResource, choseUnload, newCity;
+    public bool built2ndHouse, builtFarm, gathered, builtInfantry, builtTrader, hadAmbush, hadPopLoss, hadPopAdd, openedTRM, addedStop, addedResource, choseResource, choseUnload, newCity,
+        newProducer, newFinance, newEntertainment;
     public string tutorialStep;
 }

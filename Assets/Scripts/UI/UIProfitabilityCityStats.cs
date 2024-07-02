@@ -52,9 +52,9 @@ public class UIProfitabilityCityStats : MonoBehaviour, IPointerDownHandler
 		cityAvgProfitText.text = cityProfit.ToString();
 
 		if (cityProfit < 0)
-	        cityAvgProfitText.color = Color.red;
+			cityAvgProfitText.color = new Color(0.6f, 0, 0);
 		else if (cityProfit > 0)
-			cityAvgProfitText.color = Color.green;
+			cityAvgProfitText.color = new Color(0, 0.6f, 0);
 		else
 			cityAvgProfitText.color = cityPopText.color;
 

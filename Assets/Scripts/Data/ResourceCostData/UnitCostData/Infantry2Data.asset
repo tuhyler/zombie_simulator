@@ -36,7 +36,7 @@ MonoBehaviour:
   battleCost: []
   laborCost: 1
   unitType: 1
-  unitDescription: Strong, fast unit
+  unitDescription: Stronger melee unit
   availableInitially: 0
   health: 20
   regenerationRate: 2

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Lumbermill01Data
   m_EditorClassIdentifier: 
+  showOrder: 2
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Lumbermill01
   audio: {fileID: 8300000, guid: b4526b40350bcec4fa2a92ce4da01ad3, type: 3}
@@ -41,7 +42,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 6
     resourceAmount: 1
-  producedResourceTime: 1e000000
+  producedResourceTime: 0f000000
   rawMaterials: 1
   rawResourceType: 4
   isResearch: 0

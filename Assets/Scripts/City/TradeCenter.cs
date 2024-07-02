@@ -114,7 +114,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
                 td.Reveal();
         }
 
-        foreach (ResourceType type in resourceSellDict.Keys)
+        foreach (ResourceType type in resourceBuyDict.Keys)
         {
             if (!world.resourceDiscoveredList.Contains(type))
                 world.DiscoverResource(type);
@@ -201,13 +201,13 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             mainLoc = world.RoundToInt(transform.position);
             Vector3Int harborLoc = mainLoc;
-            if (transform.rotation.eulerAngles.y == 0)
+            if (main.rotation.eulerAngles.y == 0)
                 harborLoc.z += -increment;
-            else if (transform.rotation.eulerAngles.y == 90)
+            else if (main.rotation.eulerAngles.y == 90)
                 harborLoc.x += -increment;
-            else if (transform.rotation.eulerAngles.y == 180)
+            else if (main.rotation.eulerAngles.y == 180)
                 harborLoc.z += increment;
-            else if (transform.rotation.eulerAngles.y == 270)
+            else if (main.rotation.eulerAngles.y == 270)
                 harborLoc.x += increment;
 
             singleBuildDict[SingleBuildType.TradeDepot] = mainLoc;
@@ -229,19 +229,19 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
         }
     }
 
-    public void ToggleClear(bool v)
-    {
-        //if (v)
-        //{
-        //    for (int i = 0; i < tcMesh.Count; i++)
-        //        tcMesh[i].sharedMaterial = world.atlasSemiClear;
-        //}
-        //else
-        //{
-        //    for (int i = 0; i < tcMesh.Count; i++)
-        //        tcMesh[i].sharedMaterial = originalMat[i];
-        //}
-    }
+    //public void ToggleClear(bool v)
+    //{
+    //    //if (v)
+    //    //{
+    //    //    for (int i = 0; i < tcMesh.Count; i++)
+    //    //        tcMesh[i].sharedMaterial = world.atlasSemiClear;
+    //    //}
+    //    //else
+    //    //{
+    //    //    for (int i = 0; i < tcMesh.Count; i++)
+    //    //        tcMesh[i].sharedMaterial = originalMat[i];
+    //    //}
+    //}
 
     public void SetWaiter(Trader trader, int amount, bool load)
     {

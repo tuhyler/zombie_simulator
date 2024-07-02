@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Research02SouthData
   m_EditorClassIdentifier: 
+  showOrder: 7
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Research02South
   audio: {fileID: 8300000, guid: 4b903425d0583734b9e3d2b48e7d064f, type: 3}
@@ -27,8 +28,8 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 31d02a2ff7ea6be479ee509e81310cf1, type: 3}
   mapIcon: {fileID: 21300000, guid: b0beed5a901ae8c47b3709565dd4358b, type: 3}
   improvementCost:
-  - resourceType: 7
-    resourceAmount: 60
+  - resourceType: 21
+    resourceAmount: 10
   consumedResources:
   - resourceType: 4
     resourceAmount: 3

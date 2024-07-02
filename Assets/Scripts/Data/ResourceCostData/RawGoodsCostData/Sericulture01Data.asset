@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Sericulture01Data
   m_EditorClassIdentifier: 
+  showOrder: 5
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Sericulture01
   audio: {fileID: 8300000, guid: ab865f026075ed94fa419ce00b081277, type: 3}

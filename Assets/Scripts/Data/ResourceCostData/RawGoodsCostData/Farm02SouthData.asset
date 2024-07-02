@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Farm02SouthData
   m_EditorClassIdentifier: 
+  showOrder: 7
   secondaryData:
   - {fileID: 11400000, guid: 2155c81b9dc009b4cb28374da567cb0f, type: 2}
   prefabLoc: ImprovementPrefabs/Farm01South
@@ -28,7 +29,7 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 21e729ece5f164148bd37413550ec86c, type: 3}
   mapIcon: {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   improvementCost:
-  - resourceType: 6
+  - resourceType: 7
     resourceAmount: 30
   consumedResources:
   - resourceType: 4
@@ -59,7 +60,7 @@ MonoBehaviour:
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 15
+  buildTime: 25
   availableInitially: 0
   hideIdleMesh: 1
   getTerrainResource: 0

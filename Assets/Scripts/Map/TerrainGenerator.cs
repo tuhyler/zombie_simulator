@@ -94,8 +94,8 @@ public class TerrainGenerator : MonoBehaviour
     private GameObject mountainMiddle;
 
     [Header("Trade Center Prefabs")]
-    [SerializeField]
-    private List<GameObject> tradeCenters;
+    //[SerializeField]
+    //private List<GameObject> tradeCenters;
     [SerializeField]
     private List<string> tradeCenterNames;
 
@@ -3372,10 +3372,12 @@ public class TerrainGenerator : MonoBehaviour
     {
         Quaternion rotation = Quaternion.Euler(0, 90, 0);
         GameObject aurora1 = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/AuroraGreen"), loc, rotation);
+        aurora1.name = "AuroraGreen";
         aurora1.GetComponent<AuroraBorealis>().SetCam(world.mainCam.transform);
         aurora1.transform.SetParent(world.transform, false);
         loc.y += 0.6f;
 		GameObject aurora2 = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/AuroraPurple"), loc, rotation);
+        aurora2.name = "AuroraPurple";
         aurora2.GetComponent<AuroraBorealis>().SetCam(world.mainCam.transform);
         aurora2.transform.SetParent(world.transform, false);
 	}

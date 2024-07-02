@@ -44,7 +44,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public Vector3Int cityLoc, waitingAttackLoc;
     [HideInInspector]
-    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, highlighted, isNamed, growing, attacked;
+    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasFish, hasWool, hasSilk, hasClay, activeCity, highlighted, isNamed, growing, attacked;
     [HideInInspector]
     public int lostPop, currentPop, unusedLabor, usedLabor, attackBonus;
 
@@ -428,7 +428,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         //    improvement.initialCityHouse = true;
         //}
         //else
-        resourceManager.SpendResource(housingData.improvementCost, cityLoc);
+        if (!upgrade)
+            resourceManager.SpendResource(housingData.improvementCost, cityLoc);
         housingCount += housingData.housingIncrease;
         string buildingName = housingData.improvementName + index.ToString();
 		improvement.PlaySmokeSplashBuilding();
@@ -543,49 +544,46 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
                 if (currentPop == 1)
                 {
-                    //if (activeCity)
-                    //{
-                    //    //world.cityBuilderManager.uiLaborAssignment.ShowUI(this, world.cityBuilderManager.placesToWork);
-                    //    //CityGrowthProgressBarSetActive(true);
-                    //    //world.cityBuilderManager.abandonCityButton.interactable = false;
-                    //}
-
                     if (!growing)
                         StartGrowthCycle(false);
                 }
-                else if (currentPop == 4)
+                else if (currentPop == 3)
                 {
                     minimapIcon.sprite = cityIcon;
                     ExtinguishFire();
+
+                    NameCityCheck();
                 }
             }
             else
             {
-                if (!isNamed)
-                {
-                    isNamed = true;
-                    string newName = world.GetNextCityName();
-
-					//RemoveCityName();
-                    world.UpdateStopName(cityName, newName);
-                    UpdateCityName(newName);
-
-                    if (activeCity)
-    					world.cityBuilderManager.uiInfoPanelCity.UpdateCityName(newName);
-
-                    if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.newCity)
-                        world.TutorialCheck("New City");
-				}
-
-                cityNameField.ToggleVisibility(true);
+                NameCityCheck();
             }
         }
 
 		SetCityPop();
 		if (activeCity)
 			world.cityBuilderManager.uiInfoPanelCity.SetGrowthData(this);
-		//if (activeCity && world.cityBuilderManager.uiUnitBuilder.activeStatus)
-		//	world.cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, true, resourceManager);
+	}
+
+    private void NameCityCheck()
+    {
+		if (!isNamed)
+		{
+			isNamed = true;
+			string newName = world.GetNextCityName();
+
+			world.UpdateStopName(cityName, newName);
+			UpdateCityName(newName);
+
+			if (activeCity)
+				world.cityBuilderManager.uiInfoPanelCity.UpdateCityName(newName);
+
+			if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.newCity)
+				world.TutorialCheck("New City");
+		}
+
+		cityNameField.ToggleVisibility(true);
 	}
 
 	public void PopulationDeclineCheck(bool any, bool building)
@@ -1978,15 +1976,15 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         data.location = cityLoc;
         data.reachedWaterLimit = reachedWaterLimit;
         data.autoAssignLabor = autoAssignLabor;
-        data.hasWater = hasWater;
-        data.hasFreshWater = hasFreshWater;
-        data.hasRocksFlat = hasRocksFlat;
-        data.hasRocksHill = hasRocksHill;
-        data.hasTrees = hasTrees;
-        data.hasFood = hasFood;
-        data.hasWool = hasWool;
-        data.hasSilk = hasSilk;
-        data.hasClay = hasClay;
+        //data.hasWater = hasWater;
+        //data.hasFreshWater = hasFreshWater;
+        //data.hasRocksFlat = hasRocksFlat;
+        //data.hasRocksHill = hasRocksHill;
+        //data.hasTrees = hasTrees;
+        //data.hasFood = hasFood;
+        //data.hasWool = hasWool;
+        //data.hasSilk = hasSilk;
+        //data.hasClay = hasClay;
 		data.waterMaxPop = waterCount;
         data.currentPop = currentPop;
         data.unusedLabor = unusedLabor;
@@ -2110,15 +2108,15 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         cityLoc = data.location;
         reachedWaterLimit = data.reachedWaterLimit;
         autoAssignLabor = data.autoAssignLabor;
-		hasWater = data.hasWater;
-		hasFreshWater = data.hasFreshWater;
-		hasRocksFlat = data.hasRocksFlat;
-		hasRocksHill = data.hasRocksHill;
-		hasTrees = data.hasTrees;
-		hasFood = data.hasFood;
-		hasWool = data.hasWool;
-		hasSilk = data.hasSilk;
-		hasClay = data.hasClay;
+		//hasWater = data.hasWater;
+		//hasFreshWater = data.hasFreshWater;
+		//hasRocksFlat = data.hasRocksFlat;
+		//hasRocksHill = data.hasRocksHill;
+		//hasTrees = data.hasTrees;
+		//hasFood = data.hasFood;
+		//hasWool = data.hasWool;
+		//hasSilk = data.hasSilk;
+		//hasClay = data.hasClay;
         waterCount = data.waterMaxPop;
 		currentPop = data.currentPop;
         unusedLabor = data.unusedLabor;
@@ -2135,7 +2133,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             StartGrowthCycle(true);
             
-            if (currentPop > 3)
+            if (currentPop > 2)
             {
 			    minimapIcon.sprite = cityIcon;
 			    ExtinguishFire();

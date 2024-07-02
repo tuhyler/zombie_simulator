@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Quarry01Data
   m_EditorClassIdentifier: 
+  showOrder: 4
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Quarry01
   audio: {fileID: 8300000, guid: 380676899f3eecb449c32042adabf3ce, type: 3}
@@ -27,10 +28,10 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   mapIcon: {fileID: 21300000, guid: fff3e4b24fa45f24596d35a5472ab796, type: 3}
   improvementCost:
-  - resourceType: 7
-    resourceAmount: 10
   - resourceType: 6
     resourceAmount: 10
+  - resourceType: 7
+    resourceAmount: 15
   consumedResources:
   - resourceType: 4
     resourceAmount: 2

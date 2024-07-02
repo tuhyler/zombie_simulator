@@ -36,7 +36,7 @@ MonoBehaviour:
     resourceAmount: 1
   laborCost: 1
   unitType: 2
-  unitDescription: Ranged unit but with lower health
+  unitDescription: Ranged attacks but with lower health
   availableInitially: 0
   health: 8
   regenerationRate: 2

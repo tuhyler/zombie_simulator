@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: StoneCutter01Data
   m_EditorClassIdentifier: 
+  showOrder: 3
   secondaryData: []
   prefabLoc: ImprovementPrefabs/StoneCutter01
   audio: {fileID: 8300000, guid: 8787020638fc57b48b26ae3fc8ce56bf, type: 3}
@@ -69,3 +70,4 @@ MonoBehaviour:
   attackBonus: 0
   singleBuildType: 0
   buildOnRoad: 0
+  cityBonus: 0

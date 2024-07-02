@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Smelter01Data
   m_EditorClassIdentifier: 
+  showOrder: 4
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Smelter01
   audio: {fileID: 8300000, guid: 1931d8960ae452d4c8530ff27e918fec, type: 3}
@@ -27,8 +28,8 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: c2b19f31381193e4c961b69ac564c4f6, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
-  - resourceType: 21
-    resourceAmount: 15
+  - resourceType: 7
+    resourceAmount: 30
   consumedResources:
   - resourceType: 8
     resourceAmount: 5

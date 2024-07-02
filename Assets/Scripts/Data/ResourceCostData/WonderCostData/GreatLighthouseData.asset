@@ -18,7 +18,7 @@ MonoBehaviour:
   wonderDisplayName: Great Lighthouse
   wonderDescription: Fill in description
   wonderEra: 0
-  workersNeeded: 10
+  workersNeeded: 6
   workerCost: 1
   sizeHeight: 1
   sizeWidth: 1

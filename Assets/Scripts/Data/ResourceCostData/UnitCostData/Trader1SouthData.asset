@@ -36,7 +36,7 @@ MonoBehaviour:
   battleCost: []
   laborCost: 1
   unitType: 5
-  unitDescription: Transports cargo on land
+  unitDescription: Land transport for cargo
   availableInitially: 0
   health: 5
   regenerationRate: 2

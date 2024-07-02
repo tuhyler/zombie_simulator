@@ -32,10 +32,13 @@ public class UpgradeableObjectHolder : MonoBehaviour
 
         //putting order to set up upgrading costs in MapWorld
         //allBuildingsAndImprovements = allBuildingsAndImprovements.OrderBy(x => x.improvementName).ToList();
-        allBuildingsAndImprovements = allBuildingsAndImprovements.OrderByDescending(x => x.improvementLevel).ToList();
+        allBuildingsAndImprovements = allBuildingsAndImprovements.OrderByDescending(x => x.showOrder).ToList();
 
         foreach (ImprovementDataSO improvement in allBuildingsAndImprovements)
-            improvementDict[improvement.improvementNameAndLevel] = improvement;
+        {
+            if (!improvement.isSecondary)
+                improvementDict[improvement.improvementNameAndLevel] = improvement;
+        }
 
         foreach (UnitBuildDataSO unit in allUnits)
         {

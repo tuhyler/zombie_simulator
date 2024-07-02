@@ -169,11 +169,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardIcon: {fileID: 4882075843286701812}
   rewardBackground: {fileID: 6265122888194341325}
-  selectedSprite: {fileID: 21300000, guid: 029c0dae0c146744d9e6add84e3671a9, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 78a95717ccde9bd44a0bd9bf18ddea8f, type: 3}
   improvementData: {fileID: 0}
   unitData: {fileID: 0}
   wonderData: {fileID: 0}
-  resourcesUnlocked: 
+  utilityData: {fileID: 0}
 --- !u!114 &2736813472015365146
 MonoBehaviour:
   m_ObjectHideFlags: 0
