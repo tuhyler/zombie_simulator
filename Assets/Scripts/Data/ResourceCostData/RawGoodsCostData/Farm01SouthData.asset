@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Farm01SouthData
   m_EditorClassIdentifier: 
+  showOrder: 0
   secondaryData:
   - {fileID: 11400000, guid: b960112883363494884a086f2586a31c, type: 2}
   prefabLoc: ImprovementPrefabs/Farm00
@@ -40,7 +41,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 2
     resourceAmount: 1
-  producedResourceTime: 1e000000
+  producedResourceTime: 14000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0
@@ -48,7 +49,7 @@ MonoBehaviour:
   specificTerrain: 0
   workEthicChange: 0
   purchaseAmountChange: 0
-  maxLabor: 2
+  maxLabor: 1
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0

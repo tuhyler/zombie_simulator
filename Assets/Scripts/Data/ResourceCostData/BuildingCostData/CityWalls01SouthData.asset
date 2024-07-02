@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: CityWalls01SouthData
   m_EditorClassIdentifier: 
+  showOrder: 3
   secondaryData: []
   prefabLoc: BuildingPrefabs/CityWalls01South
   audio: {fileID: 0}
@@ -27,8 +28,10 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 1fbb4803ff767af419c63781ca3eac14, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:
+  - resourceType: 6
+    resourceAmount: 20
   - resourceType: 31
-    resourceAmount: 200
+    resourceAmount: 100
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
@@ -61,3 +64,4 @@ MonoBehaviour:
   attackBonus: 50
   singleBuildType: 10
   buildOnRoad: 0
+  cityBonus: 0

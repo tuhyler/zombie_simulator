@@ -121,7 +121,14 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             }
 
             objectName.text = unitBuildData.unitDisplayName;
-            objectLevel.text = "Level " + unitBuildData.unitLevel + " " + Regex.Replace(unitBuildData.unitType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+
+            string unitType;
+            if (unitBuildData.unitDisplayName == "Azai")
+                unitType = "Azai";
+            else
+                unitType = Regex.Replace(unitBuildData.unitType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+
+			objectLevel.text = "Level " + unitBuildData.unitLevel + " " + unitType;
             objectImage.sprite = unitBuildData.image;
             objectCost = new(unitBuildData.unitCost);
 

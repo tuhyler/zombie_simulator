@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Monument02SouthData
   m_EditorClassIdentifier: 
+  showOrder: 9
   secondaryData: []
   prefabLoc: BuildingPrefabs/Monument02
   audio: {fileID: 0}
@@ -41,7 +42,7 @@ MonoBehaviour:
   isResearch: 0
   terrainType: 0
   specificTerrain: 0
-  workEthicChange: 0.15
+  workEthicChange: 0.4
   purchaseAmountChange: 0
   maxLabor: 0
   housingIncrease: 0

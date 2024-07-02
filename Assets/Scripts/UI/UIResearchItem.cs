@@ -56,9 +56,15 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     [HideInInspector]
     public bool tempUnlocked;
 
-    private void Awake()
+    //private void Awake()
+    //{
+
+    //}
+
+    public void SetResearchRewardInfo()
     {
         researchName = researchNameText.text;
+        
         progressBarMask.fillAmount = 0;
         progressBarHolder.gameObject.SetActive(false);
         queueNumberHolder.gameObject.SetActive(false);
@@ -66,8 +72,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
         researchPercentDone.color = new Color(0.1098039f, 0.282353f, 0.5490196f);
         researchPercentDone.outlineColor = Color.black;
-        //researchPercentDone.outlineWidth = .4f;
-        //researchPercentDone.color = new Color(0.2509804f, 0.4666667f, 0.7960784f);
         researchPercentDone.text = $"{totalResearchNeeded:n0}";
 
         originalColor = researchItemPanel.color;
@@ -77,18 +81,15 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         researchItemPanel.color = lockedColor;
         topBar.color = lockedColor;
 
-        //if (completed)
-        //    canvasGroup.interactable = false;
-
-        foreach (Image arrow in arrows)
-            arrow.color = selectedColor;
-
         foreach (Transform transform in uiElementsParent)
         {
             UIResearchReward reward = transform.GetComponent<UIResearchReward>();
             reward.rewardBackground.color = lockedColor;
             researchRewardList.Add(reward);
         }
+
+        foreach (Image arrow in arrows)
+            arrow.color = selectedColor;
     }
 
     public void SetResearchTree(UIResearchTreePanel researchTree)

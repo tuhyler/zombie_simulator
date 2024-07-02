@@ -147,7 +147,8 @@ public class UnitMovement : MonoBehaviour
             if (world.azaiFollow && !world.azai.isMoving && !world.mainPlayer.isMoving)
             {
                 Vector3Int azaiTerrain = world.GetClosestTerrainLoc(world.azai.transform.position);
-                if ((city.cityLoc == azaiTerrain || city.cityLoc == world.GetClosestTerrainLoc(world.mainPlayer.transform.position)) && world.azai.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel("Azai"))
+                if ((world.cityBuilderManager.cityTiles.Contains(azaiTerrain) || azaiTerrain == world.cityBuilderManager.SelectedCity.cityLoc) 
+                    && world.azai.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel("Azai"))
                 {
                     highlightedUnitList.Add(world.azai);
                     world.azai.SoftSelect(Color.green);
@@ -920,7 +921,7 @@ public class UnitMovement : MonoBehaviour
 			}
             else
             {
-                if (selectedUnit.worker.harvested) //if unit just finished harvesting something, send to closest city
+                if (selectedUnit.worker && selectedUnit.worker.harvested) //if unit just finished harvesting something, send to closest city
                     selectedUnit.worker.SendResourceToCity();
 			    
                 selectedUnit = world.mainPlayer;
@@ -938,7 +939,7 @@ public class UnitMovement : MonoBehaviour
 
 
                 Vector3Int terrainLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
-                if (world.IsCityOnTile(terrainLoc) || world.IsTradeCenterOnTile(terrainLoc))
+                if (world.IsCityOnTile(terrainLoc) || world.IsTradeCenterMainOnTile(terrainLoc))
                     uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
                 else
                     uiWorkerTask.uiLoadUnload.ToggleInteractable(false);

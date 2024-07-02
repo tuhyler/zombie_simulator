@@ -646,7 +646,7 @@ PrefabInstance:
     - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}
       propertyPath: buyResources.Array.data[0].resourceAmount
-      value: 20
+      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}

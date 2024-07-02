@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: TradeDepot01SouthData
   m_EditorClassIdentifier: 
+  showOrder: 6
   secondaryData: []
   prefabLoc: ImprovementPrefabs/TradeDepot01South
   audio: {fileID: 0}
@@ -63,3 +64,4 @@ MonoBehaviour:
   attackBonus: 0
   singleBuildType: 2
   buildOnRoad: 1
+  cityBonus: 0

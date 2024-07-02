@@ -250,7 +250,7 @@ public class UIQueueManager : MonoBehaviour
             if (uiQueueItemList.Count > 0)
                 SetFirstQueueItem();
             else
-                cityBuilderManager.resourceManager.ClearQueueResources();
+                cityBuilderManager.SelectedCity.resourceManager.ClearQueueResources();
         }
 
 		//select the next item when this one is removed
@@ -436,7 +436,7 @@ public class UIQueueManager : MonoBehaviour
         //else if (improvementData != null)
         //    resourceCosts = new(improvementData.improvementCost);
 
-        cityBuilderManager.resourceManager.SetQueueResources(resourceCosts);
+        cityBuilderManager.SelectedCity.resourceManager.SetQueueResources(resourceCosts);
     }
 
     //public (List<UIQueueItem>, List<string>) SetQueueItems()

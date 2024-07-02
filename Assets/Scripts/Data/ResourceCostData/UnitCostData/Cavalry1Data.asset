@@ -34,7 +34,7 @@ MonoBehaviour:
   battleCost: []
   laborCost: 1
   unitType: 3
-  unitDescription: Fast unit, capable of flanking ranged units
+  unitDescription: Capable of flanking ranged units when placed in back
   availableInitially: 0
   health: 12
   regenerationRate: 2

@@ -30,13 +30,11 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<City, List<Vector3Int>> cityBonusDict = new();
 	[HideInInspector]
 	public List<Unit> unitUpgradeList = new();
-	//[HideInInspector]
-	//public List<Trader> traderLoadUnloadList = new();
-	//public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
 	[HideInInspector]
 	public List<GameObject> textList = new();
 	[HideInInspector]
 	public MilitaryLeader duelingLeader;
+	private Vector3 southAuroraLoc = new Vector3(0, 4, 5), northAuroraLoc = new Vector3(0, 4, 30);
 
 	private void Awake()
 	{
@@ -76,6 +74,7 @@ public class GameLoader : MonoBehaviour
 
 			terrainGenerator.equatorDist = 2;
 			terrainGenerator.equatorPos = 6; //bottom of map
+			auroraBorealisLoc = northAuroraLoc;
 		}
 		else if (starting == "SouthToggle")
 		{
@@ -102,7 +101,7 @@ public class GameLoader : MonoBehaviour
 			terrainGenerator.equatorDist = 3;
 			terrainGenerator.equatorPos = terrainGenerator.height * 3 * 3 / 4;
 
-			auroraBorealisLoc = new Vector3(0, 4, 5);
+			auroraBorealisLoc = southAuroraLoc; 
 		}
 		else if (starting == "EastToggle")
 		{
@@ -415,9 +414,24 @@ public class GameLoader : MonoBehaviour
 		world.seed = gameData.seed;
 		world.maxResearchLevel = gameData.maxResearchLevel;
 		world.GenerateMap(gameData.allTerrain);
-		world.resourceDiscoveredList = new(gameData.resourceDiscoveredList);
+
+		for (int i = 0; i < gameData.resourceDiscoveredList.Count; i++)
+		{
+			if (gameData.resourceDiscoveredList[i] == ResourceType.Gold || gameData.resourceDiscoveredList[i] == ResourceType.Research)
+				continue;
+
+			if (!world.resourceDiscoveredList.Contains(gameData.resourceDiscoveredList[i]))
+				world.DiscoverResource(gameData.resourceDiscoveredList[i]);
+		}
+
+		//world.resourceDiscoveredList = new(gameData.resourceDiscoveredList);
 		world.SetSellableResourceList();
-		//world.LoadDiscoveredResources();
+		
+		if (world.startingRegion == Region.South || world.startingRegion == Region.North)
+		{
+			Vector3 auroraBorealisLoc = world.startingRegion == Region.South ? southAuroraLoc : northAuroraLoc;
+			terrainGenerator.SetAuroraBorealis(auroraBorealisLoc);
+		}
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(20);
@@ -447,6 +461,7 @@ public class GameLoader : MonoBehaviour
 
 		world.newUnitsAndImprovements = new(gameData.newUnitsAndImprovements);
 		gameData.newUnitsAndImprovements.Clear();
+		world.researchTree.PrepResearchItemList();
 		world.researchTree.LoadCompletedResearch(gameData.completedResearch);
 		if (world.tutorial)
 			world.tutorialStep = gameData.tutorialData.tutorialStep;

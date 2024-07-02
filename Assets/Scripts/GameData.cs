@@ -14,7 +14,7 @@ public class GameData
     public TutorialData tutorialData;
     public List<string> completedResearch, currentResearch, newUnitsAndImprovements;
     public int goldAmount, researchAmount, ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, militaryCount, food, lumber, popGrowth, popLost, seed, maxResearchLevel;
-    public HashSet<ResourceType> resourceDiscoveredList = new();
+    public List<ResourceType> resourceDiscoveredList = new();
     //public Dictionary<Vector3Int, int> currentWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;

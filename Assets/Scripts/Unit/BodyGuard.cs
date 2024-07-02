@@ -288,12 +288,14 @@ public class BodyGuard : Military
 		else
 		{
 			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-			if (world.IsCityOnTile(terrainLoc))
-			{
-				City city = world.GetCity(terrainLoc);
 
-				if (!world.mainPlayer.isMoving && city.activeCity && world.unitMovement.upgradingUnit)
-					world.unitMovement.CheckIndividualUnitHighlight(this, city);
+			//if (world.IsCityOnTile(terrainLoc))
+			if (world.cityBuilderManager.SelectedCity != null && (world.cityBuilderManager.cityTiles.Contains(terrainLoc) || world.cityBuilderManager.SelectedCity.cityLoc == terrainLoc))
+			{
+				//City city = world.GetCity(terrainLoc);
+
+				if (!world.mainPlayer.isMoving && /*city.activeCity && */world.unitMovement.upgradingUnit)
+					world.unitMovement.CheckIndividualUnitHighlight(this, world.cityBuilderManager.SelectedCity);
 			}
 			world.AddPlayerPosition(currentLocation, this);
 		}

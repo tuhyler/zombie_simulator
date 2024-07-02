@@ -577,7 +577,8 @@ public class CityImprovement : MonoBehaviour
 		producer.isUpgrading = false;
 		upgradeCost.Clear();
         refundCost.Clear();
-		producer.HideConstructionProgressTimeBar();
+		producer.uiTimeProgressBar.gameObject.SetActive(false);
+		//producer.HideConstructionProgressTimeBar();
 	}
 
 	public void BeginTraining(City city, ResourceProducer producer, UnitBuildDataSO data, bool upgrading, Unit upgradedUnit, bool load)
@@ -621,7 +622,8 @@ public class CityImprovement : MonoBehaviour
 		producer.isUpgrading = false;
 		upgradeCost.Clear();
         refundCost.Clear();
-		producer.HideConstructionProgressTimeBar();
+		producer.uiTimeProgressBar.gameObject.SetActive(false);
+		//producer.HideConstructionProgressTimeBar();
 	}
 
     public void CancelTraining(ResourceProducer producer)
@@ -792,7 +794,7 @@ public class CityImprovement : MonoBehaviour
         //city.SetNewTerrainData(loc);
 		city.UpdateCityBools(producedResource, ResourceHolder.Instance.GetRawResourceType(producedResource), td.terrainData.type);
         world.uiCityImprovementTip.CloseCheck(this);
-        world.cityBuilderManager.RemoveImprovement(loc, this, false);
+        world.cityBuilderManager.RemoveImprovement(loc, this, false, city);
     }
 
     public CityImprovementData SaveData()
@@ -898,7 +900,8 @@ public class CityImprovement : MonoBehaviour
 			    }
                 else
                 {
-                    exclamationPoint.SetActive(true);
+                    if (!resourceProducer.hitResourceMax)
+                        exclamationPoint.SetActive(true);
                     firstStart = true;
                 }
             }
@@ -957,5 +960,5 @@ public enum SingleBuildType
     Monument,
     Well,
     Walls,
-    Entertainment
+    EntertainmentCenter
 }

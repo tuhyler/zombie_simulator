@@ -543,7 +543,8 @@ public class TerrainData : MonoBehaviour
         world.TurnOnEnemyBorders(tileCoordinates);
         world.TurnOnCenterBorders(tileCoordinates);
 
-        fog.SetActive(false);
+        //fog.SetActive(false);
+        Destroy(fog);
         fogNonStatic.gameObject.SetActive(true);
         StartCoroutine(fogNonStatic.FadeFog());
 
@@ -641,8 +642,9 @@ public class TerrainData : MonoBehaviour
 
         if (resourceType != ResourceType.None && !world.ResourceCheck(resourceType))
             world.DiscoverResource(resourceType);
-        
-		fog.SetActive(false);
+
+        //fog.SetActive(false);
+        Destroy(fog);
         fogNonStatic.gameObject.SetActive(true);
         StartCoroutine(fogNonStatic.FadeFog());
 
@@ -670,7 +672,10 @@ public class TerrainData : MonoBehaviour
 
     public void Discover()
     {
-        fog.SetActive(false);
+        //fog.SetActive(false);
+        Destroy(fog);
+        Destroy(fogNonStatic.gameObject);
+        Destroy(nonstatic.gameObject);
         whiteMesh.Clear();
         materials.Clear();
 	}
@@ -711,7 +716,8 @@ public class TerrainData : MonoBehaviour
         if (isHill && rawResourceType == RawResourceType.Rocks)
             RocksCheck();
 
-        nonstatic.gameObject.SetActive(false);
+        Destroy(nonstatic.gameObject);
+        //nonstatic.gameObject.SetActive(false);
     }
 
     public void ToggleTerrainMesh(bool v)

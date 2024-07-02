@@ -133,7 +133,7 @@ public class RoadManager : MonoBehaviour
             if (world.IsRoadOnTerrain(loc))
                 continue;
 
-            if (world.IsTradeCenterOnTile(loc))
+            if (world.IsTradeCenterMainOnTile(loc))
             {
                 BuildRoadAtPosition(loc, type, level);
 
@@ -406,10 +406,11 @@ public class RoadManager : MonoBehaviour
         meshFilter.mesh = new Mesh();
         meshFilter.mesh.CombineMeshes(combine);
 
-        Mesh tempMesh = roadHolder.GetComponent<MeshCollider>().sharedMesh;
-        if (tempMesh == null)
-            tempMesh = colliderMeshList[0];
-        else
+        //Mesh tempMesh = roadHolder.GetComponent<MeshCollider>().sharedMesh;
+        Mesh tempMesh = new();
+        //if (tempMesh == null)
+        //    tempMesh = colliderMeshList[0];
+        //else
             tempMesh.CombineMeshes(combineColliders);
         roadHolder.GetComponent<MeshCollider>().sharedMesh = tempMesh;//meshFilter.sharedMesh;
 

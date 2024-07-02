@@ -617,7 +617,7 @@ public class Worker : Unit
 
 		foreach (Vector3Int loc in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAYINCREMENT))
 		{
-			if (world.IsTradeCenterOnTile(loc)/* || world.IsCityOnTile(loc)*/)
+			if (world.IsTradeCenterMainOnTile(loc)/* || world.IsCityOnTile(loc)*/)
 			{
 				int i = 0;
 
@@ -960,7 +960,7 @@ public class Worker : Unit
 		int i = 0;
 		foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.CITYRADIUS))
 		{
-			if (i < 8 && world.IsTradeCenterOnTile(tile))
+			if (i < 8 && world.IsTradeCenterMainOnTile(tile))
 			{
 				InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(world.mainPlayer.transform.position, "Too close to another city");
 				return true;
@@ -1780,7 +1780,7 @@ public class Worker : Unit
 			world.unitMovement.ShowIndividualCityButtonsUI();
 			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
 
-			if (world.IsCityOnTile(terrainLoc) || world.IsTradeCenterOnTile(terrainLoc))
+			if (world.IsCityOnTile(terrainLoc) || world.IsTradeCenterMainOnTile(terrainLoc))
 				world.unitMovement.uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
 		}
 

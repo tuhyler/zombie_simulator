@@ -4,6 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Improvement Data", menuName = "EconomyData/ImprovementData")]
 public class ImprovementDataSO : ScriptableObject
 {
+    public int showOrder;
     public List<ImprovementDataSO> secondaryData;
     public string prefabLoc;
     public AudioClip audio;

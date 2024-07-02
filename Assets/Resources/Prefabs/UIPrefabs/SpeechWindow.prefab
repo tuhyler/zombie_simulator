@@ -430,10 +430,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Speech goes here and here and here and here and here and here and here
-    and here and here and here and here and here and here and here and here and here
-    and here and here and here and here and here and here and here and here and here
-    and here gggggrrrr
+  m_text: Yes, but I need to be better prepared. I will need to fully recover my
+    health and will most certainly need a better weapon. Let us return to a nearby
+    city and upgrade the current weapon and armor I have, which I assume will also
+    make me more devastatingly handsome.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,

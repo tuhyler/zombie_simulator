@@ -201,12 +201,14 @@ MonoBehaviour:
   main: {fileID: 6338745557346647870}
   prop: {fileID: 335344345692592139}
   nonstatic: {fileID: 385685607343810745}
+  mainMesh: {fileID: 0}
   fog: {fileID: 7494950873433822262}
   highlightPlane: {fileID: 4547352987120683383}
   highlightPlaneIcon: {fileID: 3798256020005411663}
   flatlandFP: {fileID: 0}
   fogNonStatic: {fileID: 540605585842487287}
   white: {fileID: 2100000, guid: 74b4e3b23c1555c4589c22411ec6f610, type: 2}
+  materials: []
   changeLeafColor: 0
   isHill: 0
   hasRoad: 0
@@ -222,9 +224,19 @@ MonoBehaviour:
   beingCleared: 0
   showProp: 1
   hasNonstatic: 0
+  straightRiver: 0
+  border: 0
+  hasBattle: 0
+  inBattle: 0
+  canWalk: 0
+  canPlayerWalk: 0
+  canSail: 0
+  canPlayerSail: 0
+  canFly: 0
+  canPlayerFly: 0
+  spring: 0
   resourceGraphic: {fileID: 0}
   treeHandler: {fileID: 0}
-  godRays: {fileID: 0}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}
   rawResourceType: 0
@@ -678,6 +690,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7749707752609240185, guid: 467b5d36d61624c4fac5ac4e1db4b184,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a1844cfe984935248adc97c379d23d2a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 467b5d36d61624c4fac5ac4e1db4b184, type: 3}
 --- !u!114 &540605585842487287 stripped

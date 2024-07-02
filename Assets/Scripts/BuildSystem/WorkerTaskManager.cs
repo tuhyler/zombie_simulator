@@ -363,7 +363,7 @@ public class WorkerTaskManager : MonoBehaviour
 
         city.reachedWaterLimit = !city.hasFreshWater;
         city.waterCount = city.hasFreshWater ? 9999 : 0;
-        world.uiProfitabilityStats.CreateNewProfitabilityCityStats(city);
+        world.uiProfitabilityStats.CreateNewProfitabilityCityStats(city, false);
         world.AddCityBuildingDict(workerTile);
         world.TutorialCheck("Build City");
         world.EnemyAttackCheck();
@@ -380,10 +380,21 @@ public class WorkerTaskManager : MonoBehaviour
 			{
 				city.hasWater = true;
 				city.hasFreshWater = true;
-			}
 
-			if (tData.terrainData.type == TerrainType.Coast)
+				if (tData.terrainData.rawResourceType == RawResourceType.FoodSea)
+					city.hasFish = true;
+
+                continue;
+			}
+			else if (tData.terrainData.type == TerrainType.Coast)
+            {
 				city.hasWater = true;
+
+				if (tData.terrainData.rawResourceType == RawResourceType.FoodSea)
+					city.hasFish = true;
+
+                continue;
+			}
 
 			if (tData.rawResourceType == RawResourceType.Rocks)
 			{
@@ -392,21 +403,27 @@ public class WorkerTaskManager : MonoBehaviour
 				else
 					city.hasRocksFlat = true;
 			}
-
-			if (tData.resourceType == ResourceType.Clay)
+			else if (tData.resourceType == ResourceType.Clay)
+            {
 				city.hasClay = true;
-
-			if (tData.resourceType == ResourceType.Wool)
+            }
+			else if (tData.resourceType == ResourceType.Wool)
+            {
 				city.hasWool = true;
-
-			if (tData.resourceType == ResourceType.Silk)
+            }
+			else if (tData.resourceType == ResourceType.Silk)
+            {
 				city.hasSilk = true;
-
-			if (tData.resourceType == ResourceType.Lumber)
+            }
+            else if (tData.resourceType == ResourceType.Lumber)
+            {
 				city.hasTrees = true;
-
-			if ((tData.terrainData.grassland && tData.terrainData.type == TerrainType.Flatland) || tData.terrainData.specificTerrain == SpecificTerrain.FloodPlain)
+            }
+            else if (tData.rawResourceType == RawResourceType.FoodLand)
+            {
 				city.hasFood = true;
+            }
+			//if ((tData.terrainData.grassland && tData.terrainData.type == TerrainType.Flatland) || tData.terrainData.specificTerrain == SpecificTerrain.FloodPlain)
 		}
 	}
 

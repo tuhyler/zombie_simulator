@@ -84,14 +84,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
 
         dof.focalLength.value = 15;
 
-        foreach (Transform transform in uiElementsParent)
-        {
-            if (transform.TryGetComponent(out UIResearchItem researchItem))
-            {
-                researchItem.SetResearchTree(this);
-                researchItemList.Add(researchItem);
-            }
-        }
+        PrepResearchItemList();
 
         foreach (Transform tree in researchTreeContents)
         {
@@ -106,6 +99,22 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
             researchTab.SetResearchTree(this);
             tabList.Add(researchTab);
             i++;
+        }
+    }
+
+    public void PrepResearchItemList()
+    {
+        if (researchItemList.Count == 0)
+        {
+            foreach (Transform transform in uiElementsParent)
+            {
+                if (transform.TryGetComponent(out UIResearchItem researchItem))
+                {
+                    researchItem.SetResearchRewardInfo();
+                    researchItem.SetResearchTree(this);
+                    researchItemList.Add(researchItem);
+                }
+            }
         }
     }
 
@@ -445,7 +454,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
 
 	public void LoadCompletedResearch(List<string> completedResearch)
 	{
-		List<UIResearchItem> tempResearchItemList = new(researchItemList);
+        List<UIResearchItem> tempResearchItemList = new(researchItemList);
 		for (int i = 0; i < tempResearchItemList.Count; i++)
 		{
 			if (completedResearch.Contains(tempResearchItemList[i].researchName))

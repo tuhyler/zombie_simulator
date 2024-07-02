@@ -30,7 +30,7 @@ MonoBehaviour:
   battleCost: []
   laborCost: 1
   unitType: 1
-  unitDescription: BuildCities and Roads
+  unitDescription: A stronger Azai, but not any better looking
   availableInitially: 0
   health: 100
   regenerationRate: 0.1

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: FinanceCenter01SouthData
   m_EditorClassIdentifier: 
+  showOrder: 5
   secondaryData: []
   prefabLoc: ImprovementPrefabs/MarketSouth01
   audio: {fileID: 0}

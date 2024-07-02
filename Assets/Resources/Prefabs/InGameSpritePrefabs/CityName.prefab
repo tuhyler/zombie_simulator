@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7710663386937454018}
   - component: {fileID: 8113390031551856531}
-  - component: {fileID: 1334677299140747528}
   m_Layer: 10
   m_Name: CityName
   m_TagString: Untagged
@@ -58,27 +57,6 @@ MonoBehaviour:
   originalBackground: {fileID: 21300000, guid: 46dfeb36f3fa8624894b5df3314dd6d8, type: 3}
   neutralBackground: {fileID: 21300000, guid: c145a37aaeebf064a9b4b7e63e443ac1, type: 3}
   enemyBackground: {fileID: 21300000, guid: 58ebd340db41f2546b7cf698c214b744, type: 3}
---- !u!205 &1334677299140747528
-LODGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1283713312625653450}
-  serializedVersion: 2
-  m_LocalReferencePoint: {x: 0.006143689, y: -1.5, z: 0}
-  m_Size: 2.0805209
-  m_FadeMode: 0
-  m_AnimateCrossFading: 0
-  m_LastLODIsBillboard: 0
-  m_LODs:
-  - screenRelativeHeight: 0.09886693
-    fadeTransitionWidth: 0
-    renderers:
-    - renderer: {fileID: 759914645907119161}
-    - renderer: {fileID: 2376137269773721750}
-    - renderer: {fileID: 8214707327257452083}
-  m_Enabled: 1
 --- !u!1 &2627657982459710624
 GameObject:
   m_ObjectHideFlags: 0

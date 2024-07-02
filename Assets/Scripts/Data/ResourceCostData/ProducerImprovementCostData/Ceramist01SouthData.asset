@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Ceramist01SouthData
   m_EditorClassIdentifier: 
+  showOrder: 1
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Ceramist01South
   audio: {fileID: 8300000, guid: 67e2dcfdb0e95d24e800aa8b53da8ea3, type: 3}
@@ -28,21 +29,21 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 31
-    resourceAmount: 50
+    resourceAmount: 20
   - resourceType: 6
     resourceAmount: 15
   - resourceType: 7
-    resourceAmount: 20
+    resourceAmount: 10
   consumedResources:
   - resourceType: 9
-    resourceAmount: 10
+    resourceAmount: 5
   - resourceType: 6
-    resourceAmount: 3
+    resourceAmount: 2
   - resourceType: 4
     resourceAmount: 2
   consumedResources1:
   - resourceType: 9
-    resourceAmount: 10
+    resourceAmount: 5
   - resourceType: 10
     resourceAmount: 2
   - resourceType: 4

@@ -142,7 +142,10 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			unit.SetSpeechBubble();
 
 			if (!unitsSpeaking.Contains(unit))
+			{
+				unit.sayingSomething = true;
 				unitsSpeaking.Add(unit);
+			}
 
 			if (conversationItems[conversationPlace].speakerDirection == "Camera")
 			{
@@ -157,7 +160,10 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 				Unit listener = speakerDict[listenerName];
 
 				if (!unitsSpeaking.Contains(listener))
+				{
+					listener.sayingSomething = true;
 					unitsSpeaking.Add(listener);
+				}
 			}
 		}
 

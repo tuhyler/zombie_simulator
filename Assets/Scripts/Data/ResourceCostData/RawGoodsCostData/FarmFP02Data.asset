@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: FarmFP02Data
   m_EditorClassIdentifier: 
+  showOrder: 0
   secondaryData: []
-  prefabLoc: ImprovementPrefabs/FP01
+  prefabLoc: ImprovementPrefabs/FarmDesertFP01
   audio: {fileID: 8300000, guid: bfad1d1a0ee9b58488affd536c0e12ab, type: 3}
   isSecondary: 1
   isBuilding: 0
   isBuildingImprovement: 0
-  improvementName: FarmFP
+  improvementName: Farm
   improvementDisplayName: Farm
   improvementLevel: 2
-  improvementNameAndLevel: FarmFP-2
+  improvementNameAndLevel: Farm-2
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 1380b9397806c044daf0a888490d210f, type: 3}
@@ -58,7 +59,7 @@ MonoBehaviour:
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 15
+  buildTime: 25
   availableInitially: 0
   hideIdleMesh: 1
   getTerrainResource: 0

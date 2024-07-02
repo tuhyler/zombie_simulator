@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Research01SouthData
   m_EditorClassIdentifier: 
+  showOrder: 0
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Research01South
   audio: {fileID: 8300000, guid: 4b903425d0583734b9e3d2b48e7d064f, type: 3}
@@ -65,3 +66,4 @@ MonoBehaviour:
   attackBonus: 0
   singleBuildType: 0
   buildOnRoad: 0
+  cityBonus: 0
