@@ -55,12 +55,14 @@ public class Resource : MonoBehaviour
         yield return halfSecWait;
 
         city.resourceManager.resourceCount = 0;
-        int gatheredResource = city.resourceManager.AddResource(resourceIndividual.resourceType, amount); //only add one of respective resource
+        ResourceType type = resourceIndividual.resourceType == ResourceType.Fish ? ResourceType.Food : resourceIndividual.resourceType;
+
+        int gatheredResource = city.resourceManager.AddResource(type, amount); //only add one of respective resource
         Vector3 loc = city.cityLoc;
         if (gatheredResource > 0)
-            InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), city.world);
+            InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(type), city.world);
             
-        city.world.StatsCheck(resourceIndividual.resourceType, amount);
+        city.world.StatsCheck(type, amount);
         city.PlayResourceSplash();
         city.world.GameCheck("Resource");
         city.world.TutorialCheck("Resource");

@@ -58,7 +58,9 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
     {
 		if (eventData.button == PointerEventData.InputButton.Left)
         {
-		    if (!uiBuildTabHandler.buttonsAreWorking)
+			UITooltipSystem.Hide();
+
+			if (!uiBuildTabHandler.buttonsAreWorking)
                 return;
 
 		    if (uiBuildTabHandler.cityBuilderManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)

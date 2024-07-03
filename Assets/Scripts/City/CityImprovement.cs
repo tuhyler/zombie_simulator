@@ -711,7 +711,7 @@ public class CityImprovement : MonoBehaviour
 
 		foreach (ResourceType type in cycleCostDict.Keys)
 		{
-            if (type == ResourceType.Gold)
+            if (type != ResourceType.Food)
                 continue;
 
             ResourceValue value;

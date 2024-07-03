@@ -2,7 +2,10 @@ fileFormatVersion: 2
 guid: 42a69264d4ed15240bcca0658da91cd6
 ModelImporter:
   serializedVersion: 21202
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      74: 758313870698249472
+    second: Workin
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -97,7 +100,7 @@ ModelImporter:
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 0
+  avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   additionalBone: 0
   userData: 

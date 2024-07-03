@@ -188,8 +188,11 @@ public class Army : MonoBehaviour
                     armyCycleCostDict[costs[i].resourceType] += costs[i].resourceAmount;
             }
 
-            resourceTypes.Add(costs[i].resourceType);
-            city.resourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, costs[i].resourceAmount);
+            if (costs[i].resourceType == ResourceType.Food)
+            {
+                resourceTypes.Add(costs[i].resourceType);
+                city.resourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, costs[i].resourceAmount);
+            }
         }
 
         if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
@@ -222,7 +225,7 @@ public class Army : MonoBehaviour
                     armyCycleCostDict.Remove(costs[i].resourceType);
             }
 
-            if (cityCost)
+            if (cityCost && costs[i].resourceType == ResourceType.Food)
             {
                 resourceTypes.Add(costs[i].resourceType);
                 city.resourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, -costs[i].resourceAmount);
@@ -254,6 +257,9 @@ public class Army : MonoBehaviour
 
         foreach (ResourceType type in armyCycleCostDict.Keys)
         {
+            if (type != ResourceType.Food)
+                continue;
+            
             ResourceValue value;
             value.resourceType = type;
             value.resourceAmount = armyCycleCostDict[type];

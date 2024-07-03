@@ -104,7 +104,7 @@ public class ResourceManager : MonoBehaviour
         {
             resourceDict[ResourceType.Food] = 50;
             resourceDict[ResourceType.Lumber] = 100;
-            resourceDict[ResourceType.Stone] = 50;
+            resourceDict[ResourceType.Stone] = 100;
             resourceDict[ResourceType.Bricks] = 100;
             resourceStorageLevel += 300;
         }
@@ -122,7 +122,10 @@ public class ResourceManager : MonoBehaviour
 
     public float GetResourceGenerationValues(ResourceType resourceType)
     {
-        return resourceGenerationPerMinuteDict[resourceType];
+        if (resourceType == ResourceType.Food || resourceType == ResourceType.Fish)
+            return resourceGenerationPerMinuteDict[ResourceType.Food] + resourceGenerationPerMinuteDict[ResourceType.Fish];
+
+		return resourceGenerationPerMinuteDict[resourceType];
     }
 
     public bool CheckResourceAvailability(ResourceType type, int amount)
@@ -152,19 +155,19 @@ public class ResourceManager : MonoBehaviour
 			if (consumedAmount == 0)
 				continue;
 
-            if (military && value.resourceType == ResourceType.Gold)
-            {
-                int goldAmount = city.world.GetWorldGoldLevel();
-                if (goldAmount < value.resourceAmount)
-                {
-                    consumedAmount = goldAmount;
-					city.army.AWOLCheck();
-                }
-                else
-                {
-					city.army.AWOLClear();
-                }
-			}
+   //         if (military && value.resourceType == ResourceType.Gold)
+   //         {
+   //             int goldAmount = city.world.GetWorldGoldLevel();
+   //             if (goldAmount < value.resourceAmount)
+   //             {
+   //                 consumedAmount = goldAmount;
+			//		city.army.AWOLCheck();
+   //             }
+   //             else
+   //             {
+			//		city.army.AWOLClear();
+   //             }
+			//}
 
 			consumedAmount = SubtractResource(value.resourceType, consumedAmount);
 
@@ -364,7 +367,8 @@ public class ResourceManager : MonoBehaviour
 
 		resourceCount = 0;
 
-		int resourceAmount = AddResource(producedResource.resourceType, newResourceAmount);
+        ResourceType type = producedResource.resourceType == ResourceType.Fish ? ResourceType.Food : producedResource.resourceType;
+		int resourceAmount = AddResource(type, newResourceAmount);
 
 		if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0)
 		{
@@ -381,7 +385,7 @@ public class ResourceManager : MonoBehaviour
 		Vector3 loc = producerLoc;
 
 		if (resourceAmount != 0)
-			InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(producedResource.resourceType), city.world);
+			InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(type), city.world);
 
 		return destroy;
 	}
@@ -433,8 +437,8 @@ public class ResourceManager : MonoBehaviour
 
     public int AddResource(ResourceType type, int amount)
     {
-		if (type == ResourceType.Fish)
-			type = ResourceType.Food;
+		//if (type == ResourceType.Fish)
+		//	type = ResourceType.Food;
 
 		if (type == ResourceType.Research)
 		{

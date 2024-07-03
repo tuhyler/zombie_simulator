@@ -87,7 +87,9 @@ public class WorkerTaskManager : MonoBehaviour
 
 	public void BuildCityButton()
     {
-        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
+		UITooltipSystem.Hide();
+
+		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             BuildCityPrep();	
         }
@@ -95,7 +97,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void BuildCityPrep()
     {
-        if (world.tutorial)
+		if (world.tutorial)
 			unitMovement.uiWorkerTask.GetButton("Build").FlashCheck();
 
 		unitMovement.CancelMove();
@@ -122,7 +124,9 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void GatherResourceButton()
     {
-        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
+		UITooltipSystem.Hide();
+
+		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 		    world.cityBuilderManager.PlaySelectAudio();
 			world.mainPlayer.GatherResource();
@@ -131,6 +135,8 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void BuildUtilityButton()
     {
+		UITooltipSystem.Hide();
+
 		if (!world.mainPlayer.isBusy  && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             world.cityBuilderManager.PlaySelectAudio();
@@ -143,6 +149,8 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void BuildRoadButton()
     {
+		UITooltipSystem.Hide();
+
 		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
 		{
 			world.cityBuilderManager.PlaySelectAudio();
@@ -167,6 +175,8 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void BuildPowerButton()
     {
+		UITooltipSystem.Hide();
+
 		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
 		{
 			world.cityBuilderManager.PlaySelectAudio();
@@ -180,6 +190,8 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void ClearForestButton()
     {
+		UITooltipSystem.Hide();
+
 		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             world.cityBuilderManager.PlaySelectAudio();
@@ -202,7 +214,9 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void RemoveRoadPrep()
     {
-        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
+		UITooltipSystem.Hide();
+
+		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             world.cityBuilderManager.PlaySelectAudio();
 			world.removing = true;
@@ -215,7 +229,9 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void RemoveLiquidPrep()
     {
-        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
+		UITooltipSystem.Hide();
+
+		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			world.cityBuilderManager.PlaySelectAudio();
 			world.removing = true;
@@ -228,7 +244,9 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void RemovePowerPrep()
     {
-        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
+		UITooltipSystem.Hide();
+
+		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			world.cityBuilderManager.PlaySelectAudio();
 			world.removingPower = true;

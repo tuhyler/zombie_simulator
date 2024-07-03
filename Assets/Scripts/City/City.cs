@@ -803,6 +803,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void ChangeResourcesWorked(ResourceType resourceType, int laborChange)
     {
+        if (resourceType == ResourceType.Fish)
+            resourceType = ResourceType.Food;
+
         if (resourcesWorkedDict.ContainsKey(resourceType))
         {
             resourcesWorkedDict[resourceType] += laborChange;
@@ -831,6 +834,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public int GetResourcesWorkedResourceCount(ResourceType resourceType)
     {
+        if (resourceType == ResourceType.Fish)
+            resourceType = ResourceType.Food;
+        
         return resourcesWorkedDict[resourceType];
     }
 

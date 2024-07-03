@@ -510,7 +510,9 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     {
 		if (eventData.button == PointerEventData.InputButton.Left)
         {
-		    if (buttonHandler.cityBuilderManager.SelectedCity.army != null && buttonHandler.cityBuilderManager.SelectedCity.army.defending)
+			UITooltipSystem.Hide();
+
+			if (buttonHandler.cityBuilderManager.SelectedCity.army != null && buttonHandler.cityBuilderManager.SelectedCity.army.defending)
             {
 				ShakeCheck();
 				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build now, enemy approaching");

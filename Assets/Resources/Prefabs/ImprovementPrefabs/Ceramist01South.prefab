@@ -381,7 +381,7 @@ PrefabInstance:
         type: 3}
       propertyPath: workPS.Array.data[0]
       value: 
-      objectReference: {fileID: 5149394330272592061}
+      objectReference: {fileID: 1726654266376091340}
     - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: workLights.Array.size
@@ -446,78 +446,78 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!1001 &5750610594112448767
+--- !u!1001 &2255839326705757838
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 667148203612308655}
     m_Modifications:
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.067
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.59
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalPosition.z
       value: -0.664
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.7071068
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalRotation.x
       value: -0.7071068
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalRotation.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -90
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1622831224929789136, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 1622831224929789136, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4000157101387074691, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+    - target: {fileID: 4000157101387074691, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
         type: 3}
       propertyPath: m_Name
-      value: SmokeStack
+      value: SmokeStack2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a9c93117db8dad04cb3ea3601c0b6a06, type: 3}
---- !u!198 &5149394330272592061 stripped
+  m_SourcePrefab: {fileID: 100100000, guid: fcba25c714b77b2478b2ee6ab1eda5a6, type: 3}
+--- !u!198 &1726654266376091340 stripped
 ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 628277446984423490, guid: a9c93117db8dad04cb3ea3601c0b6a06,
+  m_CorrespondingSourceObject: {fileID: 628277446984423490, guid: fcba25c714b77b2478b2ee6ab1eda5a6,
     type: 3}
-  m_PrefabInstance: {fileID: 5750610594112448767}
+  m_PrefabInstance: {fileID: 2255839326705757838}
   m_PrefabAsset: {fileID: 0}

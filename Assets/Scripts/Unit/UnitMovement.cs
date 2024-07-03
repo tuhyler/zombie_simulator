@@ -1564,6 +1564,7 @@ public class UnitMovement : MonoBehaviour
     public void LoadUnloadPrep() //for loadunload button for Koa
     {
 		world.cityBuilderManager.PlaySelectAudio();
+		UITooltipSystem.Hide();
 
 		if (!loadScreenSet)
         {
@@ -1955,6 +1956,8 @@ public class UnitMovement : MonoBehaviour
 
 	public void SetUpTradeRoute()
     {
+		UITooltipSystem.Hide();
+
 		if (!selectedUnit.bySea && !selectedUnit.trader.followingRoute && !world.IsRoadOnTileLocation(world.GetClosestTerrainLoc(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
 		{
 			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't edit route off road");
@@ -1986,7 +1989,9 @@ public class UnitMovement : MonoBehaviour
 
     public void ShowTradeRouteCost()
     {
-        if (!selectedUnit.trader.hasRoute)
+		UITooltipSystem.Hide();
+
+		if (!selectedUnit.trader.hasRoute)
             return;
         
         world.cityBuilderManager.PlaySelectAudio();

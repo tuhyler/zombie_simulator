@@ -75,7 +75,7 @@ MonoBehaviour:
   hillAdjustment: 0.6
   buildTime: 25
   availableInitially: 0
-  hideIdleMesh: 1
+  hideIdleMesh: 0
   getTerrainResource: 0
   attackBonus: 0
   singleBuildType: 0

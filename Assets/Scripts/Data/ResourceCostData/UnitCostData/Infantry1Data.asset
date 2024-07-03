@@ -28,7 +28,7 @@ MonoBehaviour:
     resourceAmount: 10
   cycleCost:
   - resourceType: 4
-    resourceAmount: 1
+    resourceAmount: 15
   - resourceType: 2
     resourceAmount: 1
   battleCost: []
