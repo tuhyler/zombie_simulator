@@ -37,7 +37,7 @@ MonoBehaviour:
   movementSpeed: 2
   trainTime: 0
   cargoCapacity: 0
-  goldDropRange: {x: 1, y: 2}
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
   npc: 0

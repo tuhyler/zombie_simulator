@@ -1,5 +1,7 @@
+using Mono.Cecil;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class UnitMovement : MonoBehaviour
 {
@@ -38,7 +40,8 @@ public class UnitMovement : MonoBehaviour
 
     private ResourceManager cityResourceManager;
     private TradeCenter tradeCenter;
-    public int playerLoadIncrement = 1;
+    private int playerLoadIncrement = 1, givenAmount, maxGive = 10;
+    public int GivenAmount { set { givenAmount = value; } }
 
     //for deploying army
     private Vector3Int potentialAttackLoc;
@@ -1794,9 +1797,15 @@ public class UnitMovement : MonoBehaviour
     {
         if (world.uiResourceGivingPanel.showingResource && resourceType != world.uiResourceGivingPanel.giftedResource.resourceType)
         {
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can only give one resource at a time", true);
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can only give one resource type at a time", true);
 			return;
         }
+
+        if (givenAmount >= maxGive)
+        {
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't give more than " + maxGive, true);
+			return;
+		}
 
 		SetChangesFromGift(resourceType, playerLoadIncrement);
     }
@@ -1934,9 +1943,11 @@ public class UnitMovement : MonoBehaviour
                 resourceAmount = -remainingWithTrader;
 
             noneLeft = resourceAmount == 0;
-            //int resourceAmountAdjusted;
-            //cityResourceManager.resourceCount = 0;
-            int resourceAmountAdjusted = cityResourceManager.AddTraderResource(resourceType, -resourceAmount);
+			//int resourceAmountAdjusted;
+			//cityResourceManager.resourceCount = 0;
+			if (!cityResourceManager.city.resourceGridDict.ContainsKey(resourceType))
+				cityResourceManager.city.AddToGrid(resourceType);
+			int resourceAmountAdjusted = cityResourceManager.AddTraderResource(resourceType, -resourceAmount);
 
             cityFull = resourceAmountAdjusted == 0;
 			world.mainPlayer.personalResourceManager.ManuallySubtractResource(resourceType, resourceAmountAdjusted);
@@ -1986,20 +1997,26 @@ public class UnitMovement : MonoBehaviour
                 return;
             }
             
-            int remainingWithTrader = world.mainPlayer.personalResourceManager.GetResourceDictValue(type);
+            if (fullLoad)
+				amount = world.mainPlayer.personalResourceManager.GetResourceDictValue(type);
+			else if (halfLoad)
+				amount = Mathf.CeilToInt(world.mainPlayer.personalResourceManager.GetResourceDictValue(type) * 0.5f);
 
-		    if (remainingWithTrader < Mathf.Abs(amount))
-			    amount = -remainingWithTrader;
+            int leftToGive = maxGive - givenAmount;
+            if (amount > leftToGive)
+                amount = leftToGive;
 
-		    world.mainPlayer.personalResourceManager.ManuallySubtractResource(type, amount);
+            givenAmount += amount;
+			world.mainPlayer.personalResourceManager.ManuallySubtractResource(type, amount);
         }
         else
         {
 			if (fullLoad)
-				amount = Mathf.Max(1, world.mainPlayer.personalResourceManager.resourceStorageLimit - world.mainPlayer.personalResourceManager.resourceStorageLevel);
+				amount = -Mathf.Max(1, givenAmount);
 			else if (halfLoad)
-				amount = Mathf.Max(1, Mathf.CeilToInt((world.mainPlayer.personalResourceManager.resourceStorageLimit - world.mainPlayer.personalResourceManager.resourceStorageLevel) * 0.5f));
+				amount = -Mathf.Max(1, Mathf.CeilToInt(givenAmount * 0.5f));
 
+            givenAmount += amount;
 			uiPersonalResourceInfoPanel.UpdateResourceInteractable(type, world.mainPlayer.personalResourceManager.GetResourceDictValue(type), true);
 			world.mainPlayer.personalResourceManager.ManuallyAddResource(type, -amount, true);
 		}

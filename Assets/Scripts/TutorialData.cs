@@ -6,6 +6,6 @@ using UnityEngine;
 public class TutorialData
 {
     public bool built2ndHouse, builtFarm, gathered, builtInfantry, builtTrader, hadAmbush, hadPopLoss, hadPopAdd, openedTRM, addedStop, addedResource, choseResource, choseUnload, newCity,
-        newProducer, newFinance, newEntertainment;
+        newProducer, newFinance, newEntertainment, nextCity;
     public string tutorialStep;
 }

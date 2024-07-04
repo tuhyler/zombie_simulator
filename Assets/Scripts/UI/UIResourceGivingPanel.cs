@@ -63,6 +63,8 @@ public class UIResourceGivingPanel : MonoBehaviour
 			confirmButton.SetActive(false);
 			uiResourceSubPanel.ToggleVisibility(true, tradeRep.tradeRepName, tradeRep.questHints[tradeRep.currentQuest]);
 
+			world.unitMovement.loadScreenSet = true;
+			world.unitMovement.GivenAmount = 0;
 			allContents.anchoredPosition3D = originalLoc;
 			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 800f, 0.4f).setEase(LeanTweenType.easeOutSine);
 		}
@@ -70,6 +72,7 @@ public class UIResourceGivingPanel : MonoBehaviour
 		{
 			if (!confirmed && showingResource)
 				ReturnResources();
+			world.unitMovement.loadScreenSet = false;
 			uiResourceSubPanel.ToggleVisibility(false);
 			world.unitMovement.uiPersonalResourceInfoPanel.RestorePosition(keepSelection);
 			activeStatus = false;

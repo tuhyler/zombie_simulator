@@ -14,7 +14,7 @@ AnimatorStateMachine:
     m_Position: {x: 30, y: 60, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4863023628886721659}
-    m_Position: {x: 30, y: -10, z: 0}
+    m_Position: {x: 30, y: 0, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -33,7 +33,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Working
-  m_Speed: 1
+  m_Speed: 0.99
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 9089446745482199824}
@@ -50,9 +50,9 @@ AnimatorState:
     type: 3}
   m_Tag: 
   m_SpeedParameter: speed
-  m_MirrorParameter: 
+  m_MirrorParameter: isWorking
   m_CycleOffsetParameter: offset
-  m_TimeParameter: 
+  m_TimeParameter: offset
 --- !u!91 &9100000
 AnimatorController:
   m_ObjectHideFlags: 0

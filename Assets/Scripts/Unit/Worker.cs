@@ -1129,7 +1129,14 @@ public class Worker : Unit
 		Vector3Int currentLoc = world.RoundToInt(transform.position);
 
 		if (Mathf.Abs(position.x - currentLoc.x) < 2 && Mathf.Abs(position.z - currentLoc.z) < 2)
+		{
+			FinishMoving(transform.position);
+
+			if (world.azaiFollow)
+				world.azai.StopMovementCheck(true);
+
 			return;
+		}
 
 		int i = 0;
 		Vector3Int finalLoc = currentLoc;
@@ -1195,6 +1202,9 @@ public class Worker : Unit
 		else
 		{
 			FinishMoving(transform.position);
+		
+			if (world.azaiFollow)
+				world.azai.StopMovementCheck(true);
 		}
 	}
 

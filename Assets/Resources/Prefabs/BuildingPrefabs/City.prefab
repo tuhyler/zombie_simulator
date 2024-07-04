@@ -110,7 +110,6 @@ GameObject:
   - component: {fileID: 2311649316462798009}
   - component: {fileID: -11843151354040455}
   - component: {fileID: -1354641546340956128}
-  - component: {fileID: 7800520638858068917}
   - component: {fileID: 3658065025757672615}
   - component: {fileID: 7859058687170075084}
   - component: {fileID: 1886149275974123713}
@@ -177,6 +176,7 @@ MonoBehaviour:
   hasRocksHill: 0
   hasTrees: 0
   hasFood: 0
+  hasFish: 0
   hasWool: 0
   hasSilk: 0
   hasClay: 0
@@ -233,25 +233,12 @@ MonoBehaviour:
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0
-  cyclesToWait: 2
+  cyclesToWaitToDecline: 2
   starvationCount: 0
   noHousingCount: 0
   noWaterCount: 0
   cycleCount: 0
   resourceCount: 0
---- !u!65 &7800520638858068917
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7185426163474996275}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1.8, y: 0.1, z: 1.8}
-  m_Center: {x: 0, y: 0.1, z: 0}
 --- !u!114 &3658065025757672615
 MonoBehaviour:
   m_ObjectHideFlags: 0
