@@ -745,6 +745,10 @@ public class ResourceManager : MonoBehaviour
                     i++;
                 }
 			}
+            else
+            {
+				IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
+			}
         }
 
         city.SetLast5Gold(goldAdded);
@@ -768,7 +772,7 @@ public class ResourceManager : MonoBehaviour
         {
             if (demandRatio <= -0.5f)
             {
-                if (currentPrice > originalPrice /** (city.world.maxPriceFactor - 1)*/)
+                if (currentPrice > originalPrice)
                 {
                     resourcePriceDict[type] = currentPrice - 1;
                     resourcePriceChangeDict[type] = -1;
@@ -801,7 +805,7 @@ public class ResourceManager : MonoBehaviour
             }
             else
             {
-                resourcePriceDict[type] = Mathf.Max(1, currentPrice - 1);
+                resourcePriceDict[type] = Mathf.Max(1, currentPrice - 1); //Mathf.Max(Mathf.Max(1, currentPrice - city.world.maxPriceDiff * 2), currentPrice - 1);
                 resourcePriceChangeDict[type] = currentPrice == resourcePriceDict[type] ? 0 : -1;
             }
         }
@@ -809,7 +813,7 @@ public class ResourceManager : MonoBehaviour
 
     public void IncreasePrice(ResourceType type, int originalPrice, int currentPrice)
     {
-		resourcePriceDict[type] = Mathf.Min(currentPrice + 1, originalPrice * city.world.maxPriceFactor);
+		resourcePriceDict[type] = Mathf.Min(currentPrice + 1, originalPrice + city.world.maxPriceDiff);
 		resourcePriceChangeDict[type] = currentPrice == resourcePriceDict[type] ? 0 : 1;
 	}
 

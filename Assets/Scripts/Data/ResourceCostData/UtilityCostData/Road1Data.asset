@@ -23,7 +23,7 @@ MonoBehaviour:
   utilityCost: []
   bridgeCost:
   - resourceType: 7
-    resourceAmount: 20
+    resourceAmount: 10
   bridgePrefab: {fileID: 5101276599224808569, guid: 8160c12be0d78bc4bbfac43a2cd24fc1,
     type: 3}
   bridge: 0

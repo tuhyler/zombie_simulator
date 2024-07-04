@@ -221,7 +221,7 @@ public class UISaveGame : MonoBehaviour
         selectedSaveItem = uiSaveItem;
     }
 
-    private string ConvertPlayTime(float time)
+    private string ConvertPlayTime(int time)
     {
         return Math.Round(time * 0.0002777f, 1).ToString() + " hrs";
     }
@@ -348,7 +348,7 @@ public class UISaveGame : MonoBehaviour
         world.StartSaveProcess(saveName);
     }
 
-    public void UpdateSaveItems(string saveName, float savePlayTime, string saveVersion, int seed/*, Texture2D saveScreenshot*/)
+    public void UpdateSaveItems(string saveName, int savePlayTime, string saveVersion, int seed/*, Texture2D saveScreenshot*/)
     {
         if (newItem)
         {

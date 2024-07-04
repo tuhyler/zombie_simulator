@@ -27,7 +27,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
     private ParticleSystem buttonHighlight;
 
     [HideInInspector]
-    public bool clickable = true;
+    public bool clickable = false;
     //for moving panels on resource grid
     [HideInInspector]
     public int resourceValue, loc; 
@@ -45,7 +45,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
 
     private void Awake()
     {
-        SetButtonInteractable(false);
+        //SetButtonInteractable(false);
 
 		resourceAmountText.outlineColor = Color.black;
 		resourceAmountText.outlineWidth = .2f;
@@ -114,13 +114,13 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
         buttonHighlight.Play();
     }
 
-    public void OnPointerClick()
-    {
-        //if (clickable)
-        //{
-        //    buttonHandler.PrepareResource(resourceType);
-        //}
-    }
+    //public void OnPointerClick()
+    //{
+    //    //if (clickable)
+    //    //{
+    //    //    buttonHandler.PrepareResource(resourceType);
+    //    //}
+    //}
 
     public void OnPointerDown(PointerEventData eventData)
     {

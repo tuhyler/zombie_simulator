@@ -68,12 +68,12 @@ public class UITradeCenter : MonoBehaviour, IGoldUpdateCheck
             newResource2.SetActive(false);
         }
 
-		increaseText.outlineColor = Color.black;
+		increaseText.outlineColor = new Color(0, .5f, 0);
 		increaseText.outlineWidth = .1f;
-		decreaseText.outlineColor = Color.black;
-		decreaseText.outlineWidth = .01f;
-		ecstaticText.outlineColor = Color.black;
-		ecstaticText.outlineWidth = .01f;
+		decreaseText.outlineColor = new Color(.3f, 0, 0);
+		decreaseText.outlineWidth = .1f;
+		ecstaticText.outlineColor = new Color(0, .4f, 0);
+		ecstaticText.outlineWidth = .1f;
 	}
 
     public void ToggleVisibility(bool v, TradeCenter center = null)

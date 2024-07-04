@@ -463,11 +463,6 @@ public class Worker : Unit
 		world.roadManager.BuildRoadAtPosition(roadPosition, currentUtilityCost.utilityType, currentUtilityCost.utilityLevel);
 		world.RemoveWorkerWorkLocation();
 
-		//moving worker up a smidge to be on top of road
-		Vector3 moveUp = transform.position;
-		moveUp.y += .2f;
-		transform.position = moveUp;
-
 		if (MoreOrdersToFollow())
 		{
 			BeginBuildingRoad();
@@ -478,6 +473,16 @@ public class Worker : Unit
 			building = false;
 			if (world.mainPlayer.isSelected)
 				workerTaskManager.TurnOffCancelTask();
+
+			//moving characters to be on top of road
+			MoveUp(transform.position);
+			if (world.IsRoadOnTileLocation(world.mainPlayer.currentLocation))
+				world.mainPlayer.MoveUp(world.mainPlayer.transform.position);
+			if (world.azaiFollow)
+			{
+				if (world.IsRoadOnTileLocation(world.azai.currentLocation))
+					world.azai.MoveUp(world.azai.transform.position);
+			}
 		}
 	}
 

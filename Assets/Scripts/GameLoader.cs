@@ -223,7 +223,7 @@ public class GameLoader : MonoBehaviour
 		StartCoroutine(WaitASec());
 	}
 
-	public void SaveGame(string saveNameRaw, float playTime, string version/*, string screenshot*/)
+	public void SaveGame(string saveNameRaw, int playTime, string version/*, string screenshot*/)
 	{
 		//string saveName = "game_data";
 		gameData.saveDate = System.DateTime.Now.ToString();
@@ -275,6 +275,7 @@ public class GameLoader : MonoBehaviour
 		gameData.popLost = world.popLost;
 		gameData.newUnitsAndImprovements = new(world.newUnitsAndImprovements);
 		gameData.currentResearch = world.researchTree.SaveResearch();
+		gameData.partialResearch = world.researchTree.SavePartialResearch();
 
 		gameData.researchWaitList.Clear();
 		foreach (ResourceProducer producer in world.researchWaitList)
@@ -481,7 +482,8 @@ public class GameLoader : MonoBehaviour
 		world.lumber = gameData.lumber;
 		world.popGrowth = gameData.popGrowth;
 		world.popLost = gameData.popLost;
-		world.researchTree.LoadCurrentResearch(gameData.currentResearch, gameData.researchAmount);
+		world.researchTree.LoadResearchLevels(gameData.partialResearch);
+		world.researchTree.LoadCurrentResearch(gameData.currentResearch);
 		//world.currentWorkedTileDict = new(gameData.currentWorkedTileDict);
 		//gameData.currentWorkedTileDict.Clear();
 		world.cityWorkedTileDict = new(gameData.cityWorkedTileDict);

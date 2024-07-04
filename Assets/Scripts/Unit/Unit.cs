@@ -731,6 +731,12 @@ public class Unit : MonoBehaviour
     //    //}
     //}
 
+    public void MoveUp(Vector3 currentPosition)
+    {
+		currentPosition.y += .11f;
+		transform.position = currentPosition;
+	}
+
     public void Teleport(Vector3 loc)
     {
         if (military && !military.guard)

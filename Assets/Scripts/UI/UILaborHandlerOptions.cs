@@ -14,6 +14,9 @@ public class UILaborHandlerOptions : MonoBehaviour
     [HideInInspector]
     public ResourceType resourceType;
 
+    [HideInInspector]
+    public float generation;
+
     //for managing the labor icons
     [SerializeField]
     private Transform laborIconHolder;
@@ -22,7 +25,8 @@ public class UILaborHandlerOptions : MonoBehaviour
     private List<UICityLaborIcon> laborIcons = new();
     private List<UICityLaborIcon> laborIconsOneList = new(); //to turn on the one icons individually (for speed)
 
-    private bool isShowing;
+    [HideInInspector]
+    public bool isShowing;
 
     private void Awake()
     {
@@ -45,14 +49,12 @@ public class UILaborHandlerOptions : MonoBehaviour
         }
 
         resourceGeneration.text = "+0";
-        //goldLostIcon.gameObject.SetActive(false);
-    }
+		resourceGeneration.outlineColor = Color.black;
+		resourceGeneration.outlineWidth = .3f;
+	}
 
     public void ToggleVisibility(bool v)
     {
-        //if (!v)
-        //    HideLaborIcons();
-        
         gameObject.SetActive(v);
         isShowing = v;
     }
@@ -61,6 +63,7 @@ public class UILaborHandlerOptions : MonoBehaviour
     public void SetUICount(int count, float resourceGenerationNum)
     {
         resourceGeneration.text = $"+{Mathf.RoundToInt(resourceGenerationNum)}";
+        generation = resourceGenerationNum;
 
         if (count == 0)
             return;
@@ -90,23 +93,17 @@ public class UILaborHandlerOptions : MonoBehaviour
     public void AddSubtractUICount(int count, int laborChange, float resourceGenerationNum)
     {
         resourceGeneration.text = $"+{Mathf.RoundToInt(resourceGenerationNum)}";
+        generation = resourceGenerationNum;
         
         if (laborChange > 0)
         {
             if (count % 5 == 0)
             {
-                //laborIcon5.ToggleVisibility(false);
                 foreach (UICityLaborIcon laborIcons in laborIconsOneList)
                     laborIcons.ToggleVisibility(false);
                 laborIcon10.SetNumber(count);
                 laborIcon10.ToggleVisibility(true);
             }
-            //else if (count % 5 == 0)
-            //{
-            //    foreach (UICityLaborIcon laborIcons in laborIconsOneList)
-            //        laborIcons.ToggleVisibility(false);
-            //    laborIcon5.ToggleVisibility(true);
-            //}
             else
             {
                 foreach (UICityLaborIcon laborIcons in laborIconsOneList)
@@ -128,17 +125,9 @@ public class UILaborHandlerOptions : MonoBehaviour
                 else
                     laborIcon10.SetNumber(count / 5 * 5);
 
-                //laborIcon5.ToggleVisibility(true);
                 foreach (UICityLaborIcon laborIcons in laborIconsOneList)
                     laborIcons.ToggleVisibility(true);
             }
-            //else if (count % 5 == 4)
-            //{
-            //    laborIcon5.ToggleVisibility(false);
-
-            //    foreach (UICityLaborIcon laborIcons in laborIconsOneList)
-            //        laborIcons.ToggleVisibility(true);
-            //}
             else
             {
                 for (int i = laborIconsOneList.Count - 1; i >= 0; i--)
@@ -149,17 +138,15 @@ public class UILaborHandlerOptions : MonoBehaviour
                         break;
                     }
                 }
-                //foreach (UICityLaborIcon laborIcons in laborIconsOneList)
-                //{
-                //    if (laborIcons.isActive)
-                //    {
-                //        laborIcons.ToggleVisibility(false);
-                //        break; //just turn off one
-                //    }
-                //}
             }
         }
     }
+
+    public void UpdateResourceGenerationNumbers(float resourceGenerationNum)
+    {
+		resourceGeneration.text = $"+{Mathf.RoundToInt(resourceGenerationNum)}";
+        generation = resourceGenerationNum;
+	}
 
     public void HideLaborIcons()
     {

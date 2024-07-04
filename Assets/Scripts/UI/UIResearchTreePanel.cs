@@ -56,6 +56,8 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
     private UIResearchItem chosenResearchItem;
     private List<UIResearchItem> researchItemList = new();
     private Queue<UIResearchItem> researchItemQueue = new();
+    [HideInInspector]
+    public HashSet<UIResearchItem> partialResearchItemList = new();
     private int extraResearch;
     [HideInInspector]
     public bool isQueueing;
@@ -348,6 +350,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
         if (world.CitiesResearchWaitingCheck())
             world.RestartResearch();
 
+        partialResearchItemList.Add(researchItem);
         world.SetWorldResearchUI(chosenResearchItem.researchReceived, chosenResearchItem.totalResearchNeeded);
     }
 
@@ -439,7 +442,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
     
 		if (chosenResearchItem != null)
 		{
-            GameLoader.Instance.gameData.researchAmount = chosenResearchItem.researchReceived;
+            //GameLoader.Instance.gameData.researchAmount = chosenResearchItem.researchReceived;
 			currentResearch.Add(chosenResearchItem.researchName);
 
 			List<UIResearchItem> queuedResearch = new(researchItemQueue.ToList());
@@ -452,6 +455,16 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
 		return currentResearch;
 	}
 
+    public Dictionary<string, int> SavePartialResearch()
+    {
+        Dictionary<string, int> partialResearchDict = new();
+
+        foreach (UIResearchItem item in partialResearchItemList)
+            partialResearchDict[item.researchName] = item.researchReceived;
+
+        return partialResearchDict;
+    }
+
 	public void LoadCompletedResearch(List<string> completedResearch)
 	{
         List<UIResearchItem> tempResearchItemList = new(researchItemList);
@@ -462,7 +475,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
 		}
 	}
 
-	public void LoadCurrentResearch(List<string> currentResearch, int researchAmount)
+	public void LoadCurrentResearch(List<string> currentResearch)
 	{
 		for (int i = 0; i < currentResearch.Count; i++)
 		{
@@ -476,7 +489,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
 						researchItemList[j].ResetAlpha();
 						chosenResearchItem = researchItemList[j];
 						world.SetResearchName(chosenResearchItem.researchName);
-						chosenResearchItem.researchReceived = researchAmount;
+						//chosenResearchItem.researchReceived = researchAmount;
 						world.SetWorldResearchUI(chosenResearchItem.researchReceived, chosenResearchItem.totalResearchNeeded);
                         world.researching = true;
                         break;
@@ -490,4 +503,16 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
 			}
 		}
 	}
+
+    public void LoadResearchLevels(Dictionary<string, int> partialResearchDict)
+    {
+        for (int i = 0; i < researchItemList.Count; i++)
+        {
+            if (partialResearchDict.ContainsKey(researchItemList[i].researchName))
+            {
+                researchItemList[i].researchReceived = partialResearchDict[researchItemList[i].researchName];
+                partialResearchItemList.Add(researchItemList[i]);
+            }
+        }
+    }
 }

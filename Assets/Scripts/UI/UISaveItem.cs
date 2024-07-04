@@ -26,7 +26,7 @@ public class UISaveItem : MonoBehaviour, IPointerDownHandler
     public string saveName, version, fileName, seed;
 
 	[HideInInspector]
-	public float playTime;
+	public int playTime;
 
 	[HideInInspector]
 	public Sprite screenshot;

@@ -18,7 +18,7 @@ MonoBehaviour:
   resourceIcon: {fileID: 21300000, guid: 1690ec111a2aa164a8cf0ceca05a283b, type: 3}
   ResourceGatheringTime: 6
   ResourceGatheringAmount: 1
-  resourcePrice: 1
+  resourcePrice: 3
   resourceQuantityPerPop: 0
   rawResource: 2
   rocksType: 0

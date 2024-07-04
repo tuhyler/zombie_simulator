@@ -29,7 +29,7 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     private ParticleSystem starshine;
 
-    private bool queueMovementOrders;
+    private bool queueMovementOrders, halfLoad, fullLoad;
     [HideInInspector]
     public MovementSystem movementSystem;
 
@@ -778,11 +778,11 @@ public class UnitMovement : MonoBehaviour
         if (!unit.bySea && !unit.byAir)
             unit.outline.ToggleOutline(true);
 		
-        if (unit.isSelected)
-        {
-		    //uiChangeCity.ToggleVisibility(true);
-		    //uiCancelTask.ToggleVisibility(false);
-        }
+      //  if (unit.isSelected)
+      //  {
+		    ////uiChangeCity.ToggleVisibility(true);
+		    ////uiCancelTask.ToggleVisibility(false);
+      //  }
 	}
 
     public void SelectUnitPrep(Unit unitReference)
@@ -1366,12 +1366,29 @@ public class UnitMovement : MonoBehaviour
     public void HandleShiftDown()
     {
         if (selectedUnit != null && selectedUnit.isPlayer)
-            queueMovementOrders = true;
+        {
+            if (loadScreenSet)
+                halfLoad = true;
+            else
+                queueMovementOrders = true;
+        }
     }
 
     public void HandleShiftUp()
     {
         queueMovementOrders = false;
+        halfLoad = false;
+    }
+
+    public void HandleCtrlDown()
+    {
+        if (selectedUnit != null && selectedUnit.isPlayer && loadScreenSet)
+            fullLoad = true;
+    }
+
+    public void HandleCtrlUp()
+    {
+        fullLoad = false;
     }
 
     public void ToggleCancelButton(bool v)
@@ -1760,10 +1777,17 @@ public class UnitMovement : MonoBehaviour
 
     public void Unload(ResourceType resourceType)
     {
-        if (world.uiResourceGivingPanel.activeStatus)
+		int unloadAmount = playerLoadIncrement;
+
+		if (fullLoad)
+            unloadAmount = world.mainPlayer.personalResourceManager.resourceDict.ContainsKey(resourceType) ? world.mainPlayer.personalResourceManager.GetResourceDictValue(resourceType) : 0;
+		else if (halfLoad)
+			unloadAmount = world.mainPlayer.personalResourceManager.resourceDict.ContainsKey(resourceType) ? Mathf.CeilToInt(world.mainPlayer.personalResourceManager.GetResourceDictValue(resourceType) * 0.5f) : 0;
+
+		if (world.uiResourceGivingPanel.activeStatus)
             Give(resourceType);
         else
-            ChangeResourceManagersAndUIs(resourceType, -playerLoadIncrement);
+            ChangeResourceManagersAndUIs(resourceType, -unloadAmount);
     }
 
     public void Give(ResourceType resourceType)
@@ -1803,6 +1827,11 @@ public class UnitMovement : MonoBehaviour
 
 	private void ChangeResourceManagersAndUIs(ResourceType resourceType, int resourceAmount)
     {
+        if (resourceAmount == 0)
+        {
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "None left");
+			return;
+        }
         //for buying and selling resources in trade center (stand alone)
         world.mainPlayer.personalResourceManager.DictCheckSolo(resourceType);
 
@@ -1810,7 +1839,12 @@ public class UnitMovement : MonoBehaviour
         {
             if (resourceAmount > 0) //buying 
             {
-                int cost = Mathf.CeilToInt(tradeCenter.resourceBuyDict[resourceType] * tradeCenter.multiple);
+				if (fullLoad)
+					resourceAmount = Mathf.Max(1, world.mainPlayer.personalResourceManager.resourceStorageLimit - world.mainPlayer.personalResourceManager.resourceStorageLevel);
+				else if (halfLoad)
+					resourceAmount = Mathf.Max(1, Mathf.CeilToInt((world.mainPlayer.personalResourceManager.resourceStorageLimit - world.mainPlayer.personalResourceManager.resourceStorageLevel) * 0.5f));
+
+				int cost = Mathf.CeilToInt(tradeCenter.resourceBuyDict[resourceType] * tradeCenter.multiple) * resourceAmount;
 				if (!world.CheckWorldGold(cost))
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
@@ -1825,7 +1859,7 @@ public class UnitMovement : MonoBehaviour
                     return;
                 }
 
-				int buyAmount = -resourceAmountAdjusted * cost;
+				int buyAmount = -cost;
                 world.UpdateWorldGold(buyAmount);
                 InfoResourcePopUpHandler.CreateResourceStat(world.mainPlayer.transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), world);
 
@@ -1868,11 +1902,19 @@ public class UnitMovement : MonoBehaviour
 
         if (resourceAmount > 0) //moving from city to trader
         {
-            int remainingInCity;
-            remainingInCity = cityResourceManager.GetResourceDictValue(resourceType);
-
-            if (remainingInCity < resourceAmount)
-                resourceAmount = remainingInCity;
+            if (!cityResourceManager.resourceDict.ContainsKey(resourceType))
+            {
+                resourceAmount = 0;
+            }
+            else
+            {
+                if (fullLoad)
+                    resourceAmount = cityResourceManager.GetResourceDictValue(resourceType);
+                else if (halfLoad)
+                    resourceAmount = Mathf.CeilToInt(cityResourceManager.GetResourceDictValue(resourceType) * 0.5f);
+                else
+                    resourceAmount = cityResourceManager.GetResourceDictValue(resourceType) > 0 ? 1 : 0;
+            }
 
 			noneLeft = resourceAmount == 0;
 			int resourceAmountAdjusted = world.mainPlayer.personalResourceManager.ManuallyAddResource(resourceType, resourceAmount);
@@ -1884,7 +1926,7 @@ public class UnitMovement : MonoBehaviour
 
         bool cityFull = false;
 
-        if (resourceAmount <= 0) //moving from trader to city
+        if (resourceAmount < 0) //moving from trader to city
         {
 			int remainingWithTrader = world.mainPlayer.personalResourceManager.GetResourceDictValue(resourceType);
 
@@ -1892,9 +1934,9 @@ public class UnitMovement : MonoBehaviour
                 resourceAmount = -remainingWithTrader;
 
             noneLeft = resourceAmount == 0;
-            int resourceAmountAdjusted;
-            cityResourceManager.resourceCount = 0;
-            resourceAmountAdjusted = cityResourceManager.AddResource(resourceType, -resourceAmount);
+            //int resourceAmountAdjusted;
+            //cityResourceManager.resourceCount = 0;
+            int resourceAmountAdjusted = cityResourceManager.AddTraderResource(resourceType, -resourceAmount);
 
             cityFull = resourceAmountAdjusted == 0;
 			world.mainPlayer.personalResourceManager.ManuallySubtractResource(resourceType, resourceAmountAdjusted);
@@ -1936,8 +1978,14 @@ public class UnitMovement : MonoBehaviour
 
 	private void SetChangesFromGift(ResourceType type, int amount)
     {
-		if (amount > 0)
+        if (amount > 0)
         {
+            if (!world.mainPlayer.personalResourceManager.resourceDict.ContainsKey(type) || world.mainPlayer.personalResourceManager.resourceDict[type] == 0)
+            {
+			    InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "None left");
+                return;
+            }
+            
             int remainingWithTrader = world.mainPlayer.personalResourceManager.GetResourceDictValue(type);
 
 		    if (remainingWithTrader < Mathf.Abs(amount))
@@ -1947,7 +1995,12 @@ public class UnitMovement : MonoBehaviour
         }
         else
         {
-            uiPersonalResourceInfoPanel.UpdateResourceInteractable(type, world.mainPlayer.personalResourceManager.GetResourceDictValue(type), true);
+			if (fullLoad)
+				amount = Mathf.Max(1, world.mainPlayer.personalResourceManager.resourceStorageLimit - world.mainPlayer.personalResourceManager.resourceStorageLevel);
+			else if (halfLoad)
+				amount = Mathf.Max(1, Mathf.CeilToInt((world.mainPlayer.personalResourceManager.resourceStorageLimit - world.mainPlayer.personalResourceManager.resourceStorageLevel) * 0.5f));
+
+			uiPersonalResourceInfoPanel.UpdateResourceInteractable(type, world.mainPlayer.personalResourceManager.GetResourceDictValue(type), true);
 			world.mainPlayer.personalResourceManager.ManuallyAddResource(type, -amount, true);
 		}
 
@@ -1958,11 +2011,11 @@ public class UnitMovement : MonoBehaviour
     {
 		UITooltipSystem.Hide();
 
-		if (!selectedUnit.bySea && !selectedUnit.trader.followingRoute && !world.IsRoadOnTileLocation(world.GetClosestTerrainLoc(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
-		{
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't edit route off road");
-			return;
-		}
+		//if (!selectedUnit.bySea && !selectedUnit.trader.followingRoute && !world.IsRoadOnTileLocation(world.GetClosestTerrainLoc(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
+		//{
+		//	UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't edit route off road");
+		//	return;
+		//}
 
 		world.cityBuilderManager.PlaySelectAudio();
         if (!uiTradeRouteManager.activeStatus)

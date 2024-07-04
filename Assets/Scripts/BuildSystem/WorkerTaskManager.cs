@@ -356,21 +356,13 @@ public class WorkerTaskManager : MonoBehaviour
                 if (world.scottFollow)
                 {
                     if (world.IsRoadOnTileLocation(world.scott.currentLocation))
-                    {
-                        Vector3 moveScottUp = world.scott.transform.position;
-                        moveScottUp.y += .2f;
-                        world.scott.transform.position = moveScottUp;
-                    }
+                        world.scott.MoveUp(world.scott.transform.position);
                 }
 
                 if (world.azaiFollow)
                 {
-					if (world.IsRoadOnTileLocation(world.azai.currentLocation))
-					{
-						Vector3 moveAzaiUp = world.azai.transform.position;
-						moveAzaiUp.y += .2f;
-						world.azai.transform.position = moveAzaiUp;
-					}
+                    if (world.IsRoadOnTileLocation(world.azai.currentLocation))
+                        world.azai.MoveUp(world.azai.transform.position);
 				}
             }
         }

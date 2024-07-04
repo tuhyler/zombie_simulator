@@ -9,7 +9,7 @@ public class UILaborHandler : MonoBehaviour
     
     [SerializeField]
     private Transform laborOptionScrollRect;
-    private List<UILaborHandlerOptions> laborOptions;
+    private List<UILaborHandlerOptions> laborOptions = new();
     private Dictionary<ResourceType, UILaborHandlerOptions> laborOptionsDict = new();
 
     [SerializeField]
@@ -27,21 +27,39 @@ public class UILaborHandler : MonoBehaviour
     {
         originalLoc = allContents.anchoredPosition3D;
         gameObject.SetActive(false);
+        CreateLaborHandlerOption(ResourceType.Research);
+		CreateLaborHandlerOption(ResourceType.Food);
 
-        laborOptions = new List<UILaborHandlerOptions>();
+		//foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources))
+		//{
+		//    UILaborHandlerOptions newLaborOption = Instantiate(laborResourceOption).GetComponent<UILaborHandlerOptions>();
+		//    //laborResourceGO.SetActive(true);
+		//    newLaborOption.transform.SetParent(laborOptionScrollRect, false);
+		//    //= laborResourceGO.;
+		//    newLaborOption.resourceImage.sprite = resource.resourceIcon;
+		//    newLaborOption.resourceType = resource.resourceType;
+		//    newLaborOption.ToggleVisibility(false);
+		//    //laborOptions.Add(newLaborOption);
+		//    laborOptionsDict[newLaborOption.resourceType] = newLaborOption;
+		//}
+	}
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources))
-        {
+    public void CreateLaborHandlerOption(ResourceType type)
+    {
+        if (!laborOptionsDict.ContainsKey(type)) 
+        { 
             UILaborHandlerOptions newLaborOption = Instantiate(laborResourceOption).GetComponent<UILaborHandlerOptions>();
-            //laborResourceGO.SetActive(true);
-            newLaborOption.transform.SetParent(laborOptionScrollRect, false);
-            //= laborResourceGO.;
-            newLaborOption.resourceImage.sprite = resource.resourceIcon;
-            newLaborOption.resourceType = resource.resourceType;
-            newLaborOption.ToggleVisibility(false);
-            //laborOptions.Add(newLaborOption);
-            laborOptionsDict[newLaborOption.resourceType] = newLaborOption;
+		    newLaborOption.transform.SetParent(laborOptionScrollRect, false);
+		    newLaborOption.resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
+		    newLaborOption.resourceType = type;
+		    newLaborOption.ToggleVisibility(false);
+		    laborOptionsDict[newLaborOption.resourceType] = newLaborOption;
         }
+	}
+
+    public void CreateLaborCostResource(ResourceType type)
+    {
+        uiCityLaborCostPanel.CreateLaborCostResource(type);
     }
 
     //set numbers when opening menu
@@ -51,12 +69,41 @@ public class UILaborHandler : MonoBehaviour
         {
             if (resourceType != ResourceType.None)
             {
+                //if (resourceType == ResourceType.Fish)
+                //    continue;
+                
                 laborOptionsDict[resourceType].ToggleVisibility(true);
                 laborOptionsDict[resourceType].SetUICount(city.GetResourcesWorkedResourceCount(resourceType), city.resourceManager.GetResourceGenerationValues(resourceType));
                 laborOptions.Add(laborOptionsDict[resourceType]);
             }
         }
+
+        SortLaborOptions();
     }
+
+    private void SortLaborOptions()
+    {
+        int listCount = laborOptions.Count;
+        
+        for (int i = 0; i < listCount; i++)
+		{
+			for (int j = i + 1; j < listCount; j++)
+			{
+				if ((laborOptions[j].isShowing && laborOptions[j].generation > laborOptions[i].generation) || (laborOptions[j].isShowing && !laborOptions[i].isShowing))
+				{
+					UILaborHandlerOptions oldPanel = laborOptions[j];
+					laborOptions.RemoveAt(j);
+					laborOptions.Insert(i, oldPanel);
+				}
+			}
+		}
+
+        for (int i = 0; i < laborOptions.Count; i++)
+            laborOptions[i].transform.SetSiblingIndex(i);
+		
+        if (laborOptionsDict[ResourceType.Food].isShowing)
+            laborOptionsDict[ResourceType.Food].transform.SetSiblingIndex(0);
+	}
 
     //setting city upon city selection
     public void SetCity(City city)
@@ -102,8 +149,6 @@ public class UILaborHandler : MonoBehaviour
     {
         city = null;
         
-        //if (activeStatus)
-        //{
         foreach (UILaborHandlerOptions option in laborOptions)
         {
             option.HideLaborIcons();
@@ -112,7 +157,6 @@ public class UILaborHandler : MonoBehaviour
 
         laborOptions.Clear();
         uiCityLaborCostPanel.ResetUI();
-        //}
     }
 
     private void SetActiveStatusFalse()
@@ -146,17 +190,28 @@ public class UILaborHandler : MonoBehaviour
 
     public void PlusMinusOneLabor(ResourceType resourceType, int laborCount, int laborChange, float resourceGeneration)
     {
-        if (laborCount == 1)
+        if (laborCount > 0)
         {
-            laborOptionsDict[resourceType].ToggleVisibility(true);
-            laborOptions.Add(laborOptionsDict[resourceType]);
+            if (!laborOptionsDict[resourceType].isShowing)
+            {
+                laborOptionsDict[resourceType].ToggleVisibility(true);
+                laborOptions.Add(laborOptionsDict[resourceType]);
+            }
         }
-        else if (laborCount == 0)
+        else
         {
-            laborOptionsDict[resourceType].ToggleVisibility(false);
-            laborOptions.Remove(laborOptionsDict[resourceType]);
+            if (laborOptionsDict[resourceType].isShowing)
+            {
+                laborOptionsDict[resourceType].ToggleVisibility(false);
+                laborOptions.Remove(laborOptionsDict[resourceType]);
+            }
         }
 
         laborOptionsDict[resourceType].AddSubtractUICount(laborCount, laborChange, resourceGeneration);
+    }
+
+    public void UpdateUICount(ResourceType type, float resourceGeneration)
+    {
+        laborOptionsDict[type].UpdateResourceGenerationNumbers(resourceGeneration);
     }
 }

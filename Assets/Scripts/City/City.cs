@@ -803,9 +803,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void ChangeResourcesWorked(ResourceType resourceType, int laborChange)
     {
-        if (resourceType == ResourceType.Fish)
-            resourceType = ResourceType.Food;
-
         if (resourcesWorkedDict.ContainsKey(resourceType))
         {
             resourcesWorkedDict[resourceType] += laborChange;
@@ -821,10 +818,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         resourcesWorkedDict.Remove(resourceType);
     }
 
-    public bool CheckResourcesWorkedExists(ResourceType resourceType)
-    {
-        return resourcesWorkedDict.ContainsKey(resourceType);
-    }
+    //public bool CheckResourcesWorkedExists(ResourceType resourceType)
+    //{
+    //    return resourcesWorkedDict.ContainsKey(resourceType);
+    //}
 
     public List<ResourceType> GetResourcesWorked()
     {
@@ -834,9 +831,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public int GetResourcesWorkedResourceCount(ResourceType resourceType)
     {
-        if (resourceType == ResourceType.Fish)
-            resourceType = ResourceType.Food;
-        
         return resourcesWorkedDict[resourceType];
     }
 
@@ -1636,6 +1630,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         if (resourceType != ResourceType.None)
         {
+            if (resourceType == ResourceType.Fish)
+                resourceType = ResourceType.Food;
+
             for (int i = 0; i < laborChange; i++)
             {
                 ChangeResourcesWorked(resourceType, 1);

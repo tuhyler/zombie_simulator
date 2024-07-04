@@ -1253,8 +1253,8 @@ public class EnemyCamp
 			}
 			else
 			{
-				if (world.IsRoadOnTileLocation(lastSpot))
-					CheckForWeaklings(lastSpot);
+				//if (world.IsRoadOnTileLocation(lastSpot))
+				//	CheckForWeaklings(lastSpot);
 
 				//currently don't destroy improvements
 				//if (world.TileHasCityImprovement(lastSpot) && !world.GetCityDevelopment(lastSpot).CompareTag("Enemy"))

@@ -139,7 +139,7 @@ public class TradeRep : Unit
 	{
 		if (giveReward)
 			world.ReceiveQuestReward(world.mainPlayer.transform.position, 
-				ResourceHolder.Instance.GetPrice(questGoals[currentQuest - 1].resourceType) * questGoals[currentQuest - 1].resourceAmount * world.maxPriceFactor);
+				(ResourceHolder.Instance.GetPrice(questGoals[currentQuest - 1].resourceType) + world.maxPriceDiff) * questGoals[currentQuest - 1].resourceAmount);
 
 		if (currentQuest < questGoals.Count)
 		{

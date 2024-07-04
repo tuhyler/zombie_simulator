@@ -30,7 +30,7 @@ public class UIResourceInfoPanel : MonoBehaviour
     private void Awake()
     {
         resourceAmountText.outlineColor = Color.black;
-        resourceAmountText.outlineWidth = .2f;
+        resourceAmountText.outlineWidth = .3f;
     }
 
     public void SetResourceAmount(int amount)
