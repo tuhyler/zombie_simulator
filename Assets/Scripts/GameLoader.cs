@@ -158,32 +158,32 @@ public class GameLoader : MonoBehaviour
 		{
 			terrainGenerator.iterations = 2;
 			terrainGenerator.landMassLimit = 20;
-			terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 4 + (terrainGenerator.width * terrainGenerator.height / 8);
+			//terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 4 + (terrainGenerator.width * terrainGenerator.height / 8);
 			terrainGenerator.totalLandLimit = 0;
-			terrainGenerator.continentsFlag = 0;
+			//terrainGenerator.continentsFlag = 0;
 		}
 		else if (landType == "ContinentsToggle")
 		{
 			terrainGenerator.iterations = 15;
 			terrainGenerator.landMassLimit = 2;
 			terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 2;
-			terrainGenerator.continentsFlag = 1;
+			//terrainGenerator.continentsFlag = 1;
 		}
 
 		if (resource == "ScarceToggle")
 		{
 			terrainGenerator.resourceFrequency = 5;
-			terrainGenerator.resourceFlag = 0;
+			//terrainGenerator.resourceFlag = 0;
 		}
 		else if (resource == "PlentyToggle")
 		{
 			terrainGenerator.resourceFrequency = 4;
-			terrainGenerator.resourceFlag = 1;
+			//terrainGenerator.resourceFlag = 1;
 		}
 		else if (resource == "AbundantToggle")
 		{
 			terrainGenerator.resourceFrequency = 3;
-			terrainGenerator.resourceFlag = 2;
+			//terrainGenerator.resourceFlag = 2;
 		}
 
 		//if (mountains == "FlatToggle")

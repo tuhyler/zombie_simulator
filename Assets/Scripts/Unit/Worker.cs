@@ -773,7 +773,8 @@ public class Worker : Unit
 			worker.clearingForest = false;
 			TerrainData td = world.GetTerrainDataAt(pos);
 			td.beingCleared = false;
-			td.ShowProp(false);
+			td.ClearForest();
+			//td.ShowProp(false);
 			//worker.outline.ToggleOutline(false);
 			//worker.marker.ToggleVisibility(false);
 			TerrainDataSO tempData;

@@ -14,18 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainName: DesertHillResourceTerrain
   tag: Hill
-  prefabs:
-  - {fileID: 608616143501096269, guid: df7ca8ac4304f2d4a8378557df401442, type: 3}
-  decors:
-  - {fileID: 1941623388544208782, guid: c07ada8850d13394cabad60d11421dcb, type: 3}
-  - {fileID: 1941623388544208782, guid: 1265c508be199ab42928c357d557b26a, type: 3}
-  - {fileID: 1941623388544208782, guid: 56b22681ab7101c4dacf816658aa3e5e, type: 3}
   prefabLocs:
   - DesertHill
   decorLocs:
-  - Rocks
-  - Jewels
-  - Gold
+  - RocksHill
+  - JewelsHill
+  - GoldHill
   title: Hill
   clearedForestData: {fileID: 0}
   grassland: 0

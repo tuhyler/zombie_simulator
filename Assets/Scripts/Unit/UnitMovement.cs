@@ -1178,7 +1178,10 @@ public class UnitMovement : MonoBehaviour
         else if (unit == world.scott)
         {
             if (world.azaiFollow)
+            {
+                world.azai.StopMovementCheck(false);
                 world.azai.FollowScott(path, unit.transform.position);
+            }
         }
 	}
 
@@ -1945,9 +1948,7 @@ public class UnitMovement : MonoBehaviour
             noneLeft = resourceAmount == 0;
 			//int resourceAmountAdjusted;
 			//cityResourceManager.resourceCount = 0;
-			if (!cityResourceManager.city.resourceGridDict.ContainsKey(resourceType))
-				cityResourceManager.city.AddToGrid(resourceType);
-			int resourceAmountAdjusted = cityResourceManager.AddTraderResource(resourceType, -resourceAmount);
+			int resourceAmountAdjusted = cityResourceManager.ManuallyAddResource(resourceType, -resourceAmount);
 
             cityFull = resourceAmountAdjusted == 0;
 			world.mainPlayer.personalResourceManager.ManuallySubtractResource(resourceType, resourceAmountAdjusted);

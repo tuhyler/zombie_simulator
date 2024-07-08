@@ -436,13 +436,17 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
                     hide = true;
                     break;
             case RawResourceType.Wool:
-                if (!city.hasWool)
+                if (!city.hasCloth)
                     hide = true;
                     break;
             case RawResourceType.Silk:
-                if (!city.hasSilk)
+                if (!city.hasCloth)
                     hide = true;
                     break;
+            case RawResourceType.Cotton:
+                if (!city.hasCloth)
+                    hide = true;
+                break;
             case RawResourceType.Rocks:
                 if ((!city.hasRocksFlat && terrainType == TerrainType.Flatland) || (!city.hasRocksHill && terrainType == TerrainType.Hill))
                     hide = true;

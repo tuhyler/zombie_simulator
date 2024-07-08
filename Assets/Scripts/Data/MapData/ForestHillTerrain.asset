@@ -14,16 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainName: ForestHillTerrain
   tag: Forest Hill
-  prefabs:
-  - {fileID: 608616143501096269, guid: 73000a15118557a4695bbab999efcf45, type: 3}
-  decors:
-  - {fileID: 9073605623283122857, guid: 1f3b57e59352009409dea0709c23dd92, type: 3}
-  - {fileID: 9073605623283122857, guid: 2b9d5a51de409ef429065e2f929929ef, type: 3}
   prefabLocs:
   - GrasslandHill
   decorLocs:
-  - ForestConiferousProp
-  - ForestDeciduousProp
+  - ForestConiferousHillProp
+  - ForestDeciduousHillProp
   title: Forest Hill
   clearedForestData: {fileID: 11400000, guid: 1fddc1ef6099212409811e55da512a76, type: 2}
   grassland: 1

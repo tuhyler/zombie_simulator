@@ -14,14 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainName: JungleHillTerrain
   tag: Forest Hill
-  prefabs:
-  - {fileID: 608616143501096269, guid: 73000a15118557a4695bbab999efcf45, type: 3}
-  decors:
-  - {fileID: 9073605623283122857, guid: d9ebf97fa0239104c9b2721b3f2aed90, type: 3}
   prefabLocs:
   - GrasslandHill
   decorLocs:
-  - JungleProp
+  - JungleHillProp
   title: Jungle Hill
   clearedForestData: {fileID: 11400000, guid: 1fddc1ef6099212409811e55da512a76, type: 2}
   grassland: 1

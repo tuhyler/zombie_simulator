@@ -419,12 +419,16 @@ public class WorkerTaskManager : MonoBehaviour
             }
 			else if (tData.resourceType == ResourceType.Wool)
             {
-				city.hasWool = true;
+				city.hasCloth = true;
             }
+			else if (tData.resourceType == ResourceType.Cotton)
+			{
+				city.hasCloth = true;
+			}
 			else if (tData.resourceType == ResourceType.Silk)
-            {
-				city.hasSilk = true;
-            }
+			{
+				city.hasCloth = true;
+			}
             else if (tData.resourceType == ResourceType.Lumber)
             {
 				city.hasTrees = true;

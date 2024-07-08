@@ -49,14 +49,12 @@ MonoBehaviour:
   hillLeafMeshList: []
   roadLeafMeshList: []
   roadHillLeafMeshList: []
-  treeFlat: {fileID: 0}
+  treeFlat: {fileID: 4887099623216569509}
   treeHill: {fileID: 0}
-  treeFlatRoad: {fileID: 0}
+  treeFlatRoad: {fileID: 4887099623216569509}
   treeHillRoad: {fileID: 0}
-  treeFlatIcon: {fileID: 0}
+  treeFlatIcon: {fileID: 4887099623216569509}
   treeHillIcon: {fileID: 0}
-  keepTrees: 1
-  hasRoad: 0
   propMesh: {fileID: 0}
   leafRendererList:
   - {fileID: 6400331157127003504}
@@ -170,6 +168,12 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 628d25178b47d374bb38304ed092e3db, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5ac7c61e0405b464b90136687bb6b3ff, type: 3}
+--- !u!1 &4887099623216569509 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 5ac7c61e0405b464b90136687bb6b3ff,
+    type: 3}
+  m_PrefabInstance: {fileID: 5697931932043174388}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5231396723199608351 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 5ac7c61e0405b464b90136687bb6b3ff,

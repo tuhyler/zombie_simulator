@@ -106,7 +106,8 @@ public class ResourceManager : MonoBehaviour
             resourceDict[ResourceType.Lumber] = 100;
             resourceDict[ResourceType.Stone] = 100;
             resourceDict[ResourceType.Bricks] = 100;
-            resourceStorageLevel += 300;
+			resourceDict[ResourceType.Clay] = 100;
+			resourceStorageLevel += 300;
         }
     }
 
@@ -463,6 +464,20 @@ public class ResourceManager : MonoBehaviour
         return amount;
 	}
 
+    public int ManuallyAddResource(ResourceType type, int amount)
+    {
+		amount = AddResourceTraderCheck(type, amount);
+		if (amount > 0)
+		{
+			if (!city.resourceGridDict.ContainsKey(type))
+				city.AddToGrid(type);
+
+			AddResourceToStorage(type, amount);
+		}
+
+		return amount;
+	}
+
     //slightly faster
     public int AddTraderResource(ResourceType type, int amount)
     {
@@ -777,6 +792,11 @@ public class ResourceManager : MonoBehaviour
                     resourcePriceDict[type] = currentPrice - 1;
                     resourcePriceChangeDict[type] = -1;
                 }
+                else if (currentPrice < originalPrice)
+                {
+					resourcePriceDict[type] = currentPrice + 1;
+					resourcePriceChangeDict[type] = 1;
+				}
                 else
                 {
                     resourcePriceDict[type] = currentPrice;
@@ -796,6 +816,11 @@ public class ResourceManager : MonoBehaviour
                 {
 					resourcePriceDict[type] = currentPrice + 1;
 					resourcePriceChangeDict[type] = 1;
+				}
+                else if (currentPrice > originalPrice)
+                {
+					resourcePriceDict[type] = currentPrice - 1;
+					resourcePriceChangeDict[type] = -1;
 				}
                 else
                 {
@@ -1136,7 +1161,8 @@ public enum ResourceType
     Bricks,
     Incense,
     Spices,
-    Sapphire
+    Sapphire,
+    Marble
 }
 
 public enum RawResourceType

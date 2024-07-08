@@ -44,7 +44,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public Vector3Int cityLoc, waitingAttackLoc;
     [HideInInspector]
-    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasFish, hasWool, hasSilk, hasClay, activeCity, highlighted, isNamed, growing, attacked;
+    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasFish, hasCloth, hasClay, activeCity, highlighted, isNamed, growing, attacked;
     [HideInInspector]
     public int lostPop, currentPop, unusedLabor, usedLabor, attackBonus;
 
@@ -1708,13 +1708,16 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
                 hasTrees = v;
                 break;
             case ResourceType.Wool:
-                hasWool = v;
+                hasCloth = v;
                 break;
             case ResourceType.Clay:
                 hasClay = v;
                 break;
             case ResourceType.Silk:
-                hasSilk = v;
+                hasCloth = v;
+                break;
+            case ResourceType.Cotton:
+                hasCloth = v;
                 break;
         }
     }

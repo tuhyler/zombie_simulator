@@ -2,11 +2,10 @@ using UnityEngine;
 
 public class ResourceGraphicHandler : MonoBehaviour
 {
-    public GameObject resourceLargeFlat, resourceMediumFlat, resourceSmallFlat, resourceLargeHill, resourceMediumHill, resourceSmallHill;
-    public bool isHill;
-    public int largeThreshold, mediumThreshold, smallThreshold;
-
+    public GameObject resourceAll, resourceMedium, resourceMany;
+    public int mediumThreshold, smallThreshold;
     private AudioSource audioSource;
+
 	private void Awake()
 	{
         audioSource = GetComponent<AudioSource>();
@@ -19,17 +18,26 @@ public class ResourceGraphicHandler : MonoBehaviour
 
     public void PlaySoundHill()
     {
-        TurnOffGraphics();
-        audioSource.Play();
+		resourceAll.SetActive(false);
+		audioSource.Play();
     }
 
-	public void TurnOffGraphics()
+    public void SetRocksAmount(int amount)
     {
-        resourceLargeFlat.SetActive(false);
-        resourceMediumFlat.SetActive(false);
-        resourceSmallFlat.SetActive(false);
-        resourceLargeHill.SetActive(false);
-        resourceMediumHill.SetActive(false);
-        resourceSmallHill.SetActive(false);
-    }
+        resourceAll.SetActive(true);
+
+        if (amount < smallThreshold)
+        {
+            resourceMedium.SetActive(false);
+			resourceMany.SetActive(false);
+		}
+        else if (amount < mediumThreshold)
+        {
+			resourceMany.SetActive(false);
+		}
+        else if (amount <= 0)
+        {
+            resourceAll.SetActive(false);
+        }
+	}
 }

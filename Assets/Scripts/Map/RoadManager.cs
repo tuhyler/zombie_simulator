@@ -377,13 +377,8 @@ public class RoadManager : MonoBehaviour
 
     public void CombineMeshes()
     {
-        //MeshFilter[] meshFilters;
-
-        //if (adding)
-        //    meshFilters = roadHolder.GetComponentsInChildren<MeshFilter>();
-        //else
-        if (roadMeshList.Count == 0)
-            return;
+        //if (roadMeshList.Count == 0)
+        //    return;
 
         MeshFilter[] meshFilters = roadMeshList.ToArray();
         Mesh[] combinedFilters = colliderMeshList.ToArray();

@@ -39,9 +39,6 @@ public class TerrainData : MonoBehaviour
     private Vector3Int tileCoordinates;
     public Vector3Int TileCoordinates { get { return tileCoordinates; } set { tileCoordinates = value; } }
 
-    //private int originalMovementCost;
-    //public int OriginalMovementCost { get { return originalMovementCost; } }
-
     private int movementCost; 
     public int MovementCost { get { return movementCost; } set { movementCost = value; } }
 
@@ -50,24 +47,13 @@ public class TerrainData : MonoBehaviour
 	public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
         showProp = true, hasNonstatic, straightRiver, border, hasBattle, inBattle, canWalk, canPlayerWalk, canSail, canPlayerSail, canFly, canPlayerFly, spring; 
 
-    //[HideInInspector]
-    //public List<GameObject> enemyBorders = new();
-
     [HideInInspector]
     public ResourceGraphicHandler resourceGraphic;
     [HideInInspector]
     public TreeHandler treeHandler;
-    //[SerializeField]
-    //private ParticleSystem godRays;
-
-    //private List<MeshRenderer> renderers = new();
 
     [SerializeField]
     private MeshFilter terrainMesh, minimapIconMesh;
-    //public Vector2[] uvs;
-    //public Vector2[] UVs { get { return uvs; } }
-    //private Vector2 rockUVs;
-    //public Vector2 RockUVs { get { return rockUVs; } }
 
     public RawResourceType rawResourceType;
     public ResourceType resourceType;
@@ -181,7 +167,6 @@ public class TerrainData : MonoBehaviour
         if (rawResourceType == RawResourceType.Rocks)
         {
 			resourceGraphic = prop.GetComponentInChildren<ResourceGraphicHandler>();
-			resourceGraphic.isHill = isHill;
 
 		    foreach (MeshFilter mesh in resourceGraphic.GetComponentsInChildren<MeshFilter>())
 		    {
@@ -216,9 +201,6 @@ public class TerrainData : MonoBehaviour
 		if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
 		{
 			TreeHandler treeHandler = nonstatic.GetComponentInChildren<TreeHandler>(); //must be its own treehandler
-            treeHandler.TurnOffGraphics(false);
-            treeHandler.SwitchFromRoad(isHill);
-            //treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
                 ChangeLeafColors(treeHandler, spring);
@@ -226,16 +208,7 @@ public class TerrainData : MonoBehaviour
         else if (isHill && rawResourceType == RawResourceType.Rocks)
         {
             ResourceGraphicHandler resourceGraphic = nonstatic.GetComponentInChildren<ResourceGraphicHandler>();
-            resourceGraphic.TurnOffGraphics();
-
-			if (resourceAmount > resourceGraphic.largeThreshold)
-				resourceGraphic.resourceLargeHill.SetActive(true);
-			else if (resourceAmount > resourceGraphic.mediumThreshold)
-				resourceGraphic.resourceMediumHill.SetActive(true);
-			else if (resourceAmount > resourceGraphic.smallThreshold)
-				resourceGraphic.resourceSmallHill.SetActive(true);
-
-			//rockUVs = ResourceHolder.Instance.GetUVs(resourceType);
+            resourceGraphic.SetRocksAmount(resourceAmount);
 
 			foreach (MeshFilter mesh in resourceGraphic.GetComponentsInChildren<MeshFilter>())
 			{
@@ -253,16 +226,22 @@ public class TerrainData : MonoBehaviour
 
     public void SetVisibleProp()
     {
-		if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
-        {
-			treeHandler.TurnOffGraphics(false);
-			treeHandler.SwitchFromRoad(isHill);
-			treeHandler.SetMapIcon(isHill/*, transform.rotation*/);
-		}
-        else if (rawResourceType == RawResourceType.Rocks)
+		if (rawResourceType == RawResourceType.Rocks)
         {
 			RocksCheck();
 		}
+	}
+
+    public void ClearRocks()
+    {
+        resourceGraphic.resourceAll.SetActive(false);
+        //Destroy(resourceGraphic.gameObject);
+    }
+
+	public void ClearForest()
+	{
+        treeHandler.gameObject.SetActive(false);
+        //Destroy(treeHandler.gameObject);
 	}
 
 	public void ShowProp(bool v)
@@ -360,7 +339,7 @@ public class TerrainData : MonoBehaviour
 
 	private void ChangeLeafColors(TreeHandler treeHandler, bool spring)
     {
-		for (int i = 0; i < treeHandler.hillLeafMeshList.Count; i++)
+		for (int i = 0; i < treeHandler.leafMeshList.Count; i++)
 		{
 			float xChange = 0;
 			float yChange = 0;
@@ -391,16 +370,9 @@ public class TerrainData : MonoBehaviour
 				yChange += -0.031351f;
 			}
 
-			Vector2[] leafUVs = treeHandler.hillLeafMeshList[i].mesh.uv;
+			Vector2[] leafUVs = treeHandler.leafMeshList[i].mesh.uv;
             Vector2[] changedUVs = ChangeLeafMeshUVs(leafUVs, xChange, yChange);
             treeHandler.leafMeshList[i].mesh.uv = changedUVs;
-			treeHandler.hillLeafMeshList[i].mesh.uv = changedUVs;
-
-            if (i < treeHandler.hillLeafMeshList.Count - 2)
-            {
-                treeHandler.roadLeafMeshList[i].mesh.uv = changedUVs;
-                treeHandler.roadHillLeafMeshList[i].mesh.uv = changedUVs;
-            }
 		}
     }
 
@@ -846,36 +818,17 @@ public class TerrainData : MonoBehaviour
 
     public void RocksCheck()
     {
-        resourceGraphic.TurnOffGraphics();
-
-        if (resourceGraphic.isHill)
-        {
-            if (resourceAmount > resourceGraphic.largeThreshold)
-                resourceGraphic.resourceLargeHill.SetActive(true);
-            else if (resourceAmount > resourceGraphic.mediumThreshold)
-                resourceGraphic.resourceMediumHill.SetActive(true);
-            else if (resourceAmount > resourceGraphic.smallThreshold)
-                resourceGraphic.resourceSmallHill.SetActive(true);
-        }
-        else
-        {
-            if (resourceAmount > resourceGraphic.largeThreshold)
-                resourceGraphic.resourceLargeFlat.SetActive(true);
-            else if (resourceAmount > resourceGraphic.mediumThreshold)
-                resourceGraphic.resourceMediumFlat.SetActive(true);
-            else if (resourceAmount > resourceGraphic.smallThreshold)
-                resourceGraphic.resourceSmallFlat.SetActive(true);
-        }
+        resourceGraphic.SetRocksAmount(resourceAmount);
     }
 
     public void SwitchToRoad()
     {
-		treeHandler.SwitchToRoad(isHill);
+		treeHandler.RoadSwitch(false);
     }
 
     public void SwitchFromRoad()
     {
-        treeHandler.SwitchFromRoad(isHill);
+        treeHandler.RoadSwitch(true);
     }
 
     public int GatherResourceAmount(int amount)
@@ -905,7 +858,8 @@ public class TerrainData : MonoBehaviour
 				tempData = isHill ? world.desertHillTerrain : world.desertTerrain;
 
             SetNewData(tempData);
-			ShowProp(false);
+            ClearRocks();
+			//ShowProp(false);
 			GameLoader.Instance.gameData.allTerrain[tileCoordinates] = SaveData();
 		}
 		else //only updating resource amount
