@@ -25,13 +25,12 @@ public class TerrainData : MonoBehaviour
     public GameObject fog, highlightPlane, highlightPlaneIcon, flatlandFP;
 
     [SerializeField]
-    private UnexploredTerrain fogNonStatic;
-
-    [SerializeField]
     private Material white;
     private List<MeshRenderer> whiteMesh = new();
     [HideInInspector]
     public List<Material> materials = new();
+    [HideInInspector]
+    public Region region;
     private GameObject animMesh; //hide when not discovered
 
     private SelectionHighlight highlight;
@@ -45,8 +44,10 @@ public class TerrainData : MonoBehaviour
     public bool changeLeafColor;
     [HideInInspector] //walkable is when it's not discovered, canWalk is when it is, canPlayerWalk includes battlezones
 	public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
-        showProp = true, hasNonstatic, straightRiver, border, hasBattle, inBattle, canWalk, canPlayerWalk, canSail, canPlayerSail, canFly, canPlayerFly, spring; 
+        showProp = true, hasNonstatic, straightRiver, border, hasBattle, inBattle, canWalk, canPlayerWalk, canSail, canPlayerSail, canFly, canPlayerFly, spring;
 
+    [HideInInspector]
+    public string nonStaticName;
     [HideInInspector]
     public ResourceGraphicHandler resourceGraphic;
     [HideInInspector]
@@ -517,8 +518,13 @@ public class TerrainData : MonoBehaviour
 
         //fog.SetActive(false);
         Destroy(fog);
-        fogNonStatic.gameObject.SetActive(true);
-        StartCoroutine(fogNonStatic.FadeFog());
+
+        GameObject tempFog = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/UnexploredFade"));
+        tempFog.transform.SetParent(transform, false);
+        StartCoroutine(tempFog.GetComponent<UnexploredTerrain>().FadeFog());
+
+		//fogNonStatic.gameObject.SetActive(true);
+  //      StartCoroutine(fogNonStatic.FadeFog(tileCoordinates == new Vector3Int(9, 0, 9)));
 
         whiteMesh.Clear();
         materials.Clear();
@@ -617,8 +623,13 @@ public class TerrainData : MonoBehaviour
 
         //fog.SetActive(false);
         Destroy(fog);
-        fogNonStatic.gameObject.SetActive(true);
-        StartCoroutine(fogNonStatic.FadeFog());
+
+        GameObject tempFog = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/UnexploredFade"));
+        tempFog.transform.SetParent(transform, false);
+        StartCoroutine(tempFog.GetComponent<UnexploredTerrain>().FadeFog());
+
+        //fogNonStatic.gameObject.SetActive(true);
+        //StartCoroutine(fogNonStatic.FadeFog(tileCoordinates == new Vector3Int(9, 0, 9)));
 
         for (int i = 0; i < whiteMesh.Count; i++)
             whiteMesh[i].material = materials[i];
@@ -646,7 +657,7 @@ public class TerrainData : MonoBehaviour
     {
         //fog.SetActive(false);
         Destroy(fog);
-        Destroy(fogNonStatic.gameObject);
+        //Destroy(fogNonStatic.gameObject);
         Destroy(nonstatic.gameObject);
         whiteMesh.Clear();
         materials.Clear();

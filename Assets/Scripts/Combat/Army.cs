@@ -81,7 +81,7 @@ public class Army : MonoBehaviour
         switch (type)
         {
             case UnitType.Ranged:
-				Vector3Int[] backSpots = new Vector3Int[6] { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 0, 1) };
+				Vector3Int[] backSpots = new Vector3Int[6] { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0) };
 
 				for (int i = 0; i < backSpots.Length; i++)
 				{
@@ -96,7 +96,7 @@ public class Army : MonoBehaviour
 
 				break;
             case UnitType.Cavalry:
-                Vector3Int[] sideSpots = new Vector3Int[4] { new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1) };
+                Vector3Int[] sideSpots = new Vector3Int[6] { new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(0, 0, 1) };
 
                 for (int i = 0; i < sideSpots.Length; i++)
                 {

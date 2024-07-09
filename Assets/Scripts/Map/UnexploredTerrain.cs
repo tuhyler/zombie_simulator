@@ -13,66 +13,20 @@ public class UnexploredTerrain : MonoBehaviour
         fogMesh = GetComponentsInChildren<MeshRenderer>();
     }
 
-
     public IEnumerator FadeFog()
     {
-        Material mat;
-        
-        for (int i = 0; i < fogMesh.Length; i++)
+        Material mat = fogMesh[0].material;
+        Color color = mat.color;
+        float disappearSpeed = 3f;
+
+        while (color.a > 0)
         {
-            if (i == 0)
-            {
-                mat = fogMesh[i].material;
-                Color color = mat.color;
+            color.a -= disappearSpeed * Time.deltaTime;
+            mat.color = color;
 
-                while (color.a > 0)
-                {
-                    float disappearSpeed = 3f;
-                    color.a -= disappearSpeed * Time.deltaTime;
-                    mat.color = color;
-
-                    yield return null;
-                }
-            }
-            //else
-            //{
-            //    mat = fogMesh[i].material;
-            //    float alpha = 0;
-            //    mat.SetFloat("_Alpha", alpha);
-
-            //    while (alpha > 0)
-            //    {
-            //        float disappearSpeed = 2f;
-            //        alpha -= disappearSpeed * Time.deltaTime;
-            //        mat.SetFloat("_Alpha", alpha);
-
-            //        yield return null;
-            //    }
-            //}
+            yield return null;
         }
-        //Material mat = fogMesh.material;
-        //Color color = mat.color;
-        //float alpha = 1;
 
-        //while (alpha > 0)
-        //{
-        //    float disappearSpeed = 2f;
-        //    alpha -= disappearSpeed * Time.deltaTime;
-        //    mat.SetFloat("_Alpha", alpha);
-
-        //    yield return null;
-        //}
-
-        //while (color.a > 0)
-        //{
-        //    float disappearSpeed = 2f;
-        //    color.a -= disappearSpeed * Time.deltaTime;
-        //    mat.color = color;
-
-        //    yield return null;
-        //}
-
-        //gameObject.SetActive(false);
         Destroy(gameObject);
     }
 }

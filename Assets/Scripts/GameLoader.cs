@@ -45,6 +45,7 @@ public class GameLoader : MonoBehaviour
 	{
 		GameManager.Instance.ResetProgress();
 		world.ClearMap();
+		Debug.Log("Seed " + seed);
 
 		//all are south right now
 		starting = "SouthToggle";
