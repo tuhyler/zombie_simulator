@@ -33,7 +33,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
     private bool atTradeCenter;
     [HideInInspector]
     public Unit unit;
-    private City city;
+    [HideInInspector]
+    public City city;
     private Wonder wonder;
     private TradeCenter tradeCenter;
 
@@ -680,16 +681,15 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
         else
         {
             ActivateCell(type);
+
             if (activeCells > gridWidth)
                 buttonDown.gameObject.SetActive(true);
             else
-            {
                 gridHolder.sizeDelta = new Vector2(activeCells * 90, 90);
-            }
         }
     }
 
-    public void ToggleInventoryLevel(bool v)
+	public void ToggleInventoryLevel(bool v)
     {
         storageLevel.gameObject.SetActive(v);
         storageLimit.gameObject.SetActive(v);

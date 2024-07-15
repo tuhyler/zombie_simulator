@@ -41,7 +41,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     public ResourceValue producedResource; //too see what this producer is making
     [HideInInspector]
     public List<ResourceValue> producedResources; 
-    private float currentGPM = new(); //generated per minute
+    private float currentGPM; //generated per minute
     private Dictionary<ResourceType, float> consumedPerMinute = new();
     [HideInInspector]
     public List<ResourceValue> consumedResources = new();
@@ -87,18 +87,15 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             }
             else
             {
-                int i = 0;
-                foreach (ResourceValue value in data.producedResources)
+                for (int i = 0; i < data.producedResources.Count; i++)
                 {
-                    if (value.resourceType == type)
+                    if (data.producedResources[i].resourceType == type)
                     {
-                        producedResource = value;
-                        producedResources.Add(value);
+                        producedResource = data.producedResources[i];
+                        producedResources.Add(data.producedResources[i]);
                         producedResourceIndex = i;
                         break;
                     }
-
-                    i++;
                 }
             }
             
@@ -107,8 +104,19 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
         if (data.producedResources.Count > 0)
         {
-            producedResource = data.producedResources[0];
-            producedResourceIndex = 0;
+			if (type == ResourceType.Fish)
+			{
+				ResourceValue newValue;
+				newValue.resourceType = ResourceType.Food;
+				newValue.resourceAmount = data.producedResources[0].resourceAmount;
+				producedResource = newValue;
+				producedResourceIndex = 0;
+			}
+            else
+            {
+			    producedResource = data.producedResources[0];
+                producedResourceIndex = 0;
+            }
         }
 
         foreach(ResourceValue value in data.producedResources)
@@ -158,7 +166,10 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             cityImprovementStats.SetLaborNumber(currentLabor + "/" + improvementData.maxLabor);
 
             if (producedResource.resourceType != ResourceType.None)
-                cityImprovementStats.SetImage(ResourceHolder.Instance.GetIcon(producedResource.resourceType));
+            {
+                ResourceType type = cityImprovement.world.GetTerrainDataAt(producerLoc).resourceType == ResourceType.Fish ? ResourceType.Fish : producedResource.resourceType; 
+                cityImprovementStats.SetImage(ResourceHolder.Instance.GetIcon(type));
+            }
         }
     }
 
@@ -182,12 +193,14 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         GameObject progressBar = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/TimeProgressBar2"), Vector3.zero, Quaternion.Euler(90, 0, 0));
         progressBar.transform.SetParent(cityImprovement.transform, false);
         uiTimeProgressBar = progressBar.GetComponent<UITimeProgressBar>();
-    }
+		uiTimeProgressBar.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+	}
 
     public void UpdateCurrentLaborData(int currentLabor)
     {
         this.currentLabor = currentLabor;
-    }
+		UpdateResourceGenerationData();
+	}
 
     public void UpdateResourceGenerationData()
     {
@@ -247,22 +260,17 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 		}
 	}
 
+    public bool RestartResourceMax(ResourceType type)
+    {
+        return resourceManager.resourceMaxHoldDict[type] - resourceManager.resourceDict[type] >= producedResource.resourceAmount * currentLabor;
+	}
+
     public bool RestartCheck(ResourceType type)
     {
         if (type == ResourceType.None)
-        {
-            if (resourceManager.city.warehouseStorageLimit - resourceManager.resourceStorageLevel >= resourceManager.CalculateResourceProductionAmount(producedResource, currentLabor, cityImprovement))
-                return true;
-            else
-                return false;
-        }
+            return resourceManager.city.warehouseStorageLimit - resourceManager.resourceStorageLevel >= resourceManager.CalculateResourceProductionAmount(producedResource, currentLabor, cityImprovement);
         else
-        {
-            if (resourceManager.ResourceWaitCheck(consumedResources, currentLabor, type))
-			    return true;
-            else
-                return false;
-        }
+            return resourceManager.ResourceWaitCheck(consumedResources, currentLabor, type);
     }
 
     public void Restart(ResourceType type)
@@ -275,13 +283,14 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
 			int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, currentLabor, cityImprovement);
 			int maxLimit = resourceManager.resourceMaxHoldDict[producedResource.resourceType];
+            ResourceType producedType = producedResource.resourceType;// == ResourceType.Fish ? ResourceType.Food : producedResource.resourceType;
             if (resourceManager.city.warehouseStorageLimit - resourceManager.resourceStorageLevel < unloadAmount)
             {
                 PrepForStorageRoomWaitList();
             }
-            else if (maxLimit >= 0 && maxLimit - resourceManager.resourceDict[producedResource.resourceType] < unloadAmount)
+            else if (maxLimit >= 0 && maxLimit - resourceManager.resourceDict[producedType] < unloadAmount)
             {
-                PrepForResourceMaxWaitList();
+                PrepForResourceMaxWaitList(producedType);
             }
             else
             {
@@ -370,22 +379,22 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         if (improvementData.cityBonus)
         {
             resourceManager.city.AddCityBonus(cityImprovement, true, currentLabor);
-			UpdateResourceGenerationData();
 			cityImprovement.firstStart = true;
 			cityImprovement.StartWork(0, true);
 		}
         else
         {
-            UpdateResourceGenerationData();
 		    cityImprovement.firstStart = true;
-            float percLeft = (float)productionTimer / improvementData.producedResourceTime[producedResourceIndex];
+            float percLeft = 1 - ((float)productionTimer / improvementData.producedResourceTime[producedResourceIndex]);
             producingCo = StartCoroutine(ProducingCoroutine(percLeft, true));
         }
+
+        UpdateResourceGenerationData();
 	}
 
     public void AddLaborMidProduction()
     {
-		UpdateResourceGenerationData();
+		//UpdateResourceGenerationData();
 
 		//float percWorked;
         /*if (isWaitingforResources || isWaitingForStorageRoom || hitResourceMax)
@@ -442,7 +451,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
     private void RemoveLaborMidProduction()
     {
-		UpdateResourceGenerationData();
+		//UpdateResourceGenerationData();
 
 		if (!isWaitingForResearch && !isWaitingforResources /*&& !isWaitingForStorageRoom && !hitResourceMax*/)
         {
@@ -510,9 +519,8 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         {
             yield return workTimeWait;
             productionTimer--;
-            if (resourceManager.city.activeCity)
+			if (resourceManager.city.activeCity)
                 uiTimeProgressBar.SetTime(productionTimer);
-            //timeProgressBar.SetTime(productionTimer);
         }
 
         int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, currentLabor, cityImprovement);
@@ -540,11 +548,12 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         }
 
         int maxLimit = resourceManager.resourceMaxHoldDict[producedResource.resourceType];
+        ResourceType type = producedResource.resourceType;// == ResourceType.Fish ? ResourceType.Food : producedResource.resourceType;
         //checking if storage is free to unload
         if (resourceManager.city.warehouseStorageLimit - resourceManager.resourceStorageLevel < unloadAmount)
             PrepForStorageRoomWaitList();
-        else if (maxLimit >= 0 && maxLimit - resourceManager.resourceDict[producedResource.resourceType] < unloadAmount)
-            PrepForResourceMaxWaitList();
+        else if (maxLimit >= 0 && maxLimit - resourceManager.resourceDict[type] < unloadAmount)
+            PrepForResourceMaxWaitList(type);
         else
             RestartProductionCheck(unloadAmount);
     }
@@ -557,9 +566,9 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 		cityImprovement.StopWork();
 	}
 
-    private void PrepForResourceMaxWaitList()
+    private void PrepForResourceMaxWaitList(ResourceType type)
     {
-		AddToResourceMaxWaitList();
+		AddToResourceMaxWaitList(type);
         //uiTimeProgressBar.SetToFull();
         uiTimeProgressBar.gameObject.SetActive(false);
         cityImprovement.StopWork();
@@ -640,7 +649,6 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
     public void StopProducing(bool allLabor = false)
     {
-		UpdateResourceGenerationData();
 		cityImprovement.exclamationPoint.SetActive(false);
 
 		if (isWaitingForResearch)
@@ -734,13 +742,13 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 		//resourceManager.AddToStorageRoomWaitList(this);
     }
 
-    private void AddToResourceMaxWaitList()
+    private void AddToResourceMaxWaitList(ResourceType type)
     {
         hitResourceMax = true;
 		cityImprovement.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, false, true);
 		SetTimeProgressBarToFull();
 		//uiTimeProgressBar.gameObject.SetActive(false);
-		resourceManager.AddToResourceMaxWaitList(producedResource.resourceType, this);
+		resourceManager.AddToResourceMaxWaitList(type, this);
 	}
 
     private void AddToResourceWaitList()

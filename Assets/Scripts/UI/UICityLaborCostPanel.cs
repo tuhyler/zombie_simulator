@@ -8,11 +8,11 @@ public class UICityLaborCostPanel : MonoBehaviour
     [SerializeField]
     private Transform laborCostScrollRect;
 
-    [SerializeField]
-    private Image openCostsImage;
-    [SerializeField]
-    private Sprite buttonRight;
-    private Sprite buttonLeft;
+    //[SerializeField]
+    //private Image openCostsImage;
+    //[SerializeField]
+    //private Sprite buttonRight;
+    //private Sprite buttonLeft;
     private Color originalColor;
 
     [SerializeField]
@@ -30,8 +30,8 @@ public class UICityLaborCostPanel : MonoBehaviour
     {
         originalLoc = allContents.anchoredPosition3D;
         gameObject.SetActive(false);
-        buttonLeft = openCostsImage.sprite;
-        originalColor = openCostsImage.color;
+        //buttonLeft = openCostsImage.sprite;
+        //originalColor = openCostsImage.color;
         isOpen = true;
 		CreateLaborCostResource(ResourceType.Food);
         CreateLaborCostResource(ResourceType.Gold);
@@ -76,15 +76,15 @@ public class UICityLaborCostPanel : MonoBehaviour
             GameObject resourceOptionGO = Instantiate(uiResourceInfoPanel, laborCostScrollRect);
 
 		    UIResourceInfoPanel resourceOption = resourceOptionGO.GetComponent<UIResourceInfoPanel>();
-		    RectTransform goSizing = resourceOption.GetComponent<RectTransform>();
-		    goSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80);
-		    goSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 80);
-		    RectTransform imageSizing = resourceOption.image.GetComponent<RectTransform>();
-		    imageSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 70);
-		    imageSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 70);
-		    RectTransform resourceImageSizing = resourceOption.resourceImage.GetComponent<RectTransform>();
-		    resourceImageSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 55);
-		    resourceImageSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 55);
+		    //RectTransform goSizing = resourceOption.GetComponent<RectTransform>();
+		    //goSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80);
+		    //goSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 80);
+		    //RectTransform imageSizing = resourceOption.image.GetComponent<RectTransform>();
+		    //imageSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 70);
+		    //imageSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 70);
+		    //RectTransform resourceImageSizing = resourceOption.resourceImage.GetComponent<RectTransform>();
+		    //resourceImageSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 55);
+		    //resourceImageSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 55);
 
             resourceOption.resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
 		    resourceOption.SetResourceType(type);
@@ -114,8 +114,8 @@ public class UICityLaborCostPanel : MonoBehaviour
             }
             else
             {
-                openCostsImage.sprite = buttonRight;
-                openCostsImage.color = Color.green;
+                //openCostsImage.sprite = buttonRight;
+                //openCostsImage.color = Color.green;
                 isOpen = true;
 
                 allContents.anchoredPosition3D = originalLoc + new Vector3(150f, 0, 0);
@@ -134,8 +134,8 @@ public class UICityLaborCostPanel : MonoBehaviour
             }
             else
             {
-                openCostsImage.sprite = buttonLeft;
-                openCostsImage.color = originalColor;
+                //openCostsImage.sprite = buttonLeft;
+                //openCostsImage.color = originalColor;
                 isOpen = false;
                 LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 150f, 0.2f).setOnComplete(SetActiveStatusFalse);
             }

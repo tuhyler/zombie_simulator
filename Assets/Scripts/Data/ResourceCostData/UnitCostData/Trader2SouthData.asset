@@ -10,43 +10,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: Ranged1Data
+  m_Name: Trader2SouthData
   m_EditorClassIdentifier: 
-  prefabLoc: UnitPrefabs/ranged_1
+  prefabLoc: UnitPrefabs/trader_1South
   secondaryPrefabLoc: 
   nationalityAdjective: 
-  unitDisplayName: Archer
-  unitLevel: 1
-  unitNameAndLevel: Ranged-1
+  unitDisplayName: Camel Trader
+  unitLevel: 2
+  unitNameAndLevel: Trader-2
   empireUnit: 0
-  inMilitary: 1
-  image: {fileID: 21300000, guid: 85009792ecfc4a644884ce6b4264e23a, type: 3}
+  inMilitary: 0
+  image: {fileID: 21300000, guid: eacc96afdb465d848b0bdaa57b19db48, type: 3}
   imageName: 
-  mapIcon: {fileID: 21300000, guid: 96ad298f88c370347b8f53c2b3351112, type: 3}
+  mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:
   - resourceType: 6
-    resourceAmount: 20
+    resourceAmount: 10
+  - resourceType: 7
+    resourceAmount: 5
   cycleCost:
   - resourceType: 4
-    resourceAmount: 15
+    resourceAmount: 1
   - resourceType: 2
     resourceAmount: 1
   battleCost: []
   laborCost: 1
-  unitType: 2
-  unitDescription: Ranged attacks but with lower health
+  unitType: 5
+  unitDescription: Land transport for cargo
   availableInitially: 0
-  health: 7
+  health: 5
   regenerationRate: 2
-  baseAttackStrength: 3
-  baseAttackSpeed: 2
-  movementSpeed: 1
-  trainTime: 30
-  cargoCapacity: 0
+  baseAttackStrength: 0
+  baseAttackSpeed: 0.5
+  movementSpeed: 0.5
+  trainTime: 15
+  cargoCapacity: 20
   goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
   npc: 0
-  singleBuildType: 1
+  singleBuildType: 2
   unitEra: 0
   unitRegion: 4

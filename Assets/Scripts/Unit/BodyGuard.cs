@@ -294,7 +294,7 @@ public class BodyGuard : Military
 			{
 				//City city = world.GetCity(terrainLoc);
 
-				if (!world.mainPlayer.isMoving && /*city.activeCity && */world.unitMovement.upgradingUnit)
+				if (!world.mainPlayer.isMoving && /*city.activeCity && */world.upgrading)
 					world.unitMovement.CheckIndividualUnitHighlight(this, world.cityBuilderManager.SelectedCity);
 			}
 			world.AddPlayerPosition(currentLocation, this);

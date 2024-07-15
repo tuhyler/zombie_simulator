@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,11 +23,13 @@ public class UICityUpgradePanel : MonoBehaviour
     private GameObject firstArrow;
 
     private Vector3Int improvementLoc;
+    private ResourceManager resourceManager;
     private CityImprovement improvement;
-    private Unit unit;
-    private bool cantAfford, shaking;
+    [HideInInspector]
+    public Unit unit;
+    private bool /*cantAfford, */shaking;
     private List<ResourceValue> upgradeCost = new(), refundCost = new();
-    private HashSet<ResourceType> cantAffordList = new(), resourceTypeList = new();
+    private HashSet<ResourceType> /*cantAffordList = new(), */resourceTypeList = new();
     List<List<ResourceValue>> consumes = new();
     List<int> produceTime = new();
 
@@ -97,6 +100,7 @@ public class UICityUpgradePanel : MonoBehaviour
             activeStatus = true;
             
             this.improvement = improvement;
+            this.resourceManager = resourceManager;
             if (improvement != null)
             {
                 improvementLoc = improvement.loc;
@@ -135,7 +139,7 @@ public class UICityUpgradePanel : MonoBehaviour
                 UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[upgradeNameAndLevel];
                 List<int> produceTime = new() { 0 };
                 SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitDisplayName, unitData.unitLevel, 0, 0, 0, 0, 0, unitData.unitDescription,
-                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity, resourceManager);
+                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity);
             }
             else
             {
@@ -158,7 +162,7 @@ public class UICityUpgradePanel : MonoBehaviour
                 float purchaseAmount = improvementData.purchaseAmountChange - improvement.GetImprovementData.purchaseAmountChange;
 
                 SetInfo(improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel, workEthic, purchaseAmount, housing, 
-                    water, power, improvementData.improvementDescription, improvementData.producedResources, consumes, improvementData.producedResourceTime, false, 0, 0, 0, 0, resourceManager, 
+                    water, power, improvementData.improvementDescription, improvementData.producedResources, consumes, improvementData.producedResourceTime, false, 0, 0, 0, 0, 
                     improvementData.rawResourceType == RawResourceType.Rocks, improvementData.cityBonus);
             }
 
@@ -193,17 +197,18 @@ public class UICityUpgradePanel : MonoBehaviour
         activeStatus = false;
         improvement = null;
         unit = null;
+        resourceManager = null;
         upgradeCost.Clear();
         refundCost.Clear();
         consumes.Clear();
         produceTime.Clear();
-        cantAffordList.Clear();
+        //cantAffordList.Clear();
         resourceTypeList.Clear();
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, float purchaseAmount, int housing, int water, int power, string description, 
         List<ResourceValue> produces, List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, 
-        ResourceManager resourceManager, bool rocks = false, bool cityBonus = false)
+        bool rocks = false, bool cityBonus = false)
     {
         mainImage.sprite = mainSprite;
         this.title.text = displayTitle;
@@ -303,7 +308,7 @@ public class UICityUpgradePanel : MonoBehaviour
 			if (unit)
             {
 				descriptionText.text = description;
-				producesTitle.text = "Cost per Growth Cycle";
+				producesTitle.text = "Cost per Travel Cycle";
 				descriptionTitle.text = "Unit Info";
 				this.health.text = health.ToString();
                 this.speed.text = Mathf.RoundToInt(speed * 2).ToString();
@@ -431,7 +436,7 @@ public class UICityUpgradePanel : MonoBehaviour
     private void GenerateResourceInfo(List<ResourceValue> resourcesInfo, List<UIResourceInfoPanel> resourcesToShow, int prodTime, bool cost, bool cityBonus, ResourceManager resourceManager = null)
     {
         int resourcesCount = resourcesInfo.Count;
-        cantAfford = false;
+        //cantAfford = false;
 
         for (int i = 0; i < resourcesToShow.Count; i++)
         {
@@ -448,11 +453,13 @@ public class UICityUpgradePanel : MonoBehaviour
                     resourcesToShow[i].SetResourceType(ResourceType.Time);
                     resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
 					resourcesToShow[i].resourceAmountText.color = Color.white;
+                    resourcesToShow[i].red = false;
 				}
                 else
                 {
                     resourcesToShow[i].gameObject.SetActive(false);
 					resourcesToShow[i].resourceAmountText.color = Color.white;
+                    resourcesToShow[i].red = false;
 				}
             }
             else
@@ -468,17 +475,20 @@ public class UICityUpgradePanel : MonoBehaviour
                     if (resourceManager.CheckResourceAvailability(resourcesInfo[i]))
                     {
                         resourcesToShow[i].resourceAmountText.color = Color.white;
+                        resourcesToShow[i].red = false;
                     }
                     else
                     {
-                        cantAfford = true;
-                        cantAffordList.Add(resourcesInfo[i].resourceType);
                         resourcesToShow[i].resourceAmountText.color = Color.red;
+                        resourcesToShow[i].red = true;
+                        //cantAfford = true;
+                        //cantAffordList.Add(resourcesInfo[i].resourceType);
                     }
                 }
                 else
                 {
 					resourcesToShow[i].resourceAmountText.color = Color.white;
+                    resourcesToShow[i].red = false;
 				}
             }
         }
@@ -545,7 +555,7 @@ public class UICityUpgradePanel : MonoBehaviour
 			return;
 		}
         
-        if (cantAfford && !cityBuilderManager.isQueueing)
+        if (!AffordCheck()/*&& !cityBuilderManager.isQueueing*/)
         {
 			ShakeCheck();
 			UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't afford", false);
@@ -566,6 +576,27 @@ public class UICityUpgradePanel : MonoBehaviour
         gameObject.SetActive(false);
         world.infoPopUpCanvas.gameObject.SetActive(false);
     }
+
+    private bool AffordCheck()
+    {
+		for (int i = 0; i < costsInfo.Count; i++)
+		{
+			if (!costsInfo[i].gameObject.activeSelf)
+				continue;
+
+			if (costsInfo[i].resourceType == ResourceType.Gold)
+			{
+				if (!world.CheckWorldGold(costsInfo[i].amount))
+					return false;
+			}
+			else if (resourceManager.resourceDict[costsInfo[i].resourceType] < costsInfo[i].amount)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
 
     private void ShakeCheck()
     {
@@ -600,41 +631,49 @@ public class UICityUpgradePanel : MonoBehaviour
 	private void UpdateResource(int amount, ResourceType type)
 	{
 		
-        bool tempCantAfford = false;
+        //bool tempCantAfford = false;
 
 		for (int i = 0; i < costsInfo.Count; i++)
 		{
 			if (i >= upgradeCost.Count || type != costsInfo[i].resourceType)
 				continue;
 
-			if (amount >= upgradeCost[i].resourceAmount)
+			if (costsInfo[i].red)
 			{
-				costsInfo[i].resourceAmountText.color = Color.white;
+				if (amount >= upgradeCost[i].resourceAmount)
+				{
+					costsInfo[i].resourceAmountText.color = Color.white;
+					costsInfo[i].red = false;
+				}
 			}
 			else
 			{
-				costsInfo[i].resourceAmountText.color = Color.red;
-				tempCantAfford = true;
+				if (amount < upgradeCost[i].resourceAmount)
+				{
+					costsInfo[i].resourceAmountText.color = Color.red;
+					costsInfo[i].red = true;
+				}
+				//tempCantAfford = true;
 			}
 
 			break;
 		}
 
-		if (cantAffordList.Contains(type))
-		{
-			if (!tempCantAfford)
-				cantAffordList.Remove(type);
-		}
-		else
-		{
-			if (tempCantAfford)
-				cantAffordList.Add(type);
-		}
+		//if (cantAffordList.Contains(type))
+		//{
+		//	if (!tempCantAfford)
+		//		cantAffordList.Remove(type);
+		//}
+		//else
+		//{
+		//	if (tempCantAfford)
+		//		cantAffordList.Add(type);
+		//}
 
-		if (cantAffordList.Count == 0)
-			cantAfford = false;
-		else
-			cantAfford = true;
+		//if (cantAffordList.Count == 0)
+		//	cantAfford = false;
+		//else
+		//	cantAfford = true;
 	}
 
 	//public void CheckCosts(ResourceManager resourceManager)

@@ -51,7 +51,7 @@ public class UnitMovement : MonoBehaviour
     [HideInInspector]
     public HashSet<Unit> highlightedUnitList = new();
     [HideInInspector]
-	public bool upgradingUnit, loadScreenSet;
+	public bool loadScreenSet;
 
     private void Awake()
     {
@@ -143,7 +143,7 @@ public class UnitMovement : MonoBehaviour
 
 	public void ToggleUnitHighlights(bool v, City city = null)
 	{
-        upgradingUnit = v;
+        world.upgrading = v;
 
 		if (v)
 		{
@@ -160,7 +160,7 @@ public class UnitMovement : MonoBehaviour
             
             foreach (Trader unit in city.tradersHere)
             {
-				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()))
+				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()) && !unit.isUpgrading)
                 {
 					highlightedUnitList.Add(unit);
 					unit.SoftSelect(Color.green);
@@ -172,7 +172,7 @@ public class UnitMovement : MonoBehaviour
             {
 			    foreach (Military unit in city.army.UnitsInArmy)
 			    {
-				    if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()))
+				    if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()) && !unit.isUpgrading)
 				    {
                         highlightedUnitList.Add(unit);
                         unit.SoftSelect(Color.green);
@@ -187,7 +187,8 @@ public class UnitMovement : MonoBehaviour
                 
                 if (city.singleBuildDict.ContainsKey(SingleBuildType.Harbor) && unit.bySea && !world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Harbor]).isTraining)
                 {
-                    if (world.GetClosestTerrainLoc(unit.transform.position) == city.singleBuildDict[SingleBuildType.Harbor])
+                    if (world.GetClosestTerrainLoc(unit.transform.position) == city.singleBuildDict[SingleBuildType.Harbor] && 
+                        unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()) && !unit.isUpgrading)
                     {
                         highlightedUnitList.Add(unit);
                         unit.SoftSelect(Color.green);
@@ -196,7 +197,8 @@ public class UnitMovement : MonoBehaviour
 
                 if (city.singleBuildDict.ContainsKey(SingleBuildType.Airport) && unit.byAir && !world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Airport]).isTraining)
                 {
-                    if (world.GetClosestTerrainLoc(unit.transform.position) == city.singleBuildDict[SingleBuildType.Airport])
+                    if (world.GetClosestTerrainLoc(unit.transform.position) == city.singleBuildDict[SingleBuildType.Airport] &&
+						unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()) && !unit.isUpgrading)
                     {
                         highlightedUnitList.Add(unit);
                         unit.SoftSelect(Color.green);
@@ -541,20 +543,23 @@ public class UnitMovement : MonoBehaviour
 					uiBuildingSomething.SetText("Select Attack Zone");
 					ShutDownAttackZones();
                     potentialAttackLoc = pos;
+                    isCity = false; //for attacks on barracks
 					SetUpAttackZoneInfo(pos, isCity);
 				}
                 else if (attackZoneList.Contains(pos))
                 {
-					if (world.IsEnemyCityOnTile(potentialAttackLoc) && pos == world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks])
-                        return;
+					//for attacks on barracks
+                    //if (world.IsEnemyCityOnTile(potentialAttackLoc) && pos == world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks])
+     //                   return;
                     
                     world.attackMovingTarget = false;
 
                     foreach (Vector3Int zone in attackZoneList)
 					{
-                        if (world.IsEnemyCityOnTile(potentialAttackLoc) && zone == world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks])
-                            continue;
-                        
+						//for attacks on barracks
+						//if (world.IsEnemyCityOnTile(potentialAttackLoc) && zone == world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks])
+						//    continue;
+
 						Color color = pos == zone ? Color.white : Color.green;
 						world.GetTerrainDataAt(zone).EnableHighlight(color);
                         if (world.CompletedImprovementCheck(zone))
@@ -572,12 +577,12 @@ public class UnitMovement : MonoBehaviour
 						//rehighlight in case selecting a different one
 						if (world.IsEnemyCityOnTile(potentialAttackLoc))
                         {
-							Vector3Int barracksLoc = world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks];
+							//Vector3Int barracksLoc = world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks]; //for attacks on barracks
 							world.HighlightEnemyCity(potentialAttackLoc, Color.red);
-							world.GetCityDevelopment(barracksLoc).DisableHighlight();
-							world.GetCityDevelopment(barracksLoc).EnableHighlight(Color.red);
+							//world.GetCityDevelopment(barracksLoc).DisableHighlight(); //for attacks on barracks
+							//world.GetCityDevelopment(barracksLoc).EnableHighlight(Color.red); //for attacks on barracks
 						}
-                        else
+						else
                         {
 							world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
                         }
@@ -585,16 +590,16 @@ public class UnitMovement : MonoBehaviour
 						world.infoPopUpCanvas.gameObject.SetActive(true);
 						if (world.IsEnemyCityOnTile(potentialAttackLoc))
 						{
-                            Vector3Int barracksLoc = world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks];
-							if (world.GetCloserTile(pos, potentialAttackLoc, barracksLoc) == potentialAttackLoc)
-                            {
-                                world.HighlightEnemyCity(potentialAttackLoc, Color.white);
-                            }
-                            else
-                            {
-								world.GetCityDevelopment(barracksLoc).DisableHighlight();
-								world.GetCityDevelopment(barracksLoc).EnableHighlight(Color.white);
-                            }
+       //                     Vector3Int barracksLoc = world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks]; //for attacks on barracks
+							//if (world.GetCloserTile(pos, potentialAttackLoc, barracksLoc) == potentialAttackLoc) //for attacks on barracks
+       //                     {
+                            world.HighlightEnemyCity(potentialAttackLoc, Color.white);
+                            //}
+        //                    else //for attacks on barracks
+        //                    {
+								//world.GetCityDevelopment(barracksLoc).DisableHighlight();
+								//world.GetCityDevelopment(barracksLoc).EnableHighlight(Color.white);
+        //                    }
 							world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCity(potentialAttackLoc).enemyCamp, homeBase.army);
 						}
 						else
@@ -656,7 +661,8 @@ public class UnitMovement : MonoBehaviour
         }
         else if (detectedObject.TryGetComponent(out Unit unitReference))
         {
-            if (unitReference.CompareTag("Player"))
+			world.selectingUnit = true;
+			if (unitReference.CompareTag("Player"))
             {
 				if (unitReference.isUpgrading)
 				{
@@ -700,6 +706,7 @@ public class UnitMovement : MonoBehaviour
     //    }
         else if (detectedObject.TryGetComponent(out Resource resource))
         {
+            world.selectingUnit = true;
             Worker tempWorker = resource.GetHarvestingWorker();
 
             /*if (tempWorker == null)
@@ -790,10 +797,19 @@ public class UnitMovement : MonoBehaviour
 
     public void SelectUnitPrep(Unit unitReference)
     {
-        if (upgradingUnit && highlightedUnitList.Contains(unitReference))
+        if (world.upgrading)
         {
-            world.cityBuilderManager.UpgradeUnitWindow(unitReference);
-            return;
+            if (highlightedUnitList.Contains(unitReference))
+            {
+                world.upgradingUnit = true;
+                world.selectingUnit = false;
+                world.cityBuilderManager.UpgradeUnitWindow(unitReference);
+                return;
+            }
+            else
+            {
+                world.upgrading = false;
+            }
         }
         
         if (selectedUnit == unitReference) //Unselect when clicking same unit
@@ -866,7 +882,7 @@ public class UnitMovement : MonoBehaviour
 
     private void SelectEnemy(Unit unitReference)
     {
-		if (selectedUnit == unitReference) //Unselect when clicking same unit
+        if (selectedUnit == unitReference) //Unselect when clicking same unit
 		{
 			ClearSelection();
 			return;
@@ -1933,7 +1949,7 @@ public class UnitMovement : MonoBehaviour
             personalFull = resourceAmountAdjusted == 0;
 
             if (cityResourceManager != null)
-                cityResourceManager.SubtractResource(resourceType, resourceAmountAdjusted);
+                cityResourceManager.ManuallySubtractResource(resourceType, resourceAmountAdjusted);
         }
 
         bool cityFull = false;
@@ -2598,7 +2614,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit == null)
             return;
 
-		if (world.uiCampTooltip.cantAfford)
+		if (!world.uiCampTooltip.AffordCheck())
         {
 			world.uiCampTooltip.ShakeCheck();
 			UIInfoPopUpHandler.WarningMessage().Create(world.uiCampTooltip.attackButton.transform.position, "Can't afford", false);

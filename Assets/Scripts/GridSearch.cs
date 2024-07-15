@@ -97,10 +97,10 @@ public class GridSearch
 
 				if (tile.sqrMagnitude == 2)
 				{
-					Vector3Int temp = neighbor - current;
+					//Vector3Int temp = neighbor - current;
 
-					if (!hasRoad && (!world.PlayerCheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.PlayerCheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
-						continue;
+					//if (!hasRoad && (!world.PlayerCheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.PlayerCheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+					//	continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 				}
@@ -279,10 +279,10 @@ public class GridSearch
 
                 if (tile.sqrMagnitude == 2)
                 {
-                    Vector3Int temp = neighbor - current;
+                    //Vector3Int temp = neighbor - current;
 
-                    if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
-                        continue;
+                    //if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+                    //    continue;
 
                     tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
                 }
@@ -393,10 +393,10 @@ public class GridSearch
 
 				if (tile.sqrMagnitude == 2)
 				{
-					Vector3Int temp = neighbor - current;
+					//Vector3Int temp = neighbor - current;
 
-					if (!hasRoad && (!world.PlayerCheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.PlayerCheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
-						continue;
+					//if (!hasRoad && (!world.PlayerCheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.PlayerCheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+					//	continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 				}
@@ -515,10 +515,10 @@ public class GridSearch
 
 				if (tile.sqrMagnitude == 2)
 				{
-					Vector3Int temp = neighbor - current;
+					//Vector3Int temp = neighbor - current;
 
-					if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
-						continue;
+					//if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+					//	continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 				}
@@ -736,10 +736,10 @@ public class GridSearch
 
 				if (tile.sqrMagnitude == 2)
 				{
-					Vector3Int temp = neighbor - current;
+					//Vector3Int temp = neighbor - current;
 
-					if ((!world.CheckIfPositionIsValidForEnemy(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValidForEnemy(current + new Vector3Int(0, 0, temp.z))))
-						continue;
+					//if ((!world.CheckIfPositionIsValidForEnemy(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValidForEnemy(current + new Vector3Int(0, 0, temp.z))))
+					//	continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 				}

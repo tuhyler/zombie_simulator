@@ -41,6 +41,7 @@ public class TerrainData : MonoBehaviour
     private int movementCost; 
     public int MovementCost { get { return movementCost; } set { movementCost = value; } }
 
+    [HideInInspector]
     public bool changeLeafColor;
     [HideInInspector] //walkable is when it's not discovered, canWalk is when it is, canPlayerWalk includes battlezones
 	public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
@@ -274,7 +275,10 @@ public class TerrainData : MonoBehaviour
             hasResourceMap = true;
             //resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(resourceType);
             //resourceIcon.SetActive(true);
-            uiMapHandler.AddResourceToMap(tileCoordinates, resourceType);
+            ResourceType type = resourceType;
+            //if (resourceType == ResourceType.Fish)
+            //    type = ResourceType.Food;
+            uiMapHandler.AddResourceToMap(tileCoordinates, type);
         }
     }
 
@@ -461,7 +465,6 @@ public class TerrainData : MonoBehaviour
     public void Hide()
     {
         isDiscovered = false;
-		//GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = false;
         fog.SetActive(true);
         Vector3 newRot = new Vector3(0, rotations[Random.Range(0, 4)], 0);
         fog.transform.localEulerAngles = newRot;
@@ -473,68 +476,61 @@ public class TerrainData : MonoBehaviour
 
 		if (animMesh != null)
 			animMesh.SetActive(false);
-		//main.gameObject.SetActive(false);
-		//prop.gameObject.SetActive(false);
-		//Vector3 offsetY = new Vector3(0, -.01f, 0);
-
-		//if ((tileCoordinates.x % 2 == 0 && tileCoordinates.z % 2 == 0) || (tileCoordinates.x % 2 == 1 && tileCoordinates.z % 2 == 1))
-		//    fog.transform.localPosition += offsetY;
 	}
 
     //no nonstatic movement
-    public void HardReveal()
-    {
-        isDiscovered = true;
-        SetMovement();
+  //  public void HardReveal()
+  //  {
+  //      isDiscovered = true;
+  //      SetMovement();
+		//GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
 
-		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
+  //      //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
+  //      //{
+  //      //    TerrainData td = world.GetTerrainDataAt(neighbor);
+  //      //    if (td.isDiscovered)
+  //      //        continue;
 
-        //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
-        //{
-        //    TerrainData td = world.GetTerrainDataAt(neighbor);
-        //    if (td.isDiscovered)
-        //        continue;
+  //      //    td.HardSemiReveal();
+  //      //}
 
-        //    td.HardSemiReveal();
-        //}
+		////if (rawResourceType == RawResourceType.Rocks)
+  ////      {
+  ////          godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
+  ////          godRays.Play();
+		////}
 
-		//if (rawResourceType == RawResourceType.Rocks)
-  //      {
-  //          godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
-  //          godRays.Play();
-		//}
+  //      if (hasResourceMap)
+		//	world.ToggleResourceIcon(tileCoordinates, true);
 
-        if (hasResourceMap)
-			world.ToggleResourceIcon(tileCoordinates, true);
+  //      if (resourceType != ResourceType.None && !world.resourceDiscoveredList.Contains(resourceType))
+  //          world.DiscoverResource(resourceType);
 
-        if (resourceType != ResourceType.None && !world.resourceDiscoveredList.Contains(resourceType))
-            world.DiscoverResource(resourceType);
+		//for (int i = 0; i < whiteMesh.Count; i++)
+  //          whiteMesh[i].material = materials[i];
 
-		for (int i = 0; i < whiteMesh.Count; i++)
-            whiteMesh[i].material = materials[i];
+  //      world.TurnOnEnemyBorders(tileCoordinates);
+  //      world.TurnOnCenterBorders(tileCoordinates);
 
-        world.TurnOnEnemyBorders(tileCoordinates);
-        world.TurnOnCenterBorders(tileCoordinates);
+  //      //fog.SetActive(false);
+  //      Destroy(fog);
 
-        //fog.SetActive(false);
-        Destroy(fog);
+  //      GameObject tempFog = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/UnexploredFade"));
+  //      tempFog.transform.SetParent(transform, false);
+  //      StartCoroutine(tempFog.GetComponent<UnexploredTerrain>().FadeFog());
 
-        GameObject tempFog = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/UnexploredFade"));
-        tempFog.transform.SetParent(transform, false);
-        StartCoroutine(tempFog.GetComponent<UnexploredTerrain>().FadeFog());
+		////fogNonStatic.gameObject.SetActive(true);
+  ////      StartCoroutine(fogNonStatic.FadeFog(tileCoordinates == new Vector3Int(9, 0, 9)));
 
-		//fogNonStatic.gameObject.SetActive(true);
-  //      StartCoroutine(fogNonStatic.FadeFog(tileCoordinates == new Vector3Int(9, 0, 9)));
+  //      whiteMesh.Clear();
+  //      materials.Clear();
 
-        whiteMesh.Clear();
-        materials.Clear();
+  //      if (animMesh != null)
+  //          animMesh.SetActive(true);
 
-        if (animMesh != null)
-            animMesh.SetActive(true);
-
-        main.gameObject.SetActive(true);
-        ShowProp(true);
-    }
+  //      main.gameObject.SetActive(true);
+  //      ShowProp(true);
+  //  }
 
     public void LimitPlayerMovement()
     {
@@ -573,47 +569,42 @@ public class TerrainData : MonoBehaviour
             canPlayerFly = true;
     }
 
-    //public void HardSemiReveal()
-    //{
-    //    foreach (MeshRenderer renderer in whiteMesh)
-    //    {
-    //        renderer.material = white;
-    //    }
-
-    //    main.gameObject.SetActive(true);
-    //    prop.gameObject.SetActive(true);
-    //}
-
-    public void Reveal()
+    public void Reveal(bool normReveal)
     {
-        isDiscovered = true;
 		isDiscovered = true;
         SetMovement();
 		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
 
-		//foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
-		//{
-		//    TerrainData td = world.GetTerrainDataAt(neighbor);
-		//    if (td.isDiscovered)
-		//        continue;
-
-		//    td.SemiReveal();
-		//}
-
-		if (rawResourceType == RawResourceType.Rocks)
+        if (normReveal)
         {
-            Vector3 loc = tileCoordinates + new Vector3(1, 3, 0);
-            world.CreateGodRay(loc);
-			//godRays.Play();
-
-            if (!world.CompletedImprovementCheck(tileCoordinates))
+		    if (rawResourceType == RawResourceType.Rocks)
             {
-                if (isHill)
-                    resourceGraphic.PlaySoundHill();
-                else
-                    resourceGraphic.PlaySound();
+                Vector3 loc = tileCoordinates + new Vector3(1, 3, 0);
+                world.CreateGodRay(loc);
+			    //godRays.Play();
+
+                if (!world.CompletedImprovementCheck(tileCoordinates))
+                {
+                    if (isHill)
+                        resourceGraphic.PlaySoundHill();
+                    else
+                        resourceGraphic.PlaySound();
+                }
+		    }
+
+            GameObject tempFog = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/UnexploredFade"));
+            tempFog.transform.SetParent(transform, false);
+            StartCoroutine(tempFog.GetComponent<UnexploredTerrain>().FadeFog());
+
+            if (hasNonstatic)
+            {
+                main.gameObject.SetActive(false);
+                if (rawResourceType != RawResourceType.Rocks) //so that sound will play
+                    prop.gameObject.SetActive(false);
+			    GameLoader.Instance.gameData.allTerrain[tileCoordinates].showProp = true;
+                StartCoroutine(PopUp());
             }
-		}
+        }
 
         if (hasResourceMap)
 			world.ToggleResourceIcon(tileCoordinates, true);
@@ -621,15 +612,7 @@ public class TerrainData : MonoBehaviour
         if (resourceType != ResourceType.None && !world.ResourceCheck(resourceType))
             world.DiscoverResource(resourceType);
 
-        //fog.SetActive(false);
         Destroy(fog);
-
-        GameObject tempFog = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/UnexploredFade"));
-        tempFog.transform.SetParent(transform, false);
-        StartCoroutine(tempFog.GetComponent<UnexploredTerrain>().FadeFog());
-
-        //fogNonStatic.gameObject.SetActive(true);
-        //StartCoroutine(fogNonStatic.FadeFog(tileCoordinates == new Vector3Int(9, 0, 9)));
 
         for (int i = 0; i < whiteMesh.Count; i++)
             whiteMesh[i].material = materials[i];
@@ -642,15 +625,6 @@ public class TerrainData : MonoBehaviour
 
 		whiteMesh.Clear();
         materials.Clear();
-        if (hasNonstatic)
-        {
-            main.gameObject.SetActive(false);
-            //ShowProp(false);
-            if (rawResourceType != RawResourceType.Rocks) //so that sound will play
-                prop.gameObject.SetActive(false);
-			GameLoader.Instance.gameData.allTerrain[tileCoordinates].showProp = true;
-            StartCoroutine(PopUp());
-        }
     }
 
     public void Discover()
@@ -913,6 +887,7 @@ public class TerrainData : MonoBehaviour
         data.decor = decorIndex;
         data.uvMapIndex = uvMapIndex;
         data.border = border;
+        data.region = region;
 
         data.isDiscovered = isDiscovered;
         data.beingCleared = beingCleared;
@@ -938,5 +913,6 @@ public class TerrainData : MonoBehaviour
         nonstatic.rotation = data.mainRotation;
         uvMapIndex = data.uvMapIndex;
         border = data.border;
+        region = data.region;
 	}
 }

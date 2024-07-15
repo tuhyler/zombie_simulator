@@ -445,21 +445,13 @@ public class Army : MonoBehaviour
 
     public bool DeployArmyCheck(Vector3Int current, Vector3Int target, Vector3Int finalTarget)
     {
-		//List<Vector3Int> exemptList = new() { target };
+  //      if (world.IsEnemyCityOnTile(finalTarget)) //for attacks on barracks
+		//{
+		//	Vector3Int barracksLoc = world.GetEnemyCity(finalTarget).singleBuildDict[SingleBuildType.Barracks]; //for attacks on barracks
+		//	finalTarget = world.GetCloserTile(target, finalTarget, barracksLoc); //for attacks on barracks
+		//}
 
-        if (world.IsEnemyCityOnTile(finalTarget))
-        {
-            Vector3Int barracksLoc = world.GetEnemyCity(finalTarget).singleBuildDict[SingleBuildType.Barracks];
-            finalTarget = world.GetCloserTile(target, finalTarget, barracksLoc);
-
-            //int barracksDist = Mathf.Abs(barracksLoc.x - target.x) + Mathf.Abs(barracksLoc.z - target.z);
-            //int cityDist = Mathf.Abs(finalTarget.x - target.x) + Mathf.Abs(finalTarget.z - target.z);
-
-            //if (barracksDist < cityDist)
-            //    finalTarget = barracksLoc;
-        }
-
-        enemyTarget = finalTarget;
+		enemyTarget = finalTarget;
         seaTravel = false;
 
         if (current == target)
@@ -467,15 +459,6 @@ public class Army : MonoBehaviour
             pathToTarget.Add(finalTarget);
             return true;
         }
-
-        //int j = 0;
-        //foreach (Vector3Int tile in world.GetNeighborsFor(finalTarget, MapWorld.State.EIGHTWAYINCREMENT))
-        //{
-        //    j++;
-        //    if (j % 2 == 1)
-        //        continue;
-        //    exemptList.Add(tile);
-        //}
 
         bool getToHarbor = true;
         List<Vector3Int> waterPath = new();
@@ -744,7 +727,7 @@ public class Army : MonoBehaviour
 
     private void ConsumeBattleCosts()
     {
-        city.resourceManager.ConsumeMaintenanceResources(totalBattleCosts, city.singleBuildDict[SingleBuildType.Barracks]);
+        city.resourceManager.ConsumeMaintenanceResources(totalBattleCosts, city.singleBuildDict[SingleBuildType.Barracks], true);
         //totalBattleCosts.Clear();
     }
 
@@ -1478,14 +1461,21 @@ public class Army : MonoBehaviour
     {
         int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
         Military unit = unitsInArmy[random];
-        Vector3Int loc = unit.barracksBunk;
+
+        if (world.cityBuilderManager.uiCityUpgradePanel.activeStatus && world.cityBuilderManager.uiCityUpgradePanel.unit == unit)
+            world.cityBuilderManager.uiCityUpgradePanel.ToggleVisibility(false);
+
+        if (unit.isUpgrading)
+            world.cityBuilderManager.RemoveImprovement(loc, world.GetCityDevelopment(loc), true, city);
+
+        Vector3Int unitLoc = unit.barracksBunk;
         SelectionCheck(unit);
-        RemoveFromArmy(unit, loc, true);
+        RemoveFromArmy(unit, unitLoc, true);
 
         city.PlaySelectAudio(world.cityBuilderManager.popLoseClip);
         //world.GetCityDevelopment(this.loc).PlayPopLossAudio();
 		unit.DestroyUnit();
-        return loc;
+        return unitLoc;
     }
 
     private void SelectionCheck(Military unit)

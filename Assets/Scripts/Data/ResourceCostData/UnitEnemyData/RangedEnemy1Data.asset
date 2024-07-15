@@ -30,14 +30,14 @@ MonoBehaviour:
   unitType: 2
   unitDescription: 
   availableInitially: 0
-  health: 8
+  health: 7
   regenerationRate: 16
   baseAttackStrength: 2
   baseAttackSpeed: 2
   movementSpeed: 2
   trainTime: 0
   cargoCapacity: 0
-  goldDropRange: {x: 7, y: 12}
+  goldDropRange: {x: 5, y: 10}
   transportationType: 0
   characterUnit: 0
   npc: 0

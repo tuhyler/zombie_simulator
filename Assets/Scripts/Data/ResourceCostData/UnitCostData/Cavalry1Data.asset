@@ -36,7 +36,7 @@ MonoBehaviour:
   unitType: 3
   unitDescription: Capable of flanking ranged units when placed in back
   availableInitially: 0
-  health: 12
+  health: 15
   regenerationRate: 2
   baseAttackStrength: 3
   baseAttackSpeed: 0.5

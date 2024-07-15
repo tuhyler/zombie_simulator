@@ -463,7 +463,7 @@ public class Unit : MonoBehaviour
 			if (military.isMarching) //making sure army is all in line
 			{
                 readyToMarch = false;
-                bool close = pathPositions.Count == 2;
+                bool close = pathPositions.Count == 3;
 
                 if (enemyAI)
 				    military.enemyCamp.UnitNextStep(close, endPositionInt);
@@ -762,7 +762,7 @@ public class Unit : MonoBehaviour
         
         Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
         TerrainData td = world.GetTerrainDataAt(pos);
-        td.HardReveal();
+        td.Reveal(false);
 
         prevTerrainTile = pos;
         foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.CITYRADIUS))
@@ -771,7 +771,7 @@ public class Unit : MonoBehaviour
             if (td2.isDiscovered)
                 continue;
 
-            td2.HardReveal();
+            td2.Reveal(false);
             world.cameraController.CheckLoc(loc);
             if (world.IsTradeCenterOnTile(loc))
                 world.GetTradeCenter(loc).Reveal();
@@ -819,7 +819,7 @@ public class Unit : MonoBehaviour
 							}
 
 							if (!td2.isDiscovered)
-								td2.Reveal();
+								td2.Reveal(true);
 						}
 					}
 				}
@@ -839,7 +839,7 @@ public class Unit : MonoBehaviour
 			if (world.cityImprovementDict.ContainsKey(tilesToCheck[i]))
 				world.cityImprovementDict[tilesToCheck[i]].RevealImprovement(false);
 
-			td.Reveal();
+			td.Reveal(true);
 			world.cameraController.CheckLoc(tilesToCheck[i]);
 			if (world.IsTradeCenterOnTile(tilesToCheck[i]))
 				world.GetTradeCenter(tilesToCheck[i]).Reveal();

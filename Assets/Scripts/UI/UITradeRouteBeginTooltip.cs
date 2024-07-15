@@ -10,7 +10,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 	private MapWorld world;
 
 	[SerializeField]
-	private TMP_Text none;
+	private TMP_Text none, titleNote;
 
 	[SerializeField]
 	private Transform costsRect;
@@ -19,10 +19,10 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 	private GameObject beginButton, addGuardButton;
 
 	private List<UIResourceInfoPanel> costsInfo = new();
-	private HashSet<ResourceType> cantAffordList = new(), resourceTypeList = new();
+	private HashSet<ResourceType> /*cantAffordList = new(), */resourceTypeList = new();
 
 	[HideInInspector]
-	public bool cantAfford, shaking;
+	public bool /*cantAfford, */shaking;
 	[HideInInspector]
 	public Trader trader;
 	[HideInInspector]
@@ -73,6 +73,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 		{
 			this.trader = trader;
 			startingCity = trader.GetStartingCity();
+			titleNote.text = "(Taken from " + startingCity.cityName + ")";
 			homeCity = world.GetCity(trader.homeCity);
 
 			ToggleAddGuard(!trader.guarded);
@@ -95,7 +96,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 		}
 		else
 		{
-			cantAffordList.Clear();
+			//cantAffordList.Clear();
 			resourceTypeList.Clear();
 			if (!confirm)
 				ResetTrader();
@@ -127,7 +128,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 		else
 			none.gameObject.SetActive(false);
 
-		cantAfford = false;
+		//cantAfford = false;
 		for (int i = 0; i < panelList.Count; i++)
 		{
 			if (i >= resourcesCount)
@@ -147,12 +148,14 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 					if (world.CheckWorldGold(resourceList[i].resourceAmount))
 					{
 						panelList[i].resourceAmountText.color = Color.white;
+						panelList[i].red = false;
 					}
 					else
 					{
 						panelList[i].resourceAmountText.color = Color.red;
-						cantAfford = true;
-						cantAffordList.Add(resourceList[i].resourceType);
+						panelList[i].red = true;
+						//cantAfford = true;
+						//cantAffordList.Add(resourceList[i].resourceType);
 					}
 
 					continue;
@@ -161,11 +164,15 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 				if (!manager.CheckResourceAvailability(resourceList[i]))
 				{
 					panelList[i].resourceAmountText.color = Color.red;
-					cantAfford = true;
-					cantAffordList.Add(resourceList[i].resourceType);
+					panelList[i].red = true;
+					//cantAfford = true;
+					//cantAffordList.Add(resourceList[i].resourceType);
 				}
 				else
+				{
 					panelList[i].resourceAmountText.color = Color.white;
+					panelList[i].red = false;
+				}
 			}
 		}
 	}
@@ -191,41 +198,49 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 	public void UpdateRouteCost(int amount, ResourceType type)
 	{
 		List<ResourceValue> resourceList = trader.totalRouteCosts;
-		bool tempCantAfford = false;
+		//bool tempCantAfford = false;
 
 		for (int i = 0; i < costsInfo.Count; i++)
 		{
 			if (i >= resourceList.Count || type != costsInfo[i].resourceType)
 				continue;
 
-			if (amount >= resourceList[i].resourceAmount)
+			if (costsInfo[i].red)
 			{
-				costsInfo[i].resourceAmountText.color = Color.white;
+				if (amount >= resourceList[i].resourceAmount)
+				{
+					costsInfo[i].resourceAmountText.color = Color.white;
+					costsInfo[i].red = false;
+				}
 			}
 			else
 			{
-				costsInfo[i].resourceAmountText.color = Color.red;
-				tempCantAfford = true;
+				if (amount < resourceList[i].resourceAmount)
+				{
+					costsInfo[i].resourceAmountText.color = Color.red;
+					costsInfo[i].red = true;
+				}
+				//tempCantAfford = true;
 			}
 
 			break;
 		}
 
-		if (cantAffordList.Contains(type))
-		{
-			if (!tempCantAfford)
-				cantAffordList.Remove(type);
-		}
-		else
-		{
-			if (tempCantAfford)
-				cantAffordList.Add(type);
-		}
+		//if (cantAffordList.Contains(type))
+		//{
+		//	if (!tempCantAfford)
+		//		cantAffordList.Remove(type);
+		//}
+		//else
+		//{
+		//	if (tempCantAfford)
+		//		cantAffordList.Add(type);
+		//}
 
-		if (cantAffordList.Count == 0)
-			cantAfford = false;
-		else
-			cantAfford = true;
+		//if (cantAffordList.Count == 0)
+		//	cantAfford = false;
+		//else
+		//	cantAfford = true;
 	}
 
 	public void AssignGuard()
@@ -285,24 +300,51 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 
 	public void UpdateGuardCosts()
 	{
-		cantAffordList.Clear();
+		//cantAffordList.Clear();
 		SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), homeCity.resourceManager);
 	}
 
 	public bool AffordCheck()
 	{
-		if (cantAfford)
+		for (int i = 0; i < costsInfo.Count; i++)
 		{
-			if (!shaking)
-				StartCoroutine(Shake());
-			UIInfoPopUpHandler.WarningMessage().Create(beginButton.transform.position, "Can't afford", false);
-			return false;
+			if (!costsInfo[i].gameObject.activeSelf)
+				continue;
+
+			if (costsInfo[i].resourceType == ResourceType.Gold)
+			{
+				if (!world.CheckWorldGold(costsInfo[i].amount))
+				{
+					StartShaking();
+					UIInfoPopUpHandler.WarningMessage().Create(beginButton.transform.position, "Can't afford", false);
+					return false;
+				}
+			}
+			else if (startingCity.resourceManager.resourceDict[costsInfo[i].resourceType] < costsInfo[i].amount)
+			{
+				StartShaking();
+				UIInfoPopUpHandler.WarningMessage().Create(beginButton.transform.position, "Can't afford", false);
+				return false;
+			}
 		}
+
+		//if (cantAfford)
+		//{
+		//	StartShaking();
+		//	UIInfoPopUpHandler.WarningMessage().Create(beginButton.transform.position, "Can't afford", false);
+		//	return false;
+		//}
 
 		return true;
 	}
 
-	public IEnumerator Shake()
+	private void StartShaking()
+	{
+		if (!shaking)
+			StartCoroutine(Shake());
+	}
+
+	private IEnumerator Shake()
 	{
 		Vector3 initialPos = transform.localPosition;
 		float elapsedTime = 0f;

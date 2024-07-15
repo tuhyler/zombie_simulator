@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -458,8 +459,21 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
         
         ResourceProducer producer = improvement.resourceProducer;
         highlightList[producer.producedResourceIndex].gameObject.SetActive(false);
+        int currentLabor = 0;
         if (producer.isProducing || producer.isWaitingForStorageRoom || producer.isWaitingforResources || producer.hitResourceMax)
+        {
             producer.StopProducing(true);
+            currentLabor = producer.currentLabor;
+            producer.UpdateCurrentLaborData(0);
+
+            ResourceType type = producer.producedResource.resourceType;
+			//if (type == ResourceType.Fish)
+			//	type = ResourceType.Food;
+
+			int totalResourceLabor = producer.cityImprovement.city.ChangeResourcesWorked(type, -currentLabor);
+			if (totalResourceLabor == 0)
+				producer.cityImprovement.city.RemoveFromResourcesWorked(type);
+		}
 
         improvement.producedResource = producesInfo[a].resourceType;
         improvement.producedResourceIndex = a;
@@ -467,13 +481,30 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
         producer.producedResourceIndex = a;
         highlightIndex = a;
         producer.SetNewProgressTime();
-        producer.producedResource = producer.producedResources[a];
+
+        if (producer.producedResources[a].resourceType == ResourceType.Fish)
+        {
+            ResourceValue newValue;
+            newValue.resourceType = ResourceType.Food;
+            newValue.resourceAmount = producer.producedResources[a].resourceAmount;
+            producer.producedResource = newValue;
+        }
+        else
+        {
+            producer.producedResource = producer.producedResources[a];
+        }
         producer.consumedResources = improvement.allConsumedResources[a];
         producer.SetConsumedResourceTypes();
-        if (producer.currentLabor > 0)
+        if (currentLabor > 0)
         {
-			producer.UpdateResourceGenerationData();
-            producer.cityImprovement.exclamationPoint.SetActive(false);
+            producer.UpdateCurrentLaborData(currentLabor);
+
+            ResourceType type = producer.producedResource.resourceType;
+            //if (type == ResourceType.Fish)
+            //    type = ResourceType.Food;
+
+			producer.cityImprovement.city.ChangeResourcesWorked(type, currentLabor);
+			producer.cityImprovement.exclamationPoint.SetActive(false);
 			producer.StartProducing(true);
         }
 

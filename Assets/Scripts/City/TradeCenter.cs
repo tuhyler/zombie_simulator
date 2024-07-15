@@ -111,7 +111,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
             TerrainData td = world.GetTerrainDataAt(tile);
 
 			if (!td.isDiscovered)
-                td.Reveal();
+                td.Reveal(true);
         }
 
         foreach (ResourceType type in resourceBuyDict.Keys)

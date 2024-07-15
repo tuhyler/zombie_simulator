@@ -24,6 +24,6 @@ MonoBehaviour:
   rocksType: 2
   resourceCategory: 1
   requirement: Mine/Quarry
-  uvCoordinatesForRocks: {x: 0.013986, y: 0.997646}
+  uvCoordinatesForRocks: {x: 0.006551, y: 0.997646}
   forVisual: 0
-  sellResource: 1
+  sellResource: 0

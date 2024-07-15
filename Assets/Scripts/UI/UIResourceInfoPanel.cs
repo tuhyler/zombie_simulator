@@ -23,7 +23,12 @@ public class UIResourceInfoPanel : MonoBehaviour
     [SerializeField]
     public RectTransform resourceTransform, allContents;
 
+    [HideInInspector]
     public ResourceType resourceType;
+    [HideInInspector]
+    public int amount;
+    [HideInInspector]
+    public bool red;
 
     private UITooltipTrigger tooltipTrigger;
 
@@ -35,6 +40,7 @@ public class UIResourceInfoPanel : MonoBehaviour
 
     public void SetResourceAmount(int amount)
     {
+        this.amount = amount;
         if (amount < 10000)
         {
             resourceAmountText.text = $"{amount:n0}";

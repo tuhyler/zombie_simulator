@@ -5,6 +5,7 @@ using UnityEngine;
 public class TerrainSaveData
 {
 	public string name;
+	public Region region;
 	public Vector3Int tileCoordinates;
 	public Quaternion rotation, mainRotation, propRotation;
 	public RawResourceType rawResourceType;

@@ -253,7 +253,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
 			if (unit)
             {
                 descriptionText.text = description;
-                producesTitle.text = "Cost per Growth Cycle";
+                producesTitle.text = "Cost per Travel Cycle";
                 descriptionTitle.text = "Unit Info";
                 this.health.text = health.ToString();
                 this.speed.text = Mathf.RoundToInt(speed * 2).ToString();

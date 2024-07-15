@@ -62,7 +62,7 @@ PrefabInstance:
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: questHints.Array.data[1]
-      value: '- Wants 5 Bricks'
+      value: '- Wants 10 Bricks'
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
@@ -122,7 +122,7 @@ PrefabInstance:
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: questGoals.Array.data[1].resourceAmount
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}

@@ -7,7 +7,7 @@ public class UIMapHandler : MonoBehaviour
     private MapWorld world;
 
     [SerializeField]
-    private UIMapResourceSearch resourceSearch;
+    public UIMapResourceSearch resourceSearch;
 
     [SerializeField]
     private CameraController cameraController;
@@ -190,6 +190,11 @@ public class UIMapHandler : MonoBehaviour
             world.conversationListButton.gameObject.SetActive(false);
 			world.uiAttackWarning.gameObject.SetActive(false);
 		}
+    }
+
+    public void ClearResourceDict()
+    {
+        resourceSearch.ClearResourceDict();
     }
 
     public void AddResourceToMap(Vector3Int loc, ResourceType type)

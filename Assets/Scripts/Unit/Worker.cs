@@ -689,12 +689,12 @@ public class Worker : Unit
 				world.azai.StopMovementCheck(false);
 		}
 
-		if (!world.IsTileOpenCheck(workerTile))
-        {
-            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "Harvest on open tile");
-			AddFollowerLocToWorldCheck();
-            return;
-        }
+		//if (!world.IsTileOpenCheck(workerTile))
+  //      {
+  //          InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "Harvest on open tile");
+		//	AddFollowerLocToWorldCheck();
+  //          return;
+  //      }
 
         if (!CheckForCity(workerTile))
         {
@@ -809,6 +809,7 @@ public class Worker : Unit
 		{
 			worker.harvested = true;
 			worker.harvestedForest = clearForest;
+			unitPos = transform.position;
 			unitPos.y += 1.5f;
 			GameObject resourceGO = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/ResourceBubble"), unitPos, Quaternion.Euler(90, 0, 0));
 			resourceGO.transform.SetParent(world.objectPoolItemHolder, false);

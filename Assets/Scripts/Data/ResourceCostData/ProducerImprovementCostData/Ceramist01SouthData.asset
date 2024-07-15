@@ -29,34 +29,26 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 31
-    resourceAmount: 20
+    resourceAmount: 15
   - resourceType: 6
     resourceAmount: 15
   - resourceType: 7
     resourceAmount: 10
   consumedResources:
   - resourceType: 9
-    resourceAmount: 5
+    resourceAmount: 4
   - resourceType: 6
-    resourceAmount: 2
+    resourceAmount: 1
   - resourceType: 4
     resourceAmount: 2
-  consumedResources1:
-  - resourceType: 9
-    resourceAmount: 5
-  - resourceType: 10
-    resourceAmount: 2
-  - resourceType: 4
-    resourceAmount: 2
+  consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 11
     resourceAmount: 1
-  - resourceType: 11
-    resourceAmount: 1
-  producedResourceTime: 1400000014000000
+  producedResourceTime: 14000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0

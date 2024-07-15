@@ -107,7 +107,7 @@ public class ResourceManager : MonoBehaviour
             resourceDict[ResourceType.Stone] = 100;
             resourceDict[ResourceType.Bricks] = 100;
 			resourceDict[ResourceType.Clay] = 100;
-			resourceStorageLevel += 300;
+            resourceStorageLevel += 450;
         }
     }
 
@@ -123,8 +123,8 @@ public class ResourceManager : MonoBehaviour
 
     public float GetResourceGenerationValues(ResourceType resourceType)
     {
-        if (resourceType == ResourceType.Food || resourceType == ResourceType.Fish)
-            return resourceGenerationPerMinuteDict[ResourceType.Food] + resourceGenerationPerMinuteDict[ResourceType.Fish];
+        //if (resourceType == ResourceType.Food || resourceType == ResourceType.Fish)
+        //    return resourceGenerationPerMinuteDict[ResourceType.Food] + resourceGenerationPerMinuteDict[ResourceType.Fish];
 
 		return resourceGenerationPerMinuteDict[resourceType];
     }
@@ -145,7 +145,7 @@ public class ResourceManager : MonoBehaviour
 	} 
 
     //for city pop, traders, and army
-    public void ConsumeMaintenanceResources(List<ResourceValue> consumedResource, Vector3 location, bool military = false, bool showPopUp = false)
+    public void ConsumeMaintenanceResources(List<ResourceValue> consumedResource, Vector3 location, /*bool military = false, */bool showPopUp = false)
     {
 		int i = 0;
 		location.y += consumedResource.Count * 0.4f;
@@ -368,7 +368,7 @@ public class ResourceManager : MonoBehaviour
 
 		resourceCount = 0;
 
-        ResourceType type = producedResource.resourceType == ResourceType.Fish ? ResourceType.Food : producedResource.resourceType;
+        ResourceType type = producedResource.resourceType;// == ResourceType.Fish ? ResourceType.Food : producedResource.resourceType;
 		int resourceAmount = AddResource(type, newResourceAmount);
 
 		if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0)
@@ -399,6 +399,29 @@ public class ResourceManager : MonoBehaviour
 			newResourceAmount = improvement.td.resourceAmount;
 
         return newResourceAmount;
+	}
+
+    public int ManuallySubtractResource(ResourceType type, int amount)
+    {
+		if (type == ResourceType.Gold)
+		{
+			city.world.UpdateWorldGold(-amount);
+			return amount;
+		}
+
+		amount = SubtractResourceCheck(type, amount);
+		if (amount > 0)
+        {
+			//doing this instead of SubtractResourceFromToStorage to prevent checking UI unnecessarily
+            int prevAmount = resourceDict[type];
+			resourceDict[type] -= amount;
+			resourceStorageLevel -= amount;
+
+			StorageSpaceCheck();
+			ResourceMaxWaitListCheck(type);
+		}
+
+		return amount;
 	}
 
     public int SubtractResource(ResourceType type, int amount)
@@ -472,7 +495,12 @@ public class ResourceManager : MonoBehaviour
 			if (!city.resourceGridDict.ContainsKey(type))
 				city.AddToGrid(type);
 
-			AddResourceToStorage(type, amount);
+            //doing this instead of regular AddResourceToStorage to avoid unnecessary updating UI
+			int prevAmount = resourceDict[type];
+			resourceDict[type] += amount;
+			resourceStorageLevel += amount;
+
+			ResourceWaitListCheck(type);
 		}
 
 		return amount;
@@ -523,7 +551,7 @@ public class ResourceManager : MonoBehaviour
 		resourceStorageLevel += amount;
 
         ResourceWaitListCheck(type);
-		UICheck(type, amount, prevAmount);
+		UICheck(type, true, prevAmount);
 	}
 
     public void ResourceWaitListCheck(ResourceType type)
@@ -552,11 +580,11 @@ public class ResourceManager : MonoBehaviour
         if (cityResourceMaxWaitDict.ContainsKey(type))
         {
             bool success = true;
-			while (success)
+            while (success)
 			{
-				if (cityResourceMaxWaitDict.ContainsKey(type) && cityResourceMaxWaitDict[type][0].RestartCheck(type))
+				if (cityResourceMaxWaitDict.ContainsKey(type) && cityResourceMaxWaitDict[type][0].RestartResourceMax(type))
                 {
-					ResourceProducer waiter = cityResourceMaxWaitDict[type][0];
+                    ResourceProducer waiter = cityResourceMaxWaitDict[type][0];
 					RemoveFromResourceMaxWaitList(type);
                     waiter.Restart(ResourceType.None); //None since all it's doing is unloading finished production
                 }
@@ -577,7 +605,7 @@ public class ResourceManager : MonoBehaviour
             {
                 if (unloadWaitList.Count > 0 && unloadWaitList[0].RestartCheck(ResourceType.None))
                 {
-					ICityResourceWait waiter = unloadWaitList[0];
+                    ICityResourceWait waiter = unloadWaitList[0];
 					unloadWaitList.RemoveAt(0);
                     waiter.Restart(ResourceType.None);
                 }
@@ -604,10 +632,10 @@ public class ResourceManager : MonoBehaviour
 		//city.CheckLimitWaiter();
         //CheckProducerUnloadWaitList();
 
-		UICheck(type, amount, prevAmount);
+		UICheck(type, false, prevAmount);
 	}
 
-    private void UICheck(ResourceType type, int amount, int prevAmount)
+    private void UICheck(ResourceType type, bool pos, int prevAmount)
     {
 		if (city.activeCity) //only update UI for currently selected city
 		{
@@ -621,7 +649,7 @@ public class ResourceManager : MonoBehaviour
                 city.world.cityBuilderManager.uiCityUpgradePanel.ResourceCheck(resourceDict[type], type);
 
             if (city.world.cityBuilderManager.buildOptionsActive)
-    			city.CheckBuildOptionsResource(type, prevAmount, resourceDict[type], amount > 0);
+    			city.CheckBuildOptionsResource(type, prevAmount, resourceDict[type], pos);
 
             if (city.uiCityResourceInfoPanel)
             {
@@ -632,6 +660,10 @@ public class ResourceManager : MonoBehaviour
             if (city.world.uiCityPopIncreasePanel.CheckCity(city) && type == ResourceType.Food)
 				city.world.uiCityPopIncreasePanel.UpdateFoodCosts(city);
 		}
+        else if (city.world.unitMovement.loadScreenSet && city.world.unitMovement.uiCityResourceInfoPanel.city == city)
+        {
+            city.world.unitMovement.uiCityResourceInfoPanel.UpdateResource(type, resourceDict[type]);
+        }
         
         if (city.world.iTooltip != null)
             city.world.iTooltip.CheckResource(city, resourceDict[type], type);        
@@ -639,7 +671,7 @@ public class ResourceManager : MonoBehaviour
 
 	public int CalculateResourceGeneration(int resourceAmount, float labor, ResourceType type)
     {
-        return Mathf.RoundToInt((city.workEthic + city.world.GetResourceTypeBonus(type)) * (resourceAmount * labor) * (1 + .1f * (labor - 1)));
+        return Mathf.RoundToInt((city.workEthic + city.world.GetResourceTypeBonus(type)) * (resourceAmount * labor) /** (1 + .1f * (labor - 1))*/);
     }
 
     public void SpendResource(List<ResourceValue> buildCost, Vector3 loc, bool refund = false, List<ResourceValue> refundCost = null)
@@ -659,7 +691,7 @@ public class ResourceManager : MonoBehaviour
                 int prevAmount = resourceDict[buildCost[i].resourceType];
 				resourceDict[buildCost[i].resourceType] -= buildCost[i].resourceAmount;
                 resourceStorageLevel -= buildCost[i].resourceAmount;
-                UICheck(buildCost[i].resourceType, buildCost[i].resourceAmount, prevAmount);
+                UICheck(buildCost[i].resourceType, false, prevAmount);
             }
     
             newLoc.y += -.4f * i;
@@ -731,38 +763,45 @@ public class ResourceManager : MonoBehaviour
         {
             ResourceIndividualSO data = ResourceHolder.Instance.GetData(type);
             
-            if (!resourceSellList.Contains(type))
+            int totalDemand = data.resourceType == ResourceType.Food ? Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop) :
+				Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop * city.purchaseAmountMultiple);
+
+            if (totalDemand > 0)
             {
-                IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
-                continue;
-            }
-
-			if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
-			{
-                int totalDemand = data.resourceType == ResourceType.Food ? Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop) :
-					Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop * city.purchaseAmountMultiple);
-				
-                int demandDiff = resourceDict[data.resourceType] - totalDemand;
-                int currentPrice = resourcePriceDict[data.resourceType];
-				int sellAmount = demandDiff < 0 ? resourceDict[data.resourceType] : totalDemand;
-
-				goldAdded += currentPrice * sellAmount;
-				resourceSellHistoryDict[data.resourceType] += sellAmount;
-				SubtractResource(data.resourceType, sellAmount);
-
-                SetNewPrice(data.resourceType, demandDiff, totalDemand, data.resourcePrice, currentPrice);
-
-				if (city.activeCity && sellAmount != 0)
+                if (!resourceSellList.Contains(type))
                 {
-				    Vector3 cityLoc = city.cityLoc;
-				    cityLoc.y += 0.4f * i;
-					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(data.resourceType), city.world);
-                    i++;
+                    IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
+                    continue;
                 }
-			}
+
+			    if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
+			    {
+                    int demandDiff = resourceDict[data.resourceType] - totalDemand;
+                    int currentPrice = resourcePriceDict[data.resourceType];
+				    int sellAmount = demandDiff < 0 ? resourceDict[data.resourceType] : totalDemand;
+
+				    goldAdded += currentPrice * sellAmount;
+				    resourceSellHistoryDict[data.resourceType] += sellAmount;
+				    SubtractResource(data.resourceType, sellAmount);
+
+                    SetNewPrice(data.resourceType, demandDiff, totalDemand, data.resourcePrice, currentPrice);
+
+				    if (city.activeCity && sellAmount != 0)
+                    {
+				        Vector3 cityLoc = city.cityLoc;
+				        cityLoc.y += 0.4f * i;
+					    InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(data.resourceType), city.world);
+                        i++;
+                    }
+			    }
+                else
+                {
+				    IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
+			    }
+            }
             else
             {
-				IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
+				DecreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
 			}
         }
 
@@ -830,8 +869,7 @@ public class ResourceManager : MonoBehaviour
             }
             else
             {
-                resourcePriceDict[type] = Mathf.Max(1, currentPrice - 1); //Mathf.Max(Mathf.Max(1, currentPrice - city.world.maxPriceDiff * 2), currentPrice - 1);
-                resourcePriceChangeDict[type] = currentPrice == resourcePriceDict[type] ? 0 : -1;
+                DecreasePrice(type, originalPrice, currentPrice);
             }
         }
     }
@@ -840,6 +878,12 @@ public class ResourceManager : MonoBehaviour
     {
 		resourcePriceDict[type] = Mathf.Min(currentPrice + 1, originalPrice + city.world.maxPriceDiff);
 		resourcePriceChangeDict[type] = currentPrice == resourcePriceDict[type] ? 0 : 1;
+	}
+
+    public void DecreasePrice(ResourceType type, int originalPrice, int currentPrice)
+    {
+		resourcePriceDict[type] = Mathf.Max(1, currentPrice - 1);
+		resourcePriceChangeDict[type] = currentPrice == resourcePriceDict[type] ? 0 : -1;
 	}
 
     //checking if enough food to not starve
@@ -1020,7 +1064,8 @@ public class ResourceManager : MonoBehaviour
     public int RemoveFromGoldWaitList(ICityGoldWait cityGoldWait)
     {
         int num = cityGoldWaitList.IndexOf(cityGoldWait);
-        cityGoldWaitList.RemoveAt(num);
+        if (num >= 0)
+            cityGoldWaitList.RemoveAt(num);
 
         return num;
     }

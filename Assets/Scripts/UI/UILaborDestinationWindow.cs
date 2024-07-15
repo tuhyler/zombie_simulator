@@ -33,7 +33,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 	private SingleBuildType buildType = SingleBuildType.None;
 
 	private List<UIResourceInfoPanel> costsInfo = new();
-	private HashSet<ResourceType> cantAffordList = new(), resourceTypeList = new();
+	private HashSet<ResourceType> /*cantAffordList = new(),*/ resourceTypeList = new();
 	private List<ResourceValue> costResourceList = new();
 	private Dictionary<string, int> transferCostDict = new();
 	private Dictionary<string, bool> transferSeaDict = new();
@@ -41,7 +41,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 	[SerializeField] //for tweening
 	private RectTransform allContents;
 	[HideInInspector]
-	public bool activeStatus, cantAfford, isLabor, shaking;
+	public bool activeStatus, /*cantAfford, */isLabor, shaking;
 	List<string> destinationList = new();
 	List<string> initialOption = new() { "Select..." };
 
@@ -131,7 +131,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 			transferCostDict.Clear();
 			transferSeaDict.Clear();
 			resourceTypeList.Clear();
-			cantAffordList.Clear();
+			//cantAffordList.Clear();
 			activeStatus = false;
 			destinationDropdown.ClearOptions();
 			destinationDropdown.AddOptions(initialOption);
@@ -186,7 +186,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 	{
 		int resourcesCount = costResourceList.Count;
 
-		cantAfford = false;
+		//cantAfford = false;
 		for (int i = 0; i < costsInfo.Count; i++)
 		{
 			if (i >= resourcesCount)
@@ -206,15 +206,17 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 				if (type == ResourceType.Labor)
 				{
 					costsInfo[i].SetResourceAmount(amount);
-					if (manager.city.currentPop < amount)
+					if (manager.city.unusedLabor < amount)
 					{
 						costsInfo[i].resourceAmountText.color = Color.red;
-						cantAfford = true;
-						cantAffordList.Add(costResourceList[i].resourceType);
+						costsInfo[i].red = true;
+						//cantAfford = true;
+						//cantAffordList.Add(costResourceList[i].resourceType);
 					}
 					else
 					{
 						costsInfo[i].resourceAmountText.color = Color.white;
+						costsInfo[i].red = false;
 					}
 					
 					continue;
@@ -227,12 +229,14 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 					if (world.CheckWorldGold(amount))
 					{
 						costsInfo[i].resourceAmountText.color = Color.white;
+						costsInfo[i].red = false;
 					}
 					else
 					{
 						costsInfo[i].resourceAmountText.color = Color.red;
-						cantAfford = true;
-						cantAffordList.Add(type);
+						costsInfo[i].red = true;
+						//cantAfford = true;
+						//cantAffordList.Add(type);
 					}
 
 					continue;
@@ -242,12 +246,14 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 				if (!manager.CheckResourceAvailability(costResourceList[i].resourceType, amount))
 				{
 					costsInfo[i].resourceAmountText.color = Color.red;
-					cantAfford = true;
-					cantAffordList.Add(costResourceList[i].resourceType);
+					costsInfo[i].red = true;
+					//cantAfford = true;
+					//cantAffordList.Add(costResourceList[i].resourceType);
 				}
 				else
 				{
 					costsInfo[i].resourceAmountText.color = Color.white;
+					costsInfo[i].red = false;
 				}
 			}
 		}
@@ -263,7 +269,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 
 	public void ShowAllCostData()
 	{
-		cantAffordList.Clear();
+		//cantAffordList.Clear();
 		SetResourcePanelInfo(city.resourceManager, transferCostDict[destinationList[destinationDropdown.value - 1]]);
 	}
 
@@ -319,7 +325,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 					costs.Add(newResource);
 				}
 
-				city.resourceManager.ConsumeMaintenanceResources(costs, city.cityLoc, !isLabor, !isLabor);
+				city.resourceManager.ConsumeMaintenanceResources(costs, city.cityLoc, /*!isLabor, */!isLabor);
 				world.cityBuilderManager.PlaySelectAudio();
 				ToggleVisibility(false);
 			}
@@ -347,57 +353,92 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 
 	public void UpdateResource(int amount, ResourceType type, int distance)
 	{
-		bool tempCantAfford = false;
+		//bool tempCantAfford = false;
 
 		for (int i = 0; i < costsInfo.Count; i++)
 		{
 			if (i >= costResourceList.Count || type != costsInfo[i].resourceType)
 				continue;
 
-			if (amount >= costResourceList[i].resourceAmount * distance * transferAmount)
+			if (costsInfo[i].red)
 			{
-				costsInfo[i].resourceAmountText.color = Color.white;
+				if (amount >= costResourceList[i].resourceAmount * distance * transferAmount)
+				{
+					costsInfo[i].resourceAmountText.color = Color.white;
+					costsInfo[i].red = false;
+				}
 			}
 			else
 			{
-				costsInfo[i].resourceAmountText.color = Color.red;
-				tempCantAfford = true;
+				if (amount < costResourceList[i].resourceAmount * distance * transferAmount)
+				{
+					costsInfo[i].resourceAmountText.color = Color.red;
+					costsInfo[i].red = true;
+				}
+				//tempCantAfford = true;
 			}
 
 			break;
 		}
 
-		if (cantAffordList.Contains(type))
-		{
-			if (!tempCantAfford)
-				cantAffordList.Remove(type);
-		}
-		else
-		{
-			if (tempCantAfford)
-				cantAffordList.Add(type);
-		}
+		//if (cantAffordList.Contains(type))
+		//{
+		//	if (!tempCantAfford)
+		//		cantAffordList.Remove(type);
+		//}
+		//else
+		//{
+		//	if (tempCantAfford)
+		//		cantAffordList.Add(type);
+		//}
 
-		if (cantAffordList.Count == 0)
-			cantAfford = false;
-		else
-			cantAfford = true;
+		//if (cantAffordList.Count == 0)
+		//	cantAfford = false;
+		//else
+		//	cantAfford = true;
 	}
 
 	public bool AffordCheck()
 	{
-		if (cantAfford)
+		for (int i = 0; i < costsInfo.Count; i++)
 		{
-			if (!shaking)
-				StartCoroutine(Shake());
-			UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't afford", false);
-			return false;
+			if (i >= costResourceList.Count)
+				continue;
+			
+			if (costsInfo[i].resourceType == ResourceType.Gold)
+			{
+				if (!world.CheckWorldGold(costsInfo[i].amount))
+				{
+					StartShaking();
+					UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't afford", false);
+					return false;
+				}
+			}
+			else if (city.resourceManager.resourceDict[costsInfo[i].resourceType] < costsInfo[i].amount)
+			{
+				StartShaking();
+				UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't afford", false);
+				return false;
+			}
 		}
+		
+		//if (cantAfford)
+		//{
+		//	StartShaking();
+		//	UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't afford", false);
+		//	return false;
+		//}
 
 		return true;
 	}
 
-	public IEnumerator Shake()
+	private void StartShaking()
+	{
+		if (!shaking)
+			StartCoroutine(Shake());
+	}
+
+	private IEnumerator Shake()
 	{
 		Vector3 initialPos = transform.localPosition;
 		float elapsedTime = 0f;

@@ -434,7 +434,7 @@ GameObject:
   - component: {fileID: 2351672798766813896}
   - component: {fileID: 272045864466397838}
   m_Layer: 0
-  m_Name: CostsTitle (1)
+  m_Name: CostsTitleNote
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1246,11 +1246,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   world: {fileID: 0}
   none: {fileID: 3361946394784890094}
+  titleNote: {fileID: 272045864466397838}
   costsRect: {fileID: 5581103210544362513}
   beginButton: {fileID: 2465387125752736728}
   addGuardButton: {fileID: 96868721153850591}
-  cantAfford: 0
+  shaking: 0
   trader: {fileID: 0}
+  startingCity: {fileID: 0}
+  homeCity: {fileID: 0}
   typeNeeded: 0
   allContents: {fileID: 7172269090546766210}
   activeStatus: 0

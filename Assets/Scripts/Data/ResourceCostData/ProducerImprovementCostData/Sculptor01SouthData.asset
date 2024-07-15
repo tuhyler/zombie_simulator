@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Sculptor01SouthData
   m_EditorClassIdentifier: 
+  showOrder: 4
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Sculptor01South
   audio: {fileID: 8300000, guid: 8787020638fc57b48b26ae3fc8ce56bf, type: 3}

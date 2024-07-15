@@ -26,7 +26,7 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 	private ResourceValue food;
 	private Color originalButtonColor;
 
-	private bool cantAfford, needWater, needHousing, shaking;
+	private bool shaking;
 	
 	//for tweening
 	[SerializeField]
@@ -106,15 +106,13 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 	private void SetCosts(City city)
 	{
 		foodCost = city.growthFood * amount;
-		foodCycleCost = city.unitFoodConsumptionPerMinute * amount/*+ (int)city.ResourceManager.resourceConsumedPerMinuteDict[ResourceType.Food]*/;
+		foodCycleCost = city.unitFoodConsumptionPerMinute * amount;
 		housingCost = 1 * amount;
 		waterCost = 1 * amount;
 	}
 
 	private void SetCostPanelInfo(City city, bool hideCost)
 	{
-		cantAfford = false;
-
 		foodCostText.text = foodCost.ToString();
 		foodCycleCostText.text = foodCycleCost.ToString();
 		housingCostText.text = housingCost.ToString();
@@ -128,39 +126,9 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 		food.resourceType = ResourceType.Food;
 		food.resourceAmount = foodCost;
 
-		if (city.resourceManager.CheckResourceAvailability(food))
-		{
-			foodCostText.color = Color.white;
-		}
-		else
-		{
-			cantAfford = true;
-			foodCostText.color = Color.red;
-		}
-
-		if (city.HousingCount < housingCost)
-		{
-			cantAfford = true;
-			needHousing = true;
-			housingCostText.color = Color.red;
-		}
-		else
-		{
-			needHousing = false;
-			housingCostText.color = Color.white;
-		}
-
-		if (city.waterCount < waterCost)
-		{
-			cantAfford = true;
-			needWater = true;
-			waterCostText.color = Color.red;
-		}
-		else
-		{
-			needWater = false;
-			waterCostText.color = Color.white;
-		}
+		foodCostText.color = city.resourceManager.CheckResourceAvailability(food) ? Color.white : Color.red;
+		housingCostText.color = city.HousingCount < housingCost ? Color.red : Color.white;
+		waterCostText.color = city.waterCount < waterCost ? Color.red : Color.white;
 	}
 
 	public bool CheckCity(City city)
@@ -173,47 +141,17 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 
 	public void UpdateFoodCosts(City city)
 	{
-		if (city.resourceManager.CheckResourceAvailability(food))
-		{
-			foodCostText.color = Color.white;
-
-			if (cantAfford)
-			{
-				if (city.waterCount >= amount * waterCost && city.HousingCount >= amount * housingCost)
-					cantAfford = false;
-			}
-		}
-		else
-		{
-			cantAfford = true;
-			foodCostText.color = Color.red;
-		}
+		foodCostText.color = city.resourceManager.CheckResourceAvailability(food) ? Color.white : Color.red;
 	}
 
 	public void UpdateHousingCosts(City city)
 	{
-		if (city.HousingCount < amount * housingCost)
-		{
-			cantAfford = true;
-			housingCostText.color = Color.red;
-		}
-		else
-		{
-			housingCostText.color = Color.white;
-		}
+		housingCostText.color = city.HousingCount < housingCost ? Color.red : Color.white;
 	}
 
 	public void UpdateWaterCosts(City city)
 	{
-		if (city.waterCount < amount * waterCost)
-		{
-			cantAfford = true;
-			waterCostText.color = Color.red;
-		}
-		else
-		{
-			waterCostText.color = Color.white;
-		}
+		waterCostText.color = city.waterCount < waterCost ? Color.red : Color.white;
 	}
 
 	public void DecreasePopCount()
@@ -286,24 +224,42 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 
 	public bool AffordCheck()
 	{
-		if (cantAfford)
+		bool fail = false;
+		
+		if (!city.resourceManager.CheckResourceAvailability(food))
 		{
-			if (!shaking)
-				StartCoroutine(Shake());
-			if (needWater)
-				UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need water. Build camp with river in radius or build a well.", false);
-			else if (needHousing)
-				UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need housing. Build more housing.", false);
-			else
-				UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need more food", false);
-
-			return false;
+			UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need more food", false);
+			fail = true;
+		}
+		else if (city.HousingCount < housingCost)
+		{
+			UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need housing. Build more housing.", false);
+			fail = true;
+		}
+		else if (city.waterCount < waterCost)
+		{
+			UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need water. Make camp with river in radius or build a well.", false);
+			fail = true;
 		}
 
-		return true;
+		if (fail)
+		{
+			ShakeCheck();
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
-	public IEnumerator Shake()
+	private void ShakeCheck()
+	{
+		if (!shaking)
+			StartCoroutine(Shake());
+	}
+
+	private IEnumerator Shake()
 	{
 		Vector3 initialPos = transform.localPosition;
 		float elapsedTime = 0f;

@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
 		//loadingBackground.sprite = Resources.Load<Sprite>("MyLoadingImages/pyramids1");// loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
 		StartCoroutine(GenerateTip());
 		tipsText.outlineColor = Color.black;
-		tipsText.outlineWidth = 0.3f;
+		tipsText.outlineWidth = 0.5f;
 
 		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
 		//loadingBackground.sprite = Resources.Load<Sprite>("MyLoadingImages/pyramids1");// loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
 		StartCoroutine(GenerateTip());
 		tipsText.outlineColor = Color.black;
-		tipsText.outlineWidth = 0.3f;
+		tipsText.outlineWidth = 0.5f;
 
 		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));

@@ -928,7 +928,7 @@ public class EnemyCamp
 
 	private void MoveOutCamp()
 	{
-		if (world.IsCityOnTile(moveToLoc) && pathToTarget.Count < 3)
+		if (world.IsCityOnTile(moveToLoc) && pathToTarget.Count < 4)
 			world.CityBattleStations(moveToLoc, actualAttackLoc, threatLoc, this);
 
 		foreach (Military unit in unitsInCamp)
@@ -1123,7 +1123,7 @@ public class EnemyCamp
 		//		tempTraderList[i].KillUnit(threatLoc - tempTraderList[i].transform.position);
 		//}
 
-		CheckForWeaklings(moveToLoc);
+		//CheckForWeaklings(moveToLoc);
 
 		enemyReady = 0;
 		Vector3[] splashLocs = new Vector3[4] { new Vector3(-1, 0, -1), new Vector3(1, 0, -1), new Vector3(1, 0, 1), new Vector3(-1, 0, 1)};
@@ -1168,7 +1168,7 @@ public class EnemyCamp
 					unitsInCamp[i].StartAttackingAnimation();
 			}
 
-			CheckForWeaklings(moveToLoc);
+			//CheckForWeaklings(moveToLoc);
 		}
 
 		for (int i = 0; i < unitsInCamp.Count; i++)
@@ -1466,36 +1466,39 @@ public class EnemyCamp
 				currentPath.RemoveAt(currentPath.Count - 1);
 		}
 
-		//seeing if it would be closer to attack barracks than the city
-		if (world.GetCity(target).singleBuildDict.ContainsKey(SingleBuildType.Barracks) && !justCity)
-		{
-			Vector3Int barracksLoc = world.GetCity(target).singleBuildDict[SingleBuildType.Barracks];
+		//seeing if it would be easier to attack barracks than the city
+		//if (world.GetCity(target).singleBuildDict.ContainsKey(SingleBuildType.Barracks) && !justCity)
+		//{
+		//	int barracksBonus = world.GetCityDevelopment(world.GetCity(target).singleBuildDict[SingleBuildType.Barracks]).GetImprovementData.attackBonus;
+		//	int cityBonus = world.GetCity(target).attackBonus;
+		//	Vector3Int barracksLoc = world.GetCity(target).singleBuildDict[SingleBuildType.Barracks];
 
-			int cityDiff = Math.Abs(newStart.x - target.x) + Math.Abs(newStart.z - target.z);
-			int barracksDiff = Math.Abs(newStart.x - barracksLoc.x) + Math.Abs(newStart.z - barracksLoc.z);
+		//	int cityDiff = Math.Abs(newStart.x - target.x) + Math.Abs(newStart.z - target.z);
+		//	int barracksDiff = Math.Abs(newStart.x - barracksLoc.x) + Math.Abs(newStart.z - barracksLoc.z);
 
-			if (barracksDiff < cityDiff)
-			{
-				target = barracksLoc;
+		//	//if (barracksDiff < cityDiff)
+		//	if (barracksBonus < cityBonus)
+		//	{
+		//		target = barracksLoc;
 
-				if (barracksDiff <= 6)
-				{
-					if (currentPath.Count == 0)
-					{
-						newStart = loc;
-						currentPath.Clear();
-					}
-					else
-					{
-						newStart = currentPath[currentPath.Count - 2];
+		//		if (barracksDiff <= 6)
+		//		{
+		//			if (currentPath.Count == 0)
+		//			{
+		//				newStart = loc;
+		//				currentPath.Clear();
+		//			}
+		//			else
+		//			{
+		//				newStart = currentPath[currentPath.Count - 2];
 
-						//removing last 1
-						for (int i = 0; i < 1; i++)
-							currentPath.RemoveAt(currentPath.Count - 1);
-					}
-				}
-			}
-		}
+		//				//removing last 1
+		//				for (int i = 0; i < 1; i++)
+		//					currentPath.RemoveAt(currentPath.Count - 1);
+		//			}
+		//		}
+		//	}
+		//}
 
 		Vector3Int diff = newStart - target;
 

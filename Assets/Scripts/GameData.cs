@@ -10,6 +10,8 @@ public class GameData
     public string saveVersion;
     //public string saveScreenshot;
 
+    //map details
+    public int width, height, enemies, resources, islands;
     //world misc lists
     public TutorialData tutorialData;
     public List<string> completedResearch, currentResearch, newUnitsAndImprovements;

@@ -170,7 +170,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	public void Restart(ResourceType type)
 	{
 		if (waitingOnRouteCosts)
-			TradeRouteCheck(GetStartingCity().cityLoc);
+			TradeRouteCheck(tradeRouteManager.cityStops[0]);
 		else
 			tradeRouteManager.ContinueLoadingUnloading();
 	}
@@ -1011,7 +1011,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
             multiple = (float)stop / tradeRouteManager.cityStops.Count;
 
         List<ResourceValue> newCosts = AdjustTotalCosts(multiple);
-		city.resourceManager.ConsumeMaintenanceResources(newCosts, loc, false, true);
+		city.resourceManager.ConsumeMaintenanceResources(newCosts, loc, /*false, */true);
     }
 
     public void RefundRouteCosts()
@@ -1453,7 +1453,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 				world.GetCityDevelopment(city.singleBuildDict[buildDataSO.singleBuildType]).AddTraderToImprovement(this);
 				//city.tradersHere.Add(this);
-				if (city.activeCity && world.unitMovement.upgradingUnit)
+				if (city.activeCity && world.upgrading)
 					world.unitMovement.CheckIndividualUnitHighlight(this, city);
 
 				//world.AddUnitPosition(currentLocation, this);

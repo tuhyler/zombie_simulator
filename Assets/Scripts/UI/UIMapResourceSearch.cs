@@ -51,6 +51,11 @@ public class UIMapResourceSearch : MonoBehaviour
         AddResources(allResources);
     }
 
+    public void ClearResourceDict()
+    {
+        resourceLocDict.Clear();
+    }
+
     public void AddResourceToDict(Vector3Int loc, ResourceType type)
     {
         if (!resourceLocDict.ContainsKey(type))
@@ -89,7 +94,6 @@ public class UIMapResourceSearch : MonoBehaviour
         //highlighting tiles
         if (chosenResource != "None")
         {
-
             ResourceType type = GetChosenResource(chosenResource);
 
             if (!resourceLocDict.ContainsKey(type))

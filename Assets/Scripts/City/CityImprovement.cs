@@ -745,8 +745,14 @@ public class CityImprovement : MonoBehaviour
                     world.somethingSelected = false;
                     world.unitMovement.ClearSelection();
                 }
-                
-                world.traderList.Remove(unit.trader);
+
+				if (world.cityBuilderManager.uiCityUpgradePanel.activeStatus && world.cityBuilderManager.uiCityUpgradePanel.unit == unit)
+					world.cityBuilderManager.uiCityUpgradePanel.ToggleVisibility(false);
+				
+                if (unit.isUpgrading)
+					world.cityBuilderManager.RemoveImprovement(loc, world.GetCityDevelopment(loc), true, city);
+
+				world.traderList.Remove(unit.trader);
 				RemoveTraderFromImprovement(unit);
 				unit.DestroyUnit();
 				break;

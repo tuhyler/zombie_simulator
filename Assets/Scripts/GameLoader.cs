@@ -34,7 +34,6 @@ public class GameLoader : MonoBehaviour
 	public List<GameObject> textList = new();
 	[HideInInspector]
 	public MilitaryLeader duelingLeader;
-	private Vector3 southAuroraLoc = new Vector3(0, 4, 5), northAuroraLoc = new Vector3(0, 4, 30);
 
 	private void Awake()
 	{
@@ -75,7 +74,8 @@ public class GameLoader : MonoBehaviour
 
 			terrainGenerator.equatorDist = 2;
 			terrainGenerator.equatorPos = 6; //bottom of map
-			auroraBorealisLoc = northAuroraLoc;
+
+			auroraBorealisLoc = new Vector3(terrainGenerator.width * 3 / 2, 4, terrainGenerator.height * 3 - 14);
 		}
 		else if (starting == "SouthToggle")
 		{
@@ -102,7 +102,7 @@ public class GameLoader : MonoBehaviour
 			terrainGenerator.equatorDist = 3;
 			terrainGenerator.equatorPos = terrainGenerator.height * 3 * 3 / 4;
 
-			auroraBorealisLoc = southAuroraLoc; 
+			auroraBorealisLoc = new Vector3(terrainGenerator.width * 3 / 2, 4, 14);
 		}
 		else if (starting == "EastToggle")
 		{
@@ -158,14 +158,16 @@ public class GameLoader : MonoBehaviour
 		if (landType == "IslandsToggle")
 		{
 			terrainGenerator.iterations = 2;
+			terrainGenerator.riverCountMin = 10;
 			terrainGenerator.landMassLimit = 20;
 			//terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 4 + (terrainGenerator.width * terrainGenerator.height / 8);
-			terrainGenerator.totalLandLimit = 0;
+			terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 3;
 			//terrainGenerator.continentsFlag = 0;
 		}
 		else if (landType == "ContinentsToggle")
 		{
 			terrainGenerator.iterations = 15;
+			terrainGenerator.riverCountMin = 6;
 			terrainGenerator.landMassLimit = 2;
 			terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 2;
 			//terrainGenerator.continentsFlag = 1;
@@ -218,7 +220,9 @@ public class GameLoader : MonoBehaviour
 
 		if (terrainGenerator.newRegion == Region.South || terrainGenerator.newRegion == Region.North)
 			terrainGenerator.SetAuroraBorealis(auroraBorealisLoc);
-		world.NewGamePrep(true, terrainGenerator.terrainDict, terrainGenerator.enemyEmpires, terrainGenerator.enemyRoadLocs, tutorial);
+
+		world.NewGamePrep(true, terrainGenerator.terrainDict, terrainGenerator.enemyEmpires, terrainGenerator.enemyRoadLocs, terrainGenerator.width, terrainGenerator.height, 
+			terrainGenerator.resourceFrequency, terrainGenerator.enemyCountDifficulty, terrainGenerator.iterations, tutorial);
 		terrainGenerator.Clear();
 		Cursor.visible = true;
 		StartCoroutine(WaitASec());
@@ -431,7 +435,7 @@ public class GameLoader : MonoBehaviour
 		
 		if (world.startingRegion == Region.South || world.startingRegion == Region.North)
 		{
-			Vector3 auroraBorealisLoc = world.startingRegion == Region.South ? southAuroraLoc : northAuroraLoc;
+			Vector3 auroraBorealisLoc = world.startingRegion == Region.South ? new Vector3(gameData.width * 3 / 2, 4, 14) : new Vector3(gameData.height * 3 - 14, 4, 0);
 			terrainGenerator.SetAuroraBorealis(auroraBorealisLoc);
 		}
 

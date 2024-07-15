@@ -29,6 +29,8 @@ People graduate from saying "like" to "you know" or "um/uh".
 
 When I first starting working out, I got confused initially. I saw this ad, "Guess what? Free weights are on sale!" If they're free... how are they on sale? Am I getting paid to take them?
 
+Give a sentence, respond with "good question!". "There is no way I'm going to ask you how you did that." "Good question!"
+
 
 *Koa intro*
 K: Ugh... ow! I just fell out of the sky!

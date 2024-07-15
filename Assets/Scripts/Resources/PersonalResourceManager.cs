@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -107,8 +108,8 @@ public class PersonalResourceManager : MonoBehaviour
 	private void UICheck(ResourceType type)
     {
         if (unit.isSelected)//world.unitMovement.uiPersonalResourceInfoPanel.activeStatus && world.unitMovement.uiPersonalResourceInfoPanel.unit == unit)
-        {
-            world.unitMovement.uiPersonalResourceInfoPanel.UpdateResource(type, GetResourceDictValue(type));
+		{
+            world.unitMovement.uiPersonalResourceInfoPanel.UpdateResource(type, resourceDict[type]);
 		    world.unitMovement.uiPersonalResourceInfoPanel.UpdateStorageLevel(resourceStorageLevel);
         }
 	}

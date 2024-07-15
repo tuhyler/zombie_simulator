@@ -51,9 +51,10 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
     [SerializeField]
     public Transform objectHolder, finalSpaceHolder;
     //for updating resources
-    private int maxResource;
-    private int maxLabor;
-    private int maxGold;
+    private Dictionary<ResourceType, int> maxResourceDict = new();
+    //private int maxResource;
+    //private int maxLabor;
+    //private int maxGold;
 
 
     private void Awake()
@@ -210,9 +211,10 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
         {
             activeStatus = false;
             cityBuilderManager.world.goldUpdateCheck = null;
-            maxResource = 0;
-            maxLabor = 0;
-            maxGold = 0;
+            //maxResource = 0;
+            //maxLabor = 0;
+            //maxGold = 0;
+            maxResourceDict.Clear();
             cityBuilderManager.buildOptionsActive = false;
             cityBuilderManager.activeBuilderHandler = null;
 			cityBuilderManager.world.BattleCamCheck(false);
@@ -284,13 +286,9 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 
     public void PrepareBuildOptions(ResourceManager resourceManager)
     {
-        //List<SingleBuildType> improvementSingleBuildList = resourceManager.city.singleBuildDict.Keys.ToList();
-
         for (int i = 0; i < buildOptions.Count; i++)
         {
-			SingleBuildType itemType /*= SingleBuildType.None*/;
-			List<ResourceValue> resourceCosts = new();
-			//bool locked = false;
+			SingleBuildType itemType;
 			bool hide = false;
 
 			if (buildOptions[i].UnitBuildData != null)
@@ -301,8 +299,9 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 					    buildOptions[i].UnitBuildData.unitLevel != cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].UnitBuildData.unitType.ToString()) ||
 					    !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType)))
                     {
-					    buildOptions[i].Hide();
-					    continue;
+                        buildOptions[i].Hide();
+					    if (!buildOptions[i].somethingNew)
+					        continue;
                     }
 
                     if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport)
@@ -313,11 +312,9 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 				    }
                 }
 				
-                resourceCosts = new(buildOptions[i].UnitBuildData.unitCost);
 				ResourceValue laborCost;
 				laborCost.resourceType = ResourceType.Labor;
 				laborCost.resourceAmount = buildOptions[i].UnitBuildData.laborCost;
-				resourceCosts.Add(laborCost);
 			}
 			else if (buildOptions[i].BuildData != null)
 			{
@@ -328,9 +325,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 					continue;
 				}
 
-				//locked = buildOptions[i].locked;
 				itemType = buildOptions[i].BuildData.singleBuildType;
-				resourceCosts = new(buildOptions[i].BuildData.improvementCost);
 
 				//buildOptions[i].waterMax = resourceManager.city.reachedWaterLimit;
 
@@ -368,34 +363,36 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 				continue;
 			}
 
-			//buildItem.ToggleInteractable(true);
-			buildOptions[i].SetResourceTextToDefault();
-
-            for (int j = 0; j < resourceCosts.Count; j++)
+            for (int j = 0; j < buildOptions[i].costResourcePanels.Count; j++)
             {
-				if (resourceCosts[j].resourceType == ResourceType.Gold)
+				if (buildOptions[i].costResourcePanels[j].resourceType == ResourceType.Gold)
 				{
-					if (resourceCosts[j].resourceAmount > maxGold)
-						maxGold = resourceCosts[j].resourceAmount;
+					if (!maxResourceDict.ContainsKey(buildOptions[i].costResourcePanels[j].resourceType) || 
+                        buildOptions[i].costResourcePanels[j].amount > maxResourceDict[buildOptions[i].costResourcePanels[j].resourceType])
+						maxResourceDict[buildOptions[i].costResourcePanels[j].resourceType] = buildOptions[i].costResourcePanels[j].amount;
 
-					if (!resourceManager.city.CheckWorldGold(resourceCosts[j].resourceAmount))
-						buildOptions[i].SetResourceTextToRed(resourceCosts[j]);
+                    if (!resourceManager.city.CheckWorldGold(buildOptions[i].costResourcePanels[j].amount))
+                        buildOptions[i].SetResourceTextToRed(j);
+                    else
+                        buildOptions[i].SetThisResourceTextToDefault(j);
 				}
-				else if (resourceCosts[j].resourceType == ResourceType.Labor)
+				else if (buildOptions[i].costResourcePanels[j].resourceType == ResourceType.Labor)
 				{
-					if (resourceCosts[j].resourceAmount > maxLabor)
-						maxLabor = resourceCosts[j].resourceAmount;
-
-					int pop = resourceManager.city.currentPop;
-					if (pop < resourceCosts[j].resourceAmount)
-						buildOptions[i].SetResourceTextToRed(resourceCosts[j]);
+                    if (resourceManager.city.unusedLabor < buildOptions[i].costResourcePanels[j].amount)
+                        buildOptions[i].SetResourceTextToRed(j);
+                    else
+                        buildOptions[i].SetThisResourceTextToDefault(j);
 				}
-				else if (!resourceManager.CheckResourceAvailability(resourceCosts[j]))
-				{
-					if (resourceCosts[j].resourceAmount > maxResource)
-						maxResource = resourceCosts[j].resourceAmount;
+                else
+                {
+					if (!maxResourceDict.ContainsKey(buildOptions[i].costResourcePanels[j].resourceType) || 
+                        buildOptions[i].costResourcePanels[j].amount > maxResourceDict[buildOptions[i].costResourcePanels[j].resourceType])
+						maxResourceDict[buildOptions[i].costResourcePanels[j].resourceType] = buildOptions[i].costResourcePanels[j].amount;
 
-					buildOptions[i].SetResourceTextToRed(resourceCosts[j]);
+                    if (resourceManager.resourceDict[buildOptions[i].costResourcePanels[j].resourceType] < buildOptions[i].costResourcePanels[j].amount)
+                        buildOptions[i].SetResourceTextToRed(j);
+                    else
+                        buildOptions[i].SetThisResourceTextToDefault(j);
 				}
 			}
         }
@@ -470,50 +467,103 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 
     public void UpdateGold(int prevAmount, int currentAmount, bool pos)
     {
+		if (!maxResourceDict.ContainsKey(ResourceType.Gold))
+			return;
+
 		if (pos)
 		{
-			if (prevAmount > maxGold)
+			if (prevAmount > maxResourceDict[ResourceType.Gold])
 				return;
 		}
 		else
 		{
-			if (currentAmount > maxGold)
+			if (currentAmount > maxResourceDict[ResourceType.Gold])
 				return;
 		}
 
-        PrepareBuildOptions(cityBuilderManager.SelectedCity.resourceManager);
+		if (pos)
+			UpdateBuildOptionsPos(ResourceType.Gold, currentAmount);
+		else
+			UpdateBuildOptionsNeg(ResourceType.Gold, currentAmount);
+		//PrepareBuildOptions(cityBuilderManager.SelectedCity.resourceManager);
 	}
 
-    public void UpdateBuildOptions(ResourceType type, int prevAmount, int currentAmount, bool pos, ResourceManager resourceManager)
+    public void UpdateBuildOptions(ResourceType type, int prevAmount, int currentAmount, bool pos/*, ResourceManager resourceManager*/)
     {
         //checking if updating is necessary
-        if (type == ResourceType.Labor)
+        //if (type == ResourceType.Labor)
+        //{
+        //    if (pos)
+        //    {
+        //        if (prevAmount > maxLabor)
+        //            return;
+        //    }
+        //    else
+        //    {
+        //        if (currentAmount > maxLabor)
+        //            return;
+        //    }
+        //}
+        //else
+        //{
+        if (!maxResourceDict.ContainsKey(type))
+            return;
+
+        if (pos)
         {
-            if (pos)
-            {
-                if (prevAmount > maxLabor)
-                    return;
-            }
-            else
-            {
-                if (currentAmount > maxLabor)
-                    return;
-            }
+            if (prevAmount > maxResourceDict[type]/*maxResource*/)
+                return;
         }
         else
         {
-            if (pos)
+            if (currentAmount > maxResourceDict[type]/*maxResource*/)
+                return;
+        }
+        //}
+
+        //PrepareBuildOptions(resourceManager);
+        if (pos)
+            UpdateBuildOptionsPos(type, currentAmount);
+        else
+			UpdateBuildOptionsNeg(type, currentAmount);
+	}
+
+    private void UpdateBuildOptionsPos(ResourceType type, int amount)
+    {
+        for (int i = 0; i < buildOptions.Count; i++)
+        {
+            for (int j = 0; j < buildOptions[i].costResourcePanels.Count; j++)
             {
-                if (prevAmount > maxResource)
-                    return;
-            }
-            else
-            {
-                if (currentAmount > maxResource)
-                    return;
+                if (buildOptions[i].costResourcePanels[j].resourceType == type)
+                {
+                    if (buildOptions[i].costResourcePanels[j].red && amount >= buildOptions[i].costResourcePanels[j].amount)
+                    {
+                        buildOptions[i].SetThisResourceTextToDefault(j);
+                        //buildOptions[i].AffordCheck(type);
+                    }
+
+                    break;
+                }
             }
         }
-
-        PrepareBuildOptions(resourceManager);
     }
+
+	private void UpdateBuildOptionsNeg(ResourceType type, int amount)
+	{
+		for (int i = 0; i < buildOptions.Count; i++)
+		{
+			for (int j = 0; j < buildOptions[i].costResourcePanels.Count; j++)
+			{
+				if (buildOptions[i].costResourcePanels[j].resourceType == type)
+				{
+					if (!buildOptions[i].costResourcePanels[j].red && amount < buildOptions[i].costResourcePanels[j].amount)
+					{
+                        buildOptions[i].SetResourceTextToRed(j);
+					}
+
+					break;
+				}
+			}
+		}
+	}
 }

@@ -21,17 +21,10 @@ public class MovementSystem : MonoBehaviour
     {
         if (orderQueueing) //adding lists to each other for order queueing, turn counter starts at 1 each time
         {
-            //if (selectedUnit.isPlayer)
-            //{
-                if (moveToSpeak)
-                    currentPath = GridSearch.PlayerMoveExempt(world, priorPath, endPosition, world.GetExemptList(endPosition), true);
-                else
-                    currentPath = GridSearch.PlayerMove(world, priorPath, endPosition, selectedUnit.bySea);
-            //}
-       //     else
-       //     {
-			    //currentPath = GridSearch.TraderMove(world, priorPath, endPosition, selectedUnit.bySea);
-       //     }
+            if (moveToSpeak)
+                currentPath = GridSearch.PlayerMoveExempt(world, priorPath, endPosition, world.GetExemptList(endPosition), true);
+            else
+                currentPath = GridSearch.PlayerMove(world, priorPath, endPosition, selectedUnit.bySea);
 
             Vector3Int prevFinalSpot = world.RoundToInt(selectedUnit.finalDestinationLoc);
             selectedUnit.AddToMovementQueue(currentPath);
@@ -56,15 +49,6 @@ public class MovementSystem : MonoBehaviour
                         }
                     }
                 }
-      //          else if (selectedUnit.trader)
-      //          {
-      //              if (selectedUnit.trader.guarded)
-      //              {
-      //                  List<Vector3Int> queuedGuardPath = GetGuardPath(world.RoundToInt(selectedUnit.finalDestinationLoc));
-						//selectedUnit.trader.guardUnit.finalDestinationLoc = queuedGuardPath[queuedGuardPath.Count - 1];
-						//selectedUnit.trader.guardUnit.AddToMovementQueue(queuedGuardPath);
-      //              }
-      //          }
             }
 
             orderQueueing = false;
@@ -74,17 +58,10 @@ public class MovementSystem : MonoBehaviour
             Vector3 currentLoc = selectedUnit.transform.position;
             selectedUnit.QueueCount = 0;
 
-            //if (selectedUnit.isPlayer)
-            //{
-                if (moveToSpeak)
-                    currentPath = GridSearch.PlayerMoveExempt(world, currentLoc, endPosition, world.GetExemptList(endPosition), true);
-                else
-                    currentPath = GridSearch.PlayerMove(world, currentLoc, endPosition, selectedUnit.bySea);
-            //}
-            //else
-            //{
-            //    currentPath = GridSearch.TraderMove(world, currentLoc, endPosition, selectedUnit.bySea);
-            //}
+            if (moveToSpeak)
+                currentPath = GridSearch.PlayerMoveExempt(world, currentLoc, endPosition, world.GetExemptList(endPosition), true);
+            else
+                currentPath = GridSearch.PlayerMove(world, currentLoc, endPosition, selectedUnit.bySea);
 
 			if (startPosition == endPosition) //if moving within current square
                 currentPath.Add(endPosition);

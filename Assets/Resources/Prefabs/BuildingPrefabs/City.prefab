@@ -177,8 +177,7 @@ MonoBehaviour:
   hasTrees: 0
   hasFood: 0
   hasFish: 0
-  hasWool: 0
-  hasSilk: 0
+  hasCloth: 0
   hasClay: 0
   activeCity: 0
   highlighted: 0

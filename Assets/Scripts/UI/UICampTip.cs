@@ -25,7 +25,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 	public GameObject infantryHolder, rangedHolder, cavalryHolder, seigeHolder, attackButton, warningText;
 
 	private List<UIResourceInfoPanel> costsInfo = new();
-	private HashSet<ResourceType> cantAffordList = new(), resourceTypeList = new();
+	private HashSet<ResourceType> /*cantAffordList = new(), */resourceTypeList = new();
 
 	[HideInInspector]
 	public CityImprovement improvement;
@@ -35,7 +35,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 	public EnemyCamp enemyCamp;
 
 	[HideInInspector]
-	public bool cantAfford, shaking;
+	public bool /*cantAfford, */shaking;
 	private int currentWidth;
 
 	//for tweening
@@ -140,7 +140,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 				this.enemyCamp = null;
 			}
 
-			cantAffordList.Clear();
+			//cantAffordList.Clear();
 			resourceTypeList.Clear();
 
 			if (clearCosts) //only time when this is relevant is when confirming to deploy army somewhere
@@ -370,7 +370,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 		if (showText)
 			resourcesCount = 0;
 
-		cantAfford = false;
+		//cantAfford = false;
 		for (int i = 0; i < panelList.Count; i++)
 		{
 			if (i >= resourcesCount)
@@ -392,12 +392,14 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 						if (world.CheckWorldGold(resourceList[i].resourceAmount))
 						{
 							panelList[i].resourceAmountText.color = Color.white;
+							panelList[i].red = false;
 						}
 						else
 						{
 							panelList[i].resourceAmountText.color = Color.red;
-							cantAfford = true;
-							cantAffordList.Add(resourceList[i].resourceType);
+							panelList[i].red = true;
+							//cantAfford = true;
+							//cantAffordList.Add(resourceList[i].resourceType);
 						}
 
 						continue;
@@ -406,11 +408,15 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 					if (!manager.CheckResourceAvailability(resourceList[i]))
 					{
 						panelList[i].resourceAmountText.color = Color.red;
-						cantAfford = true;
-						cantAffordList.Add(resourceList[i].resourceType);
+						panelList[i].red = true;
+						//cantAfford = true;
+						//cantAffordList.Add(resourceList[i].resourceType);
 					}
 					else
+					{
 						panelList[i].resourceAmountText.color = Color.white;
+						panelList[i].red = false;
+					}
 				}
 				else
 				{
@@ -429,41 +435,70 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 	public void UpdateBattleCostCheck(int amount, ResourceType type)
 	{
 		List<ResourceValue> resourceList = army.GetBattleCost();
-		bool tempCantAfford = false;
+		//bool tempCantAfford = false;
 		
 		for (int i = 0; i < costsInfo.Count; i++)
 		{
 			if (i >= resourceList.Count || type != costsInfo[i].resourceType)
 				continue;
 
-			if (amount >= resourceList[i].resourceAmount)
+			if (costsInfo[i].red)
 			{
-				costsInfo[i].resourceAmountText.color = Color.white;
+				if (amount >= resourceList[i].resourceAmount)
+				{
+					costsInfo[i].resourceAmountText.color = Color.white;
+					costsInfo[i].red = false;
+				}
 			}
 			else
 			{
-				costsInfo[i].resourceAmountText.color = Color.red;
-				tempCantAfford = true;
+				if (amount < resourceList[i].resourceAmount)
+				{
+					costsInfo[i].resourceAmountText.color = Color.red;
+					costsInfo[i].red = true;
+				}
+				//tempCantAfford = true;
 			}
 
 			break;
 		}
 
-		if (cantAffordList.Contains(type))
+		//if (cantAffordList.Contains(type))
+		//{
+		//	if (!tempCantAfford)
+		//		cantAffordList.Remove(type);
+		//}
+		//else
+		//{
+		//	if (tempCantAfford)
+		//		cantAffordList.Add(type);
+		//}
+
+		//if (cantAffordList.Count == 0)
+		//	cantAfford = false;
+		//else
+		//	cantAfford = true;
+	}
+
+	public bool AffordCheck()
+	{
+		for (int i = 0; i < costsInfo.Count; i++)
 		{
-			if (!tempCantAfford)
-				cantAffordList.Remove(type);
-		}
-		else
-		{
-			if (tempCantAfford)
-				cantAffordList.Add(type);
+			if (!costsInfo[i].gameObject.activeSelf)
+				continue;
+
+			if (costsInfo[i].resourceType == ResourceType.Gold)
+			{
+				if (!world.CheckWorldGold(costsInfo[i].amount))
+					return false;
+			}
+			else if (army.city.resourceManager.resourceDict[costsInfo[i].resourceType] < costsInfo[i].amount)
+			{
+				return false;
+			}
 		}
 
-		if (cantAffordList.Count == 0)
-			cantAfford = false;
-		else
-			cantAfford = true;
+		return true;
 	}
 
 	public void ShakeCheck()
