@@ -41,8 +41,8 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 9
-    resourceAmount: 2
-  producedResourceTime: 0f000000
+    resourceAmount: 3
+  producedResourceTime: 14000000
   rawMaterials: 1
   rawResourceType: 5
   isResearch: 0

@@ -74,6 +74,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: b1aa17e9570b60945bee5be96ef6cd83, type: 3}
   - {fileID: 21300000, guid: 443eb3caa69410a468f9f460b148f74c, type: 3}
   - {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
+  - {fileID: 21300000, guid: 297ca71b4208a564ca715b860b3eed8f, type: 3}
   - {fileID: 21300000, guid: 6939222c173bb3849ae705a7746e54b2, type: 3}
   - {fileID: 21300000, guid: 3fd1d73c5e4d4664b82c14ba663d9865, type: 3}
   - {fileID: 21300000, guid: 21e729ece5f164148bd37413550ec86c, type: 3}
@@ -103,7 +104,7 @@ SpriteAtlas:
   - FishingBoats01Img
   - Laborer01Img
   - Weaver02Img
-  - Ceramist01South
+  - Ceramist02South
   - PyramidsImg
   - Trader02Img
   - ClayProcessor01Img
@@ -124,6 +125,7 @@ SpriteAtlas:
   - Pasture01Img
   - TradeDepot01South
   - Sericulture01Img
+  - Ceramist01South
   - Housing02South
   - Farm00FP
   - Farm01South

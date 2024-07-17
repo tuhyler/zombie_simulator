@@ -19,5 +19,6 @@ public class ResourceIndividualSO : ScriptableObject
     public Vector2 uvCoordinatesForRocks;
     public bool forVisual = false; //for resources that are just a different picture for another resource (such as fish)
     public bool sellResource = false;
+    public ResourceType obsoleteResource; //resource that is made obsolete by the discovery of this one
     //public ResourceValue resourceValue;
 }

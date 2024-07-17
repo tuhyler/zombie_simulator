@@ -25,19 +25,13 @@ MonoBehaviour:
   improvementNameAndLevel: Ceramist-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 72836415668955c42b01b3c284f1cf8d, type: 3}
+  image: {fileID: 21300000, guid: 297ca71b4208a564ca715b860b3eed8f, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
-  - resourceType: 31
-    resourceAmount: 15
   - resourceType: 6
-    resourceAmount: 15
-  - resourceType: 7
-    resourceAmount: 10
+    resourceAmount: 12
   consumedResources:
   - resourceType: 9
-    resourceAmount: 4
-  - resourceType: 6
     resourceAmount: 1
   - resourceType: 4
     resourceAmount: 2
@@ -46,7 +40,7 @@ MonoBehaviour:
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 11
+  - resourceType: 36
     resourceAmount: 1
   producedResourceTime: 14000000
   rawMaterials: 0

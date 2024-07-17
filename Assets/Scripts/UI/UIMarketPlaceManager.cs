@@ -139,9 +139,9 @@ public class UIMarketPlaceManager : MonoBehaviour
         if (ResourceHolder.Instance.GetSell(resource.resourceType))
         {
             if (resource.resourceType == ResourceType.Food)
-                marketResource.SetPurchaseAmount(resource.resourceQuantityPerPop);
+                marketResource.SetPurchaseAmount(world.resourcePurchaseAmountDict[resource.resourceType]);
             else
-				marketResource.SetPurchaseAmount(resource.resourceQuantityPerPop * purchaseAmountMultiple);
+				marketResource.SetPurchaseAmount(world.resourcePurchaseAmountDict[resource.resourceType] * purchaseAmountMultiple);
 		}
         else
         {
@@ -191,9 +191,9 @@ public class UIMarketPlaceManager : MonoBehaviour
             if (resourcePanel.purchaseAmount > 0)
             {
                 if (resourcePanel.resourceType == ResourceType.Food)
-					resourcePanel.SetPurchaseAmount(ResourceHolder.Instance.GetPurchaseAmount(resourcePanel.resourceType));
+					resourcePanel.SetPurchaseAmount(world.resourcePurchaseAmountDict[resourcePanel.resourceType]);
                 else
-                    resourcePanel.SetPurchaseAmount(city.purchaseAmountMultiple * ResourceHolder.Instance.GetPurchaseAmount(resourcePanel.resourceType));
+                    resourcePanel.SetPurchaseAmount(city.purchaseAmountMultiple * world.resourcePurchaseAmountDict[resourcePanel.resourceType]);
 			}
         }
 	}
@@ -210,9 +210,9 @@ public class UIMarketPlaceManager : MonoBehaviour
             if (resourcePanel.purchaseAmount > 0)
             {
                 if (type == ResourceType.Food)
-                    resourcePanel.SetPurchaseAmount(ResourceHolder.Instance.GetPurchaseAmount(type));
+                    resourcePanel.SetPurchaseAmount(world.resourcePurchaseAmountDict[type]);
                 else
-					resourcePanel.SetPurchaseAmount(city.purchaseAmountMultiple * ResourceHolder.Instance.GetPurchaseAmount(type));
+					resourcePanel.SetPurchaseAmount(city.purchaseAmountMultiple * world.resourcePurchaseAmountDict[type]);
 			}
 
             bool isOn = city.resourceManager.resourceSellList.Contains(type);

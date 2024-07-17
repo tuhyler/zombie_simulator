@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Research02SouthData
   m_EditorClassIdentifier: 
-  showOrder: 8
+  showOrder: 9
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Research02South
   audio: {fileID: 8300000, guid: 4b903425d0583734b9e3d2b48e7d064f, type: 3}

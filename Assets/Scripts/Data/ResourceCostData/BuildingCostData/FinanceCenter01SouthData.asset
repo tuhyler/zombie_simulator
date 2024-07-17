@@ -47,7 +47,7 @@ MonoBehaviour:
   terrainType: 5
   specificTerrain: 0
   workEthicChange: 0
-  purchaseAmountChange: 0.25
+  purchaseAmountChange: 0.1
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0

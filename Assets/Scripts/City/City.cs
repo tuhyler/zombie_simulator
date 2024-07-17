@@ -519,7 +519,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, unitFoodConsumptionPerMinute * amount);
         if (!joinCity) //spend food to grow
         {
-            Debug.Log("SpendingFood");
+            //Debug.Log("SpendingFood");
             ResourceValue tempFoodValue;
             tempFoodValue.resourceType = ResourceType.Food;
             tempFoodValue.resourceAmount = growthFood * amount;
@@ -527,7 +527,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             resourceManager.ConsumeMaintenanceResources(valueList, cityLoc);
         }
 
-        Debug.Log("Adding pop");
+        //Debug.Log("Adding pop");
         for (int i = 0; i < amount; i++)
         {
             currentPop++;
@@ -563,12 +563,12 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             }
         }
 
-		Debug.Log("setting data");
+		//Debug.Log("setting data");
 		SetCityPop();
 		if (activeCity)
 			world.cityBuilderManager.uiInfoPanelCity.SetGrowthData(this);
 
-        Debug.Log("All done");
+        //Debug.Log("All done");
 	}
 
     private void NameCityCheck()

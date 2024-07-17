@@ -172,8 +172,14 @@ public class RoadManager : MonoBehaviour
             Road road = world.GetRoads(roadLoc, straight);
             if (road != null)
             {
-                roadMeshList.Remove(road.MeshFilter);
-                colliderMeshList.Remove(road.colliderMesh);
+                int index = roadMeshList.IndexOf(road.MeshFilter);
+                if (index > -1)
+                {
+                    roadMeshList.RemoveAt(index);
+                    colliderMeshList.RemoveAt(index);
+                }
+                //roadMeshList.Remove(road.MeshFilter);
+                //colliderMeshList.Remove(road.colliderMesh);
                 Destroy(road.gameObject);
             }
             if (world.IsSoloRoadOnTileLocation(roadLoc))
@@ -181,8 +187,14 @@ public class RoadManager : MonoBehaviour
                 Road road2 = world.GetRoads(roadLoc, false);
                 if (road2 != null)
                 {
-                    roadMeshList.Remove(road2.MeshFilter);
-                    colliderMeshList.Remove(road2.colliderMesh);
+					int index = roadMeshList.IndexOf(road2.MeshFilter);
+                    if (index > -1)
+                    {
+					    roadMeshList.RemoveAt(index);
+					    colliderMeshList.RemoveAt(index);
+                    }
+					//roadMeshList.Remove(road2.MeshFilter);
+     //               colliderMeshList.Remove(road2.colliderMesh);
                     Destroy(road2.gameObject);
                 }
                 world.RemoveSoloRoadLocation(roadLoc);
@@ -354,8 +366,14 @@ public class RoadManager : MonoBehaviour
         {
             if (road == null)
                 continue;
-            roadMeshList.Remove(road.MeshFilter);
-            colliderMeshList.Remove(road.colliderMesh);
+			int index = roadMeshList.IndexOf(road.MeshFilter);
+            if (index > -1)
+            {
+			    roadMeshList.RemoveAt(index);
+			    colliderMeshList.RemoveAt(index);
+            }
+			//roadMeshList.Remove(road.MeshFilter);
+   //         colliderMeshList.Remove(road.colliderMesh);
             Destroy(road.gameObject);
             //for tweening (can't tween with combined meshes, looks weird)
             //LeanTween.scale(road.gameObject, Vector3.zero, 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { Destroy(road.gameObject); } );

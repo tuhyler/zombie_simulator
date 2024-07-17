@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CityImprovement : MonoBehaviour
@@ -566,7 +567,8 @@ public class CityImprovement : MonoBehaviour
 
     public void StopUpgrade()
     {
-        StopCoroutine(constructionCo);
+		resourceProducer.HideConstructionProgressTimeBar();
+		StopCoroutine(constructionCo);
     }
 
 	public void StopUpgradeProcess(ResourceProducer producer)

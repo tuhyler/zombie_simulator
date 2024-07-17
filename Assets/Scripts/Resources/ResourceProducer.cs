@@ -193,7 +193,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         GameObject progressBar = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/TimeProgressBar2"), Vector3.zero, Quaternion.Euler(90, 0, 0));
         progressBar.transform.SetParent(cityImprovement.transform, false);
         uiTimeProgressBar = progressBar.GetComponent<UITimeProgressBar>();
-		uiTimeProgressBar.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+		//uiTimeProgressBar.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 	}
 
     public void UpdateCurrentLaborData(int currentLabor)

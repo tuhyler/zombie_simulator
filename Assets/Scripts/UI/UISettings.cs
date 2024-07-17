@@ -113,7 +113,7 @@ public class UISettings : MonoBehaviour
 
         if (world != null)
         {
-            if (value == -80)
+            if (value == -40)
             {
                 world.musicAudio.mute = true;
             }

@@ -233,12 +233,12 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 		}
 		else if (city.HousingCount < housingCost)
 		{
-			UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need housing. Build more housing.", false);
+			UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need housing. Build or upgrade more housing.", false);
 			fail = true;
 		}
 		else if (city.waterCount < waterCost)
 		{
-			UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need water. Make camp with river in radius or build a well.", false);
+			UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need water. Build city with river in radius or build a well.", false);
 			fail = true;
 		}
 

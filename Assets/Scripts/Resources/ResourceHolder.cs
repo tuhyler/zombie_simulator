@@ -76,4 +76,9 @@ public class ResourceHolder : MonoBehaviour
     {
         return resourceDict[resourceType].resourceQuantityPerPop;
     }
+
+    public ResourceType GetObsoleteResource(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].obsoleteResource;
+    }
 }

@@ -41,7 +41,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 2
     resourceAmount: 1
-  producedResourceTime: 14000000
+  producedResourceTime: 0f000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0

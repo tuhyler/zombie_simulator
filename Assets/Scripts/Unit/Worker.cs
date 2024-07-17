@@ -689,14 +689,14 @@ public class Worker : Unit
 				world.azai.StopMovementCheck(false);
 		}
 
-		//if (!world.IsTileOpenCheck(workerTile))
-  //      {
-  //          InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "Harvest on open tile");
-		//	AddFollowerLocToWorldCheck();
-  //          return;
-  //      }
+		if (!world.IsTileOpenCheck(workerTile) && (!world.TileHasCityImprovement(workerTile) || !world.GetCityDevelopment(workerTile).GetImprovementData.rawMaterials))
+		{
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "Harvest on open tile");
+			AddFollowerLocToWorldCheck();
+			return;
+		}
 
-        if (!CheckForCity(workerTile))
+		if (!CheckForCity(workerTile))
         {
             InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "No nearby city");
 			AddFollowerLocToWorldCheck();

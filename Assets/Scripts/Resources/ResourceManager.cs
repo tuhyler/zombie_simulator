@@ -763,8 +763,8 @@ public class ResourceManager : MonoBehaviour
         {
             ResourceIndividualSO data = ResourceHolder.Instance.GetData(type);
             
-            int totalDemand = data.resourceType == ResourceType.Food ? Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop) :
-				Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop * city.purchaseAmountMultiple);
+            int totalDemand = data.resourceType == ResourceType.Food ? Mathf.RoundToInt(city.world.resourcePurchaseAmountDict[type] * city.currentPop) :
+				Mathf.RoundToInt(city.world.resourcePurchaseAmountDict[type] * city.currentPop * city.purchaseAmountMultiple);
 
             if (totalDemand > 0)
             {
@@ -1207,7 +1207,8 @@ public enum ResourceType
     Incense,
     Spices,
     Sapphire,
-    Marble
+    Marble,
+    CoilPottery
 }
 
 public enum RawResourceType

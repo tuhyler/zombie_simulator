@@ -42,7 +42,7 @@ MonoBehaviour:
   isResearch: 0
   terrainType: 0
   specificTerrain: 0
-  workEthicChange: 0.4
+  workEthicChange: 0.25
   purchaseAmountChange: 0
   maxLabor: 0
   housingIncrease: 0
