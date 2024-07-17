@@ -138,24 +138,8 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void SetTradeCenterRep(bool load)
     {
-        int rot = Mathf.RoundToInt(main.rotation.eulerAngles.y / 90);
-        Vector3 tempTradeRepLoc = tradeRepLoc;
+        Vector3 instantiateLoc = CalculateTradeRepLoc(tradeRepLoc);
 
-        switch (rot)
-        {
-            case 1:
-                tempTradeRepLoc.x *= -1;
-                break;
-            case 2:
-				tempTradeRepLoc.x *= -1;
-				tempTradeRepLoc.z *= -1;
-				break;
-            case 3:
-				tempTradeRepLoc.z *= -1;
-				break;
-        }
-        
-        Vector3 instantiateLoc = tempTradeRepLoc;
         Vector3 rotationDirection = Vector3Int.zero - instantiateLoc;
 		Quaternion endRotation;
 		if (rotationDirection == Vector3.zero)
@@ -176,6 +160,27 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
             tcRep.LoadTradeRepData(GameLoader.Instance.gameData.allTCRepData[tcRep.tradeRepName]);
         CheckRapport();
     }
+
+    public Vector3 CalculateTradeRepLoc(Vector3 tempTradeRepLoc)
+    {
+		int rot = Mathf.RoundToInt(main.rotation.eulerAngles.y / 90);
+
+		switch (rot)
+		{
+			case 1:
+				tempTradeRepLoc.x *= -1;
+				break;
+			case 2:
+				tempTradeRepLoc.x *= -1;
+				tempTradeRepLoc.z *= -1;
+				break;
+			case 3:
+				tempTradeRepLoc.z *= -1;
+				break;
+		}
+
+        return tempTradeRepLoc;
+	}
 
     public void CheckRapport()
     {

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -211,7 +212,7 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
 			produceContentsHeight -= 140;
 		}
 
-        if (description.Length > 0 || showCityStatsDesc)
+        if (description.Length > 0 || unit || showCityStatsDesc)
         {
             descriptionHolder.SetActive(true);
 			cityStatsDescription.localPosition = cityStatsOriginalLoc;
@@ -267,6 +268,19 @@ public class UIResearchTooltip : MonoBehaviour, ITooltip
                     this.strength.text = strength.ToString();
                     strengthImage.sprite = strengthSprite;
                 }
+
+				Vector3 localPosition = unitInfo.localPosition;
+				if (description.Length == 0)
+				{
+					produceContentsHeight += 40;
+					localPosition.y = -45;
+					unitInfo.localPosition = localPosition;
+				}
+                else
+                {
+					localPosition.y = -130;
+					unitInfo.localPosition = localPosition;
+				}
 
 				unitInfo.gameObject.SetActive(true);
 				produceContentsHeight += 50;

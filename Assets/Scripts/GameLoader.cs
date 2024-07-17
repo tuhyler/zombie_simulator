@@ -58,18 +58,18 @@ public class GameLoader : MonoBehaviour
 
 			if (mapSize == "SmallToggle")
 			{
-				terrainGenerator.width = 20;
-				terrainGenerator.height = 20;
-			}
-			else if (mapSize == "MediumToggle")
-			{
 				terrainGenerator.width = 25;
 				terrainGenerator.height = 25;
 			}
-			else if (mapSize == "LargeToggle")
+			else if (mapSize == "MediumToggle")
 			{
 				terrainGenerator.width = 30;
 				terrainGenerator.height = 30;
+			}
+			else if (mapSize == "LargeToggle")
+			{
+				terrainGenerator.width = 35;
+				terrainGenerator.height = 35;
 			}
 
 			terrainGenerator.equatorDist = 2;
@@ -421,13 +421,13 @@ public class GameLoader : MonoBehaviour
 		world.maxResearchLevel = gameData.maxResearchLevel;
 		world.GenerateMap(gameData.allTerrain);
 
-		for (int i = 0; i < gameData.resourceDiscoveredList.Count; i++)
+		foreach (ResourceType type in gameData.resourceDiscoveredList)
 		{
-			if (gameData.resourceDiscoveredList[i] == ResourceType.Gold || gameData.resourceDiscoveredList[i] == ResourceType.Research)
+			if (type == ResourceType.Gold || type == ResourceType.Research)
 				continue;
 
-			if (!world.resourceDiscoveredList.Contains(gameData.resourceDiscoveredList[i]))
-				world.DiscoverResource(gameData.resourceDiscoveredList[i]);
+			if (!world.resourceDiscoveredList.Contains(type))
+				world.DiscoverResource(type);
 		}
 
 		//world.resourceDiscoveredList = new(gameData.resourceDiscoveredList);

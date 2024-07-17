@@ -30,7 +30,7 @@ MonoBehaviour:
   unitType: 1
   unitDescription: 
   availableInitially: 0
-  health: 12
+  health: 24
   regenerationRate: 16
   baseAttackStrength: 3
   baseAttackSpeed: 1

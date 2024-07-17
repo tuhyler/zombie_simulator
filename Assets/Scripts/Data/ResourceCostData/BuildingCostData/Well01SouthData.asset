@@ -49,7 +49,7 @@ MonoBehaviour:
   maxLabor: 0
   housingIncrease: 0
   cityHousing: 0
-  waterIncrease: 4
+  waterIncrease: 6
   powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0

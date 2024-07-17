@@ -162,8 +162,8 @@ public class TradeRep : Unit
 	private void DramaticallyAppear()
 	{
 		unitRigidbody.useGravity = true;
-		Vector3 loc = center.tradeRepLoc + center.mainLoc;
-		transform.position = loc;
+		Vector3 loc = center.CalculateTradeRepLoc(center.tradeRepLoc);
+		transform.position = loc + center.mainLoc;
 
 		UnhideUnit();
 		PlayLightBeam();

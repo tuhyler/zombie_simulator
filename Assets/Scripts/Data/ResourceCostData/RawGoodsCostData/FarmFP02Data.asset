@@ -32,7 +32,7 @@ MonoBehaviour:
     resourceAmount: 40
   consumedResources:
   - resourceType: 4
-    resourceAmount: 3
+    resourceAmount: 5
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []

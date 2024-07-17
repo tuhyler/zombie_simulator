@@ -269,7 +269,7 @@ public class MilitaryLeader : Military
 	{
 		if (empire.empireUnitCount < 9)
 		{
-			empire.empireUnitCount = Mathf.Clamp(empire.empireUnitCount + 2, empire.empireUnitCount + 2, 9);
+			empire.empireUnitCount++;//Mathf.Min(empire.empireUnitCount + 2, 9);
 			return true;
 		}
 

@@ -295,14 +295,14 @@ public class UICityUpgradePanel : MonoBehaviour
 
 		cityStatsDescription.gameObject.SetActive(showCityStatsDesc);
 
-        if (description.Length > 0 || showCityStatsDesc)
+        if (description.Length > 0 || unit || showCityStatsDesc)
         {
 			descriptionHolder.SetActive(true);
 			descriptionText.gameObject.SetActive(true);
 
 			if (!unit && description.Length < 23)
 				produceContentsHeight += 85;
-			else
+			else if (description.Length > 0)
 				produceContentsHeight += 120;
 
 			if (unit)
@@ -322,6 +322,19 @@ public class UICityUpgradePanel : MonoBehaviour
                     this.strength.text = strength.ToString();
                     strengthImage.sprite = strengthSprite;
                 }
+
+				Vector3 localPosition = unitInfo.localPosition;
+				if (description.Length == 0)
+				{
+					produceContentsHeight += 40;
+					localPosition.y = 12.5f;
+					unitInfo.localPosition = localPosition;
+				}
+				else
+				{
+					localPosition.y = -65;
+					unitInfo.localPosition = localPosition;
+				}
 
 				unitInfo.gameObject.SetActive(true);
 				produceContentsHeight += 50;

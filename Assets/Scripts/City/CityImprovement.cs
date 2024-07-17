@@ -909,6 +909,7 @@ public class CityImprovement : MonoBehaviour
                     if (!resourceProducer.hitResourceMax)
                         exclamationPoint.SetActive(true);
                     firstStart = true;
+                    resourceProducer.UpdateResourceGenerationData();
                 }
             }
             else

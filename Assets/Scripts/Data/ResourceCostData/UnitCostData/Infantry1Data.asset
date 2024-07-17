@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Infantry1Data
   m_EditorClassIdentifier: 
+  showOrder: 0
   prefabLoc: UnitPrefabs/infantry_1
   secondaryPrefabLoc: 
   nationalityAdjective: 
@@ -34,11 +35,11 @@ MonoBehaviour:
   battleCost: []
   laborCost: 1
   unitType: 1
-  unitDescription: Strong melee unit
+  unitDescription: Strong melee unit for the front lines
   availableInitially: 0
-  health: 15
+  health: 30
   regenerationRate: 2
-  baseAttackStrength: 3
+  baseAttackStrength: 30
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 30

@@ -285,7 +285,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         int produceHolderWidth = 220;
         int imageLineWidth = 300;
 
-        if (objectDescription.Length > 0 || showCityStatsDesc)
+        if (objectDescription.Length > 0 || isUnitPanel || showCityStatsDesc)
         {
             descriptionPanel.SetActive(true);
 
@@ -332,6 +332,20 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 unitDescription.gameObject.SetActive(true);
                 producesTitle.text = "Cost per Travel Cycle";
                 descriptionTitle.text = "Unit Info";
+
+                if (objectDescription.Length == 0)
+                {
+                    allContentsHeight += 35;
+                    Vector3 localPosition = unitDescription.localPosition;
+                    localPosition.y += 90;
+                    unitDescription.localPosition = localPosition;
+                }
+                else if (objectConsumed.Count == 0)
+                {
+					Vector3 localPosition = unitDescription.localPosition;
+					localPosition.y += 5;
+					unitDescription.localPosition = localPosition;
+				}
             }
             else if (cityBonus)
             {

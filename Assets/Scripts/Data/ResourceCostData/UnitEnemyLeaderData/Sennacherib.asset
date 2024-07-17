@@ -30,9 +30,9 @@ MonoBehaviour:
   unitType: 1
   unitDescription: 
   availableInitially: 0
-  health: 100
+  health: 200
   regenerationRate: 16
-  baseAttackStrength: 8
+  baseAttackStrength: 16
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 0

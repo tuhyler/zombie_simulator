@@ -1104,7 +1104,15 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             if (dist >= world.maxDistance)
                 return;
 
-            int suggestedTime = Mathf.RoundToInt((dist - 5) / (world.maxDistance - 5f) * world.waitTillAttackTime);
+            float waitTime;
+            if (GameLoader.Instance.gameData.enemies == 1)
+                waitTime = world.waitTillAttackTime * 1.3f;
+            else if (GameLoader.Instance.gameData.enemies == 3)
+                waitTime = world.waitTillAttackTime * .7f;
+            else
+                waitTime = world.waitTillAttackTime;
+
+            int suggestedTime = Mathf.RoundToInt((dist - 5) / (world.maxDistance - 5f) * waitTime);
 
             if (co == null)
             {

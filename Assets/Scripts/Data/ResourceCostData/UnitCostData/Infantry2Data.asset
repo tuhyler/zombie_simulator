@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Infantry2Data
   m_EditorClassIdentifier: 
+  showOrder: 3
   prefabLoc: UnitPrefabs/infantry_2
   secondaryPrefabLoc: 
   nationalityAdjective: 
@@ -24,8 +25,10 @@ MonoBehaviour:
   imageName: 
   mapIcon: {fileID: 21300000, guid: 2fadef0d442ebc9499e1837619d4b1e0, type: 3}
   unitCost:
-  - resourceType: 6
-    resourceAmount: 56
+  - resourceType: 15
+    resourceAmount: 10
+  - resourceType: 19
+    resourceAmount: 5
   cycleCost:
   - resourceType: 4
     resourceAmount: 25
@@ -34,11 +37,11 @@ MonoBehaviour:
   battleCost: []
   laborCost: 1
   unitType: 1
-  unitDescription: Stronger melee unit
+  unitDescription: Strong melee unit for the front lines
   availableInitially: 0
-  health: 20
+  health: 50
   regenerationRate: 2
-  baseAttackStrength: 5
+  baseAttackStrength: 6
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 30

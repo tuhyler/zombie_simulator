@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: BoatTrader1Data
   m_EditorClassIdentifier: 
+  showOrder: 501
   prefabLoc: UnitPrefabs/boat_trader_1
   secondaryPrefabLoc: 
   nationalityAdjective: 

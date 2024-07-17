@@ -296,7 +296,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
                 if (buildOptions[i].UnitBuildData.unitType != UnitType.Laborer)
                 {
                     if (!cityBuilderManager.world.showAllBuildOptions && (!cityBuilderManager.world.upgradeableObjectMaxLevelDict.ContainsKey(buildOptions[i].UnitBuildData.unitType.ToString()) ||
-					    buildOptions[i].UnitBuildData.unitLevel != cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].UnitBuildData.unitType.ToString()) ||
+					    buildOptions[i].UnitBuildData.unitLevel >/*!=*/ cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].UnitBuildData.unitType.ToString()) ||
 					    !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType)))
                     {
                         buildOptions[i].Hide();
