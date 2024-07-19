@@ -26,7 +26,7 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: 96ad298f88c370347b8f53c2b3351112, type: 3}
   unitCost:
   - resourceType: 6
-    resourceAmount: 20
+    resourceAmount: 12
   cycleCost:
   - resourceType: 4
     resourceAmount: 15

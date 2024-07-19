@@ -13,7 +13,7 @@ public class AudioManager : MonoBehaviour
 
 	private AudioSource audioSource;
 
-	private int musicPause = 30; //pause between songs
+	private int musicPause = 60; //pause between songs
 	private int checkWait = 5;
 	private WaitForSeconds ambienceCheck;
 

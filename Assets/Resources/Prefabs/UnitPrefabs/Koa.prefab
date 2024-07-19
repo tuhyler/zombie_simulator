@@ -327,6 +327,11 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3289582613228498241, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3412779968788641202, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Enabled
@@ -494,6 +499,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
+    - {fileID: 3412779968788641202, guid: cb2720df9ba71c948a71f90c55a9188b, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: cb2720df9ba71c948a71f90c55a9188b, type: 3}
 --- !u!4 &493350885888212 stripped
 Transform:
@@ -656,6 +662,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   conversationTopics: []
+--- !u!65 &1746389159546833142
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8266383177558337226}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.4, y: 1.1, z: 0.25}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1001 &8811663769511038827
 PrefabInstance:
   m_ObjectHideFlags: 0

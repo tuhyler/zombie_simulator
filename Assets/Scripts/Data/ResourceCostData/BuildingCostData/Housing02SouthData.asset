@@ -20,7 +20,7 @@ MonoBehaviour:
   isBuilding: 1
   isBuildingImprovement: 0
   improvementName: Housing
-  improvementDisplayName: Medium Hut
+  improvementDisplayName: Small Abode
   improvementLevel: 2
   improvementNameAndLevel: Housing-2
   improvementDescription: 
@@ -29,7 +29,7 @@ MonoBehaviour:
   mapIcon: {fileID: 0}
   improvementCost:
   - resourceType: 31
-    resourceAmount: 15
+    resourceAmount: 12
   - resourceType: 6
     resourceAmount: 10
   consumedResources: []

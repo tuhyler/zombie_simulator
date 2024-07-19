@@ -256,7 +256,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
         world.GameCheck(researchName + " Research Complete");
 
-        //start attacks when smelting is researched
+        //start attacks when certain research level is reached
         if (!world.enemyAttackBegin && researchLevel == world.enemyStartAttackLevel)
             world.StartAttacks();
 
@@ -270,11 +270,11 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
         if (world.tutorial)
         {
-            if (researchName == "Agriculture" || researchName == "Pottery" || researchName == "Trade")
-            {
-                world.tutorialStep = "tutorialAny";
-                world.TutorialCheck(researchName + " Research Complete");
-            }
+            //if (researchName == "Agriculture" || researchName == "Pottery" || researchName == "Trade")
+            //{
+            world.tutorialStep = "tutorialAny";
+            world.TutorialCheck(researchName + " Research Complete");
+            //}
         }
     }
 

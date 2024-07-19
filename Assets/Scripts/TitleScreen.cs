@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -6,7 +7,8 @@ public class TitleScreen : MonoBehaviour
     public UISaveGame uiLoadGame;
     public UISettings uiSettings;
     public UINewGameMenu uiNewGame;
-    public TMP_Text startContinueText; 
+    public TMP_Text startContinueText;
+    public AudioSource musicSource;
     private AudioSource audioSource;
 
     public AudioClip closeClip, selectClip, checkClip;
@@ -20,6 +22,19 @@ public class TitleScreen : MonoBehaviour
 
         startContinueText.text = uiLoadGame.currentSaves.Count > 0 ? "Continue" : "Start Game";
 	}
+
+    public void PlayMusic()
+    {
+        StartCoroutine(WaitASec());
+    }
+
+    private IEnumerator WaitASec()
+    {
+        yield return new WaitForSeconds(1);
+
+        if (!uiSettings.muted)
+            musicSource.Play();
+    }
 
 	public void CursorCheck()
 	{

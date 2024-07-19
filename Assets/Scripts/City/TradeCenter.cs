@@ -46,7 +46,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 
     //initial resources to buy & sell
     public List<ResourceValue> buyResources = new();
-    public List<ResourceValue> sellResources = new();
+    public List<ResourceType> sellResources = new();
 
     int IGoldWaiter.goldNeeded => waitingAmount;
 	Vector3Int IGoldWaiter.waiterLoc => mainLoc;
@@ -84,8 +84,11 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
             resourceBuyGridDict[buyResources[i].resourceType] = i;
 		}
 
-        foreach (ResourceValue value in sellResources)
-            resourceSellDict[value.resourceType] = value.resourceAmount;
+        foreach (ResourceType type in sellResources)
+        {
+            int price = ResourceHolder.Instance.GetPrice(type);
+			resourceSellDict[type] = price < 4 ? 1 : price;
+        }
 
         nameMap.GetComponentInChildren<TMP_Text>().outlineWidth = 0.35f;
         nameMap.GetComponentInChildren<TMP_Text>().outlineColor = Color.black;

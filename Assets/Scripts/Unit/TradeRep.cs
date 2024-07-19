@@ -163,6 +163,10 @@ public class TradeRep : Unit
 	{
 		unitRigidbody.useGravity = true;
 		Vector3 loc = center.CalculateTradeRepLoc(center.tradeRepLoc);
+
+		if (world.IsRoadOnTileLocation(world.RoundToInt(loc)))
+			loc.y += .1f;
+
 		transform.position = loc + center.mainLoc;
 
 		UnhideUnit();

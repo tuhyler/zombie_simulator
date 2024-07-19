@@ -794,7 +794,7 @@ public class Army : MonoBehaviour
             }
             else
             {
-                if (pathToTarget.Count < 3)
+                if (pathToTarget.Count < 4)
                 {
 					if (world.IsEnemyCityOnTile(targetCamp.cityLoc))
 					{

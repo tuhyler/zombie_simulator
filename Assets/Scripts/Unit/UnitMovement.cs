@@ -40,7 +40,7 @@ public class UnitMovement : MonoBehaviour
 
     private ResourceManager cityResourceManager;
     private TradeCenter tradeCenter;
-    private int playerLoadIncrement = 1, givenAmount, maxGive = 10;
+    private int playerLoadIncrement = 1, givenAmount, maxGive = 1000;
     public int GivenAmount { set { givenAmount = value; } }
 
     //for deploying army

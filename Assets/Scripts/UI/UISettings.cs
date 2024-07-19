@@ -20,7 +20,7 @@ public class UISettings : MonoBehaviour
     private TMP_Dropdown graphicsDropdown, resolutionDropdown;
 
     [HideInInspector]
-    public bool activeStatus;
+    public bool activeStatus, muted;
 
     [SerializeField]
     private AudioMixer audioMixer;
@@ -113,7 +113,7 @@ public class UISettings : MonoBehaviour
 
         if (world != null)
         {
-            if (value == -40)
+            if (value == -80)
             {
                 world.musicAudio.mute = true;
             }
@@ -122,7 +122,19 @@ public class UISettings : MonoBehaviour
                 world.musicAudio.mute = false;
                 world.musicAudio.StartMusic();
             }
-		}
+        }
+        else
+        {
+            if (value == -80)
+            {
+                muted = true;
+            }
+            else
+            {
+                muted = false;
+                titleScreen.PlayMusic();
+            }
+        }
 	}
 
     public void ChangeAmbience(float value)

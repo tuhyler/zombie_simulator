@@ -229,6 +229,18 @@ public class UITradeCenter : MonoBehaviour/*, IGoldUpdateCheck*/
 		}
 	}
 
+    public void UpdateResourcePrice(ResourceType type)
+    {
+        foreach (UITradeResource panel in sellPanelList)
+        {
+            if (panel.resourceType == type)
+            {
+                panel.SetValue(Mathf.Max(1, panel.resourceAmount - world.maxPriceDiff));
+                break;
+            }
+        }
+    }
+
 	#region object pooling
 	private void GrowPanelsPool(int num, bool buy)
 	{

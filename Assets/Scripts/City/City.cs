@@ -75,7 +75,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public int countDownTimer;
     private Coroutine co;
-    private WaitForSeconds foodConsumptionWait = new(1);
+    private WaitForSeconds secondWait = new(1);
 
 	//housingInfo
 	[HideInInspector]
@@ -928,7 +928,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         while (countDownTimer > 0)
         {
-            yield return foodConsumptionWait;
+            yield return secondWait;
             countDownTimer--;
             if (activeCity)
             {
@@ -1106,15 +1106,19 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
             float waitTime;
             if (GameLoader.Instance.gameData.enemies == 1)
-                waitTime = world.waitTillAttackTime * 1.3f;
+                waitTime = world.waitTillAttackTime * 1.4f;
             else if (GameLoader.Instance.gameData.enemies == 3)
-                waitTime = world.waitTillAttackTime * .7f;
+                waitTime = world.waitTillAttackTime * .6f;
             else
                 waitTime = world.waitTillAttackTime;
 
-            int suggestedTime = Mathf.RoundToInt((dist - 5) / (world.maxDistance - 5f) * waitTime);
+            int suggestedTime;
+            if (dist < world.minDistance)
+                suggestedTime = Mathf.RoundToInt((dist - 5) / (world.maxDistance - 5f) * waitTime);
+            else
+                suggestedTime = Mathf.RoundToInt(waitTime);
 
-            if (co == null)
+			if (co == null)
             {
                 countDownTimer = suggestedTime;
                 Debug.Log("starting send attack wait at " + cityLoc);
@@ -1155,7 +1159,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     {
         while (countDownTimer > 0)
         {
-            yield return foodConsumptionWait;
+            yield return secondWait;
             countDownTimer--;
             Debug.Log(countDownTimer);
         }
@@ -1387,7 +1391,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         Debug.Log("growth time at " + cityLoc + " is " + countDownTimer);
         while (countDownTimer > 0)
         {
-            yield return foodConsumptionWait;
+            yield return secondWait;
             countDownTimer--;
             Debug.Log("timer at " + cityLoc + " is " + countDownTimer);
         }

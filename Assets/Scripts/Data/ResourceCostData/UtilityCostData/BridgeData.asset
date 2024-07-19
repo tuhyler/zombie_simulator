@@ -26,4 +26,4 @@ MonoBehaviour:
   bridgeCost: []
   bridgePrefab: {fileID: 5101276599224808569, guid: 8160c12be0d78bc4bbfac43a2cd24fc1,
     type: 3}
-  bridge: 0
+  bridge: 1

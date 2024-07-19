@@ -62,7 +62,7 @@ PrefabInstance:
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: questHints.Array.data[1]
-      value: '- Wants 10 Pottery'
+      value: '- Wants 10 Coil Pottery'
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
@@ -117,7 +117,7 @@ PrefabInstance:
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: questGoals.Array.data[1].resourceType
-      value: 11
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}

@@ -454,7 +454,13 @@ public class EnemyCamp
 		ResurrectCamp();
 
 		if (isCity)
-			RestartCityCheck();
+		{
+			City city = world.GetEnemyCity(cityLoc);
+			if (city.countDownTimer == world.waitTillAttackTime)
+				city.StartSendAttackWait();
+			else
+				RestartCityCheck(city);
+		}
 	}
 
 	public void Charge()
@@ -761,7 +767,7 @@ public class EnemyCamp
 	{
 		if (unitsInCamp.Count == 0)
 		{
-			RestartCityCheck();
+			RestartCityCheck(world.GetEnemyCity(cityLoc));
 		}
 		else if (unitsInCamp[0].duelWatch)
 		{
@@ -771,9 +777,8 @@ public class EnemyCamp
 		}
 	}
 
-	public void RestartCityCheck()
+	public void RestartCityCheck(City city)
 	{
-		City city = world.GetEnemyCity(cityLoc);
 		if (growing)
 			city.StartSpawnCycle(false);
 		else
