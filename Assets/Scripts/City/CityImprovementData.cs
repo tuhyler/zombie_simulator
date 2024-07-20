@@ -10,6 +10,6 @@ public class CityImprovementData
 	public bool queued, isConstruction, isUpgrading, isTraining, isWaitingForStorageRoom, isWaitingforResources, isWaitingForResearch, isProducing, hadRoad, hitResourceMax;
 	public int housingIndex, laborCost, timePassed, producedResourceIndex, currentLabor, productionTimer, upgradeLevel, goldNeeded;
     //public float tempLabor, unloadLabor;
-    public ResourceType producedResource;
+    //public ResourceType producedResource;
     //public List<float> tempLaborPercsList;
 }

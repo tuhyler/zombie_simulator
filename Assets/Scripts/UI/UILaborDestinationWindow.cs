@@ -414,6 +414,15 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 					return false;
 				}
 			}
+			else if (costsInfo[i].resourceType == ResourceType.Labor)
+			{
+				if (city.unusedLabor < costsInfo[i].amount)
+				{
+					StartShaking();
+					UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Need more idle labor", false);
+					return false;
+				}
+			}
 			else if (city.resourceManager.resourceDict[costsInfo[i].resourceType] < costsInfo[i].amount)
 			{
 				StartShaking();

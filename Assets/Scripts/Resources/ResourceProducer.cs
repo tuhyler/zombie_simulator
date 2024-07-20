@@ -55,7 +55,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 	int ICityGoldWait.waitId => -1;
     int ICityResourceWait.waitId => -1;
 
-	public void InitializeImprovementData(ImprovementDataSO data, ResourceType type)
+	public void InitializeImprovementData(ImprovementDataSO data, ResourceType type, int index)
     {
         improvementData = data;
         //ResourceValue laborCost;
@@ -79,7 +79,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
                         producedResource = newValue;
                         producedResources.Add(newValue);
-                        producedResourceIndex = i;
+                        //producedResourceIndex = i;
                     }
 
                     i++;
@@ -93,7 +93,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
                     {
                         producedResource = data.producedResources[i];
                         producedResources.Add(data.producedResources[i]);
-                        producedResourceIndex = i;
+                        //producedResourceIndex = i;
                         break;
                     }
                 }
@@ -102,20 +102,19 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             return;
         }
 
+		producedResourceIndex = index;
         if (data.producedResources.Count > 0)
         {
 			if (type == ResourceType.Fish)
 			{
 				ResourceValue newValue;
 				newValue.resourceType = ResourceType.Food;
-				newValue.resourceAmount = data.producedResources[0].resourceAmount;
+				newValue.resourceAmount = data.producedResources[index].resourceAmount;
 				producedResource = newValue;
-				producedResourceIndex = 0;
 			}
             else
             {
-			    producedResource = data.producedResources[0];
-                producedResourceIndex = 0;
+			    producedResource = data.producedResources[producedResourceIndex];
             }
         }
 
@@ -138,13 +137,13 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         this.resourceManager = resourceManager;
     }
 
-    public void SetCityImprovement(CityImprovement cityImprovement)
+    public void SetCityImprovement(CityImprovement cityImprovement, int index)
     {
         this.cityImprovement = cityImprovement;
-        consumedResources = new(cityImprovement.allConsumedResources[producedResourceIndex]);
+        consumedResources = new(cityImprovement.allConsumedResources[index]);
         SetConsumedResourceTypes();
-        cityImprovement.producedResource = producedResource.resourceType;
-        cityImprovement.producedResourceIndex = producedResourceIndex;
+        //cityImprovement.producedResource = producedResource.resourceType;
+        //cityImprovement.producedResourceIndex = producedResourceIndex;
     }
 
     public void SetLocation(Vector3Int loc)

@@ -41,10 +41,10 @@ public class CityImprovement : MonoBehaviour
 
     [HideInInspector]
     public Vector3Int loc;
-    [HideInInspector]
-    public ResourceType producedResource;
-    [HideInInspector]
-    public int producedResourceIndex;
+    //[HideInInspector]
+    //public ResourceType producedResource;
+    //[HideInInspector]
+    //public int producedResourceIndex;
     public List<List<ResourceValue>> allConsumedResources = new();
 
 	[SerializeField]
@@ -213,7 +213,7 @@ public class CityImprovement : MonoBehaviour
         yield return startWorkWait;
         improvementAnimator.SetBool(isWorkingHash, true);
 		improvementAnimator.SetFloat("offset", offset);
-		improvementAnimator.SetFloat("speed", 1f / improvementData.producedResourceTime[producedResourceIndex]);
+		improvementAnimator.SetFloat("speed", 1f / improvementData.producedResourceTime[resourceProducer.producedResourceIndex]);
 	}
 
     public void StartJustWorkAnimation()
@@ -800,7 +800,7 @@ public class CityImprovement : MonoBehaviour
         td.RemoveMinimapResource(world.mapHandler);
         world.RemoveResourceIcon(loc);
         //city.SetNewTerrainData(loc);
-		city.UpdateCityBools(producedResource, ResourceHolder.Instance.GetRawResourceType(producedResource), td.terrainData.type);
+		city.UpdateCityBools(resourceProducer.producedResource.resourceType, ResourceHolder.Instance.GetRawResourceType(resourceProducer.producedResource.resourceType), td.terrainData.type);
         world.uiCityImprovementTip.CloseCheck(this);
         world.cityBuilderManager.RemoveImprovement(loc, this, false, city);
     }
@@ -833,11 +833,11 @@ public class CityImprovement : MonoBehaviour
         //else
         data.timePassed = timePassed;
 
-        data.producedResourceIndex = producedResourceIndex;
 
         if (!building || improvementData.isBuildingImprovement)
         {
             //Resource Producer
+            data.producedResourceIndex = resourceProducer.producedResourceIndex;
 		    data.currentLabor = resourceProducer.currentLabor;
             //data.tempLabor = resourceProducer.tempLabor;
             //data.unloadLabor = resourceProducer.unloadLabor;
@@ -848,8 +848,8 @@ public class CityImprovement : MonoBehaviour
             data.isWaitingForResearch = resourceProducer.isWaitingForResearch;
             data.isProducing = resourceProducer.isProducing;
 		    data.productionTimer = resourceProducer.productionTimer;
-		    data.producedResource = producedResource;
-		    //data.tempLaborPercsList = resourceProducer.tempLaborPercsList;
+		    //data.producedResource = resourceProducer.producedResource.resourceType;
+            //data.tempLaborPercsList = resourceProducer.tempLaborPercsList;
             data.goldNeeded = resourceProducer.goldNeeded;  
         }
 
@@ -870,11 +870,25 @@ public class CityImprovement : MonoBehaviour
         housingIndex = data.housingIndex;
         laborCost = data.laborCost;
 		timePassed = data.timePassed;
-        producedResourceIndex = data.producedResourceIndex;
 
         if (!building || improvementData.isBuildingImprovement)
         {
-		    //Resource Producer
+            //Resource Producer
+            resourceProducer.producedResourceIndex = data.producedResourceIndex;
+   //         if (resourceProducer.producedResources.Count > 0)
+   //         {
+			//	if (resourceProducer.producedResources[resourceProducer.producedResourceIndex].resourceType == ResourceType.Fish)
+			//	{
+			//		ResourceValue newValue;
+			//		newValue.resourceType = ResourceType.Food;
+			//		newValue.resourceAmount = resourceProducer.producedResources[resourceProducer.producedResourceIndex].resourceAmount;
+			//		resourceProducer.producedResource = newValue;
+			//	}
+   //             else
+   //             {
+   //                 resourceProducer.producedResource = resourceProducer.producedResources[resourceProducer.producedResourceIndex];
+   //             }
+			//}
 			resourceProducer.currentLabor = data.currentLabor;
 			//resourceProducer.tempLabor = data.tempLabor;
             resourceProducer.hitResourceMax = data.hitResourceMax;
@@ -885,7 +899,7 @@ public class CityImprovement : MonoBehaviour
 			resourceProducer.isWaitingForResearch = data.isWaitingForResearch;
 			resourceProducer.isProducing = data.isProducing;
 			resourceProducer.productionTimer = data.productionTimer;
-		    producedResource = data.producedResource;
+		    //producedResource = data.producedResource;
 			//resourceProducer.tempLaborPercsList = data.tempLaborPercsList;
             resourceProducer.goldNeeded = data.goldNeeded;
 

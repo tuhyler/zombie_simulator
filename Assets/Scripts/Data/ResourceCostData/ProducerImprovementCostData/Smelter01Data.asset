@@ -46,7 +46,13 @@ MonoBehaviour:
     resourceAmount: 2
   - resourceType: 4
     resourceAmount: 2
-  consumedResources2: []
+  consumedResources2:
+  - resourceType: 26
+    resourceAmount: 5
+  - resourceType: 10
+    resourceAmount: 2
+  - resourceType: 4
+    resourceAmount: 2
   consumedResources3: []
   consumedResources4: []
   producedResources:
@@ -54,7 +60,9 @@ MonoBehaviour:
     resourceAmount: 1
   - resourceType: 15
     resourceAmount: 1
-  producedResourceTime: 1e0000001e000000
+  - resourceType: 14
+    resourceAmount: 1
+  producedResourceTime: 1e0000001e0000001e000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0

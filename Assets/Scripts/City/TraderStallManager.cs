@@ -11,7 +11,7 @@ public class TraderStallManager
 
     public void SetUpStallLocs(Vector3Int loc)
     {
-        List<Vector3Int> stallCoordinates = new() { Vector3Int.zero, Vector3Int.left/*, Vector3Int.forward, Vector3Int.back, Vector3Int.right */};
+        List<Vector3Int> stallCoordinates = new() { Vector3Int.zero, Vector3Int.left, Vector3Int.forward, Vector3Int.back, Vector3Int.right};
 
         for (int i = 0; i < stallCoordinates.Count; i++)
             stallLocs.Add(loc + stallCoordinates[i]);
@@ -36,6 +36,7 @@ public class TraderStallManager
                 }
                 
                 firstOne = false;
+                chosenStall = stallLocs[i];
                 dist = Mathf.Abs(loc.x - stallLocs[i].x) + Mathf.Abs(loc.z - stallLocs[i].z);
                 continue;
             }

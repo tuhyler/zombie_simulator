@@ -85,22 +85,22 @@ public class GameLoader : MonoBehaviour
 
 			if (mapSize == "SmallToggle")
 			{
-				terrainGenerator.width = 20;
-				terrainGenerator.height = 20;
-			}
-			else if (mapSize == "MediumToggle")
-			{
 				terrainGenerator.width = 25;
 				terrainGenerator.height = 25;
 			}
-			else if (mapSize == "LargeToggle")
+			else if (mapSize == "MediumToggle")
 			{
 				terrainGenerator.width = 30;
 				terrainGenerator.height = 30;
 			}
+			else if (mapSize == "LargeToggle")
+			{
+				terrainGenerator.width = 35;
+				terrainGenerator.height = 35;
+			}
 
 			terrainGenerator.equatorDist = 3;
-			terrainGenerator.equatorPos = terrainGenerator.height * 3 * 3 / 4;
+			terrainGenerator.equatorPos = 30;// terrainGenerator.height * 3 * 3 / 4;
 
 			auroraBorealisLoc = new Vector3(terrainGenerator.width * 3 / 2, 4, 14);
 		}
@@ -112,18 +112,18 @@ public class GameLoader : MonoBehaviour
 
 			if (mapSize == "SmallToggle")
 			{
-				terrainGenerator.width = 20;
-				terrainGenerator.height = 20;
-			}
-			else if (mapSize == "MediumToggle")
-			{
 				terrainGenerator.width = 25;
 				terrainGenerator.height = 25;
 			}
-			else if (mapSize == "LargeToggle")
+			else if (mapSize == "MediumToggle")
 			{
 				terrainGenerator.width = 30;
 				terrainGenerator.height = 30;
+			}
+			else if (mapSize == "LargeToggle")
+			{
+				terrainGenerator.width = 35;
+				terrainGenerator.height = 35;
 			}
 
 			terrainGenerator.equatorDist = 4;
@@ -137,18 +137,18 @@ public class GameLoader : MonoBehaviour
 
 			if (mapSize == "SmallToggle")
 			{
-				terrainGenerator.width = 20;
-				terrainGenerator.height = 20;
-			}
-			else if (mapSize == "MediumToggle")
-			{
 				terrainGenerator.width = 25;
 				terrainGenerator.height = 25;
 			}
-			else if (mapSize == "LargeToggle")
+			else if (mapSize == "MediumToggle")
 			{
 				terrainGenerator.width = 30;
 				terrainGenerator.height = 30;
+			}
+			else if (mapSize == "LargeToggle")
+			{
+				terrainGenerator.width = 35;
+				terrainGenerator.height = 35;
 			}
 
 			terrainGenerator.equatorDist = 7;

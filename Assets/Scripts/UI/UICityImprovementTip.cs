@@ -254,7 +254,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
             producesHolder.SetActive(true);
             consumesText.text = "Requires";
             produceTimeList = data.producedResourceTime;
-            highlightIndex = improvement.producedResourceIndex;
+            highlightIndex = improvement.resourceProducer.producedResourceIndex;
             int producedTime = produceTimeList[highlightIndex];
 
             float workEthic;
@@ -475,8 +475,8 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
 				producer.cityImprovement.city.RemoveFromResourcesWorked(type);
 		}
 
-        improvement.producedResource = producesInfo[a].resourceType;
-        improvement.producedResourceIndex = a;
+        //improvement.producedResource = producesInfo[a].resourceType;
+        //improvement.producedResourceIndex = a;
         //improvement.CalculateWorkCycleLimit();
         producer.producedResourceIndex = a;
         highlightIndex = a;
@@ -495,6 +495,8 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
         }
         producer.consumedResources = improvement.allConsumedResources[a];
         producer.SetConsumedResourceTypes();
+        SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], produceTimeList[a], false);
+
         if (currentLabor > 0)
         {
             producer.UpdateCurrentLaborData(currentLabor);
@@ -507,8 +509,6 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
 			producer.cityImprovement.exclamationPoint.SetActive(false);
 			producer.StartProducing(true);
         }
-
-        SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], produceTimeList[a], false);
 
         highlightList[a].gameObject.SetActive(true);
         //float xShiftLeft = (producesCount - 1) * 45;

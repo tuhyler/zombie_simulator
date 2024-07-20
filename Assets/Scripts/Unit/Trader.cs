@@ -27,6 +27,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	[HideInInspector]
 	public Vector3Int homeCity;
 
+	[HideInInspector]
     public int loadUnloadRate = 1;
 	private float inLineSpeed = 0.5f;
 
@@ -69,7 +70,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         personalResourceManager.resourceStorageLimit = buildDataSO.cargoCapacity;
         if (bySea)
             ripples.SetActive(false);
-    }
+
+		loadUnloadRate = personalResourceManager.resourceStorageLimit / world.traderUnloadFactor;
+	}
 
 	private void Start()
 	{
@@ -262,7 +265,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	{
 		int rot;
 		if (world.IsTradeCenterOnTile(endLoc))
-			rot = Mathf.RoundToInt(world.GetTradeCenter	(endLoc).transform.localEulerAngles.y / 90);
+			rot = Mathf.RoundToInt(world.GetTradeCenter(endLoc).main.localEulerAngles.y / 90);
 		else
 			rot = Mathf.RoundToInt(world.GetStructure(endLoc).transform.localEulerAngles.y / 90);
 
