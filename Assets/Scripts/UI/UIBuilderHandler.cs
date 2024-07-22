@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
+using System;
 
 public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 {
@@ -411,7 +412,8 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 		for (int j = 0; j < option.producedResourcePanels.Count; j++)
 		{
             int amount = option.BuildData.producedResources[j].resourceAmount;
-            int newAmount = Mathf.RoundToInt(amount * (workEthic + cityBuilderManager.world.GetResourceTypeBonus(option.producedResourcePanels[j].resourceType)));
+            int newAmount = (int)Math.Round(amount * (workEthic + cityBuilderManager.world.GetResourceTypeBonus(option.producedResourcePanels[j].resourceType)), MidpointRounding.AwayFromZero);
+            //int newAmount = Mathf.RoundToInt(amount * (workEthic + cityBuilderManager.world.GetResourceTypeBonus(option.producedResourcePanels[j].resourceType)));
 
 			option.producedResourcePanels[j].SetResourceAmount(newAmount);
 			if (newAmount == amount)

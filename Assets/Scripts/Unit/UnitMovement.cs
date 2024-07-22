@@ -864,7 +864,8 @@ public class UnitMovement : MonoBehaviour
 
             QuickSelect(selectedUnit);
 			selectedUnit.SpeakingCheck();
-        }
+			world.ToggleCharacterConversationCam(true);
+		}
         else
         {
             SelectWorker();
@@ -985,7 +986,9 @@ public class UnitMovement : MonoBehaviour
                                     unit.Rotate(npc.transform.position);
                             }
                             npc.SpeakingCheck();
-    				        world.uiSpeechWindow.SetSpeakingNPC(npc);
+                            if (npc.conversationHaver.conversationTopics[0].Contains("intro"))
+	    						world.musicAudio.PlaySpecificSong(world.badGuySong);
+							world.uiSpeechWindow.SetSpeakingNPC(npc);
                             break;
                         }
                     }
@@ -1913,7 +1916,7 @@ public class UnitMovement : MonoBehaviour
                     InfoResourcePopUpHandler.CreateResourceStat(world.mainPlayer.transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), world);
 
                     uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, world.mainPlayer.personalResourceManager.GetResourceDictValue(resourceType), false);
-                    uiCityResourceInfoPanel.FlashResource(resourceType);
+                    //uiCityResourceInfoPanel.FlashResource(resourceType); //only shows what it is selling, not what it can buy
                     uiPersonalResourceInfoPanel.UpdateStorageLevel(world.mainPlayer.personalResourceManager.resourceStorageLevel);
                 }
                 else

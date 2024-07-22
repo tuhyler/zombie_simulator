@@ -396,7 +396,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
                 {
                     workEthic = producing ? workEthic : 1;
                     int amount = resourceList[i].resourceAmount;
-                    int newAmount = Mathf.RoundToInt(amount * (workEthic + world.GetResourceTypeBonus(resourceList[i].resourceType)));
+                    int newAmount = (int)Math.Round(amount * (workEthic + world.GetResourceTypeBonus(resourceList[i].resourceType)), MidpointRounding.AwayFromZero);
 
 					panelList[i].SetResourceAmount(newAmount);
 
@@ -540,7 +540,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
 		for (int i = 0; i < producer.producedResources.Count; i++)
         {
             int amount = producer.producedResources[i].resourceAmount;
-		    int newAmount = Mathf.RoundToInt(amount * (workEthic + world.GetResourceTypeBonus(producer.producedResources[i].resourceType)));
+		    int newAmount = (int)Math.Round(amount * (workEthic + world.GetResourceTypeBonus(producer.producedResources[i].resourceType)), MidpointRounding.AwayFromZero);
 
 		    producesInfo[i].SetResourceAmount(newAmount);
 

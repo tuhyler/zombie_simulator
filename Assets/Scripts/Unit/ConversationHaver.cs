@@ -46,6 +46,7 @@ public class ConversationHaver : MonoBehaviour
 		{
 			unit.world.unitMovement.QuickSelect(unit);
 			SpeakingCheck();
+			unit.world.ToggleCharacterConversationCam(true);
 		}
 	}
 
@@ -105,6 +106,7 @@ public class ConversationHaver : MonoBehaviour
 
 		unit.world.unitMovement.QuickSelect(unit);
 		SpeakingCheck();
+		unit.world.ToggleCharacterConversationCam(true);
 	}
 
 	//public void RemoveConversationTopic(string conversationTopic)

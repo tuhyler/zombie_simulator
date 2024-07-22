@@ -97,7 +97,15 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 				title.text = "Transfer Unit";
 				transferAmountHolder.SetActive(false);
 				allContents.sizeDelta = new Vector2(370, 185);
-				costResourceList = new(unit.buildDataSO.cycleCost);
+
+				for (int i = 0; i < unit.buildDataSO.cycleCost.Count; i++)
+				{
+					if (unit.buildDataSO.cycleCost[i].resourceType == ResourceType.Gold)
+						continue;
+
+					costResourceList.Add(unit.buildDataSO.cycleCost[i]);
+				}
+				//costResourceList = new(unit.buildDataSO.cycleCost);
 				buildType = unit.buildDataSO.singleBuildType;
 				moveSpeed = unit.buildDataSO.movementSpeed;
 				bySea = unit.bySea;

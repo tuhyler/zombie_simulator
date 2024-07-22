@@ -10,38 +10,38 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: RangedEnemy1Data
+  m_Name: CavalryEnemy2Data
   m_EditorClassIdentifier: 
   showOrder: 0
-  prefabLoc: UnitEnemyPrefabs/ranged_1_enemy
+  prefabLoc: UnitEnemyPrefabs/cavalry_2_enemy
   secondaryPrefabLoc: 
   nationalityAdjective: Bandit
-  unitDisplayName: Archer
-  unitLevel: 1
-  unitNameAndLevel: Ranged-1
+  unitDisplayName: Rider
+  unitLevel: 2
+  unitNameAndLevel: Cavalry-2
   empireUnit: 0
   inMilitary: 0
   image: {fileID: 0}
   imageName: 
-  mapIcon: {fileID: 21300000, guid: ac8806db73224c641bbcbd8f1e3dd47f, type: 3}
+  mapIcon: {fileID: 21300000, guid: dc76964902761f94c935417a2a80ac87, type: 3}
   unitCost: []
   cycleCost: []
   battleCost: []
   laborCost: 0
-  unitType: 2
+  unitType: 3
   unitDescription: 
   availableInitially: 0
-  health: 12
+  health: 40
   regenerationRate: 16
-  baseAttackStrength: 2
-  baseAttackSpeed: 2
+  baseAttackStrength: 5
+  baseAttackSpeed: 1
   movementSpeed: 2
   trainTime: 0
   cargoCapacity: 0
-  goldDropRange: {x: 5, y: 10}
+  goldDropRange: {x: 15, y: 25}
   transportationType: 0
   characterUnit: 0
   npc: 0
   singleBuildType: 0
-  unitEra: 0
+  unitEra: 1
   unitRegion: 1

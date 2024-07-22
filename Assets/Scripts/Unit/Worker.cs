@@ -491,7 +491,10 @@ public class Worker : Unit
 		isBusy = false;
 
 		if (isPlayer && isSelected && somethingToSay)
+		{
 			SpeakingCheck();
+			world.ToggleCharacterConversationCam(true);
+		}
 	}
 
 	private void SetResources(List<ResourceValue> costs, bool spend, Vector3Int loc)

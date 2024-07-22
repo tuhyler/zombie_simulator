@@ -114,7 +114,7 @@ public class UIMarketResourcePanel : MonoBehaviour
 
     public void SetForecastedSales(int currentPop)
     {
-        salesForecast = Mathf.Min(amount, Mathf.RoundToInt(currentPop * purchaseAmount)) * price;
+        salesForecast = Mathf.Min(amount, (int)Math.Round(currentPop * purchaseAmount, MidpointRounding.AwayFromZero)) * price;
         citySalesForecast.text = salesForecast.ToString();
 	}
 

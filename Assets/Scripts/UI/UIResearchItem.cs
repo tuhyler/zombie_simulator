@@ -257,7 +257,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         world.GameCheck(researchName + " Research Complete");
 
         //start attacks when certain research level is reached
-        if (!world.enemyAttackBegin && researchLevel == world.enemyStartAttackLevel)
+        if (!world.enemyAttackBegin && researchLevel == GameLoader.Instance.gameData.enemies - 2 + world.enemyStartAttackLevel)
             world.StartAttacks();
 
         if (researchLevel > world.maxResearchLevel)

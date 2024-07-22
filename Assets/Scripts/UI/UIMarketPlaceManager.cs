@@ -117,6 +117,8 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     private void CreateMarketResourcePanel(ResourceIndividualSO resource)
     {
+        if (resource.resourceType == ResourceType.Fish)
+            return;
         //currently only allowing sellable resources to be sold
         //if (!resource.sellResource)
         //    return;

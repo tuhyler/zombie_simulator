@@ -106,7 +106,7 @@ public class ResourceManager : MonoBehaviour
             resourceDict[ResourceType.Lumber] = 100;
             resourceDict[ResourceType.Stone] = 100;
             resourceDict[ResourceType.Bricks] = 100;
-			resourceDict[ResourceType.Clay] = 100;
+			resourceDict[ResourceType.CoilPottery] = 100;
             resourceStorageLevel += 450;
         }
     }
@@ -671,7 +671,7 @@ public class ResourceManager : MonoBehaviour
 
 	public int CalculateResourceGeneration(int resourceAmount, float labor, ResourceType type)
     {
-        return Mathf.RoundToInt((city.workEthic + city.world.GetResourceTypeBonus(type)) * (resourceAmount * labor) /** (1 + .1f * (labor - 1))*/);
+        return (int)Math.Round((city.workEthic + city.world.GetResourceTypeBonus(type)) * (resourceAmount * labor) /** (1 + .1f * (labor - 1))*/, MidpointRounding.AwayFromZero);
     }
 
     public void SpendResource(List<ResourceValue> buildCost, Vector3 loc, bool refund = false, List<ResourceValue> refundCost = null)
@@ -764,7 +764,7 @@ public class ResourceManager : MonoBehaviour
             ResourceIndividualSO data = ResourceHolder.Instance.GetData(type);
             
             int totalDemand = data.resourceType == ResourceType.Food ? Mathf.RoundToInt(city.world.resourcePurchaseAmountDict[type] * city.currentPop) :
-				Mathf.RoundToInt(city.world.resourcePurchaseAmountDict[type] * city.currentPop * city.purchaseAmountMultiple);
+				(int)Math.Round(city.world.resourcePurchaseAmountDict[type] * city.currentPop * city.purchaseAmountMultiple, MidpointRounding.AwayFromZero);
 
             if (totalDemand > 0)
             {

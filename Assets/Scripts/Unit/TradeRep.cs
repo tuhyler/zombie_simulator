@@ -179,7 +179,7 @@ public class TradeRep : Unit
 		world.cameraController.followTransform = null;
 		PlayLightBeam();
 		unitRigidbody.useGravity = false;
-		LeanTween.scale(gameObject, Vector3.zero, 0.5f).setEase(LeanTweenType.easeOutBack).setOnComplete(HideTradeRep);
+		LeanTween.scale(gameObject, new Vector3(0.11f, 0.1f, 0.1f), 0.5f).setEase(LeanTweenType.easeOutBack).setOnComplete(HideTradeRep);
 	}
 
 	private void HideTradeRep()

@@ -342,12 +342,12 @@ public class ProceduralGeneration
 
                     int floodPlain = random.Next(0, limit);
 
-                    if (mainMap[neighborPos] == grassland)
+                    /*if (mainMap[neighborPos] == grassland)
                     {
                         int terrain = floodPlain < 3 ? grasslandFloodPlain : grassland;
                         mainMap[neighborPos] = terrain;
                     }
-                    else if (mainMap[neighborPos] == desert)
+                    else */if (mainMap[neighborPos] == desert)
                     {
 						int terrain = floodPlain < 3 ? desertFloodPlain : desert;
 						mainMap[neighborPos] = terrain;
@@ -545,7 +545,7 @@ public class ProceduralGeneration
     {
         Dictionary<Vector3Int, int> newMapDict = new(mapDict);
         List<int> desertList = new() { desert, desertFloodPlain, desertHill, desertMountain };
-        List<int> grasslandList = new() { grassland, grasslandFloodPlain, grasslandHill, grasslandMountain, forest, forestHill, jungle, jungleHill, swamp };
+        List<int> grasslandList = new() { grassland, /*grasslandFloodPlain, */grasslandHill, grasslandMountain, forest, forestHill, jungle, jungleHill, swamp };
         List<int> waterList = new() { sea, river };
         List<int> exemptionList = new() { sea, river, forest, forestHill, jungle, jungleHill, swamp };
 
@@ -601,10 +601,10 @@ public class ProceduralGeneration
 						int currentTerrain = mapDict[currentTile];
 						int reverseTerrain = grassland;
 
-						if (currentTerrain == desert)
-							reverseTerrain = grassland;
-						else if (currentTerrain == desertFloodPlain)
-							reverseTerrain = grasslandFloodPlain;
+                        if (currentTerrain == desert)
+                            reverseTerrain = grassland;
+                        else if (currentTerrain == desertFloodPlain)
+                            reverseTerrain = grassland;// grasslandFloodPlain;
 						else if (currentTerrain == desertHill)
 							reverseTerrain = grasslandHill;
 						else if (currentTerrain == desertMountain)
@@ -630,8 +630,8 @@ public class ProceduralGeneration
 
 						if (currentTerrain == grassland)
 							reverseTerrain = desert;
-						else if (currentTerrain == grasslandFloodPlain)
-							reverseTerrain = desertFloodPlain;
+						//else if (currentTerrain == grasslandFloodPlain)
+						//	reverseTerrain = desertFloodPlain;
 						else if (currentTerrain == grasslandHill)
 							reverseTerrain = desertHill;
 						else if (currentTerrain == grasslandMountain)

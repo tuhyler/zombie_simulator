@@ -28,7 +28,7 @@ MonoBehaviour:
   - resourceType: 31
     resourceAmount: 600
   - resourceType: 11
-    resourceAmount: 100
+    resourceAmount: 50
   terrainType: 5
   wonderBenefitChange: 0.1
   replaceTerrain: 0

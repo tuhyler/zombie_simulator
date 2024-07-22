@@ -29,10 +29,10 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: c9fc3bb547040824293168fa88c1360d, type: 3}
   improvementCost:
   - resourceType: 6
-    resourceAmount: 40
+    resourceAmount: 20
   consumedResources:
   - resourceType: 4
-    resourceAmount: 5
+    resourceAmount: 6
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
@@ -48,7 +48,7 @@ MonoBehaviour:
   specificTerrain: 0
   workEthicChange: 0
   purchaseAmountChange: 0.1
-  maxLabor: 2
+  maxLabor: 3
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
@@ -59,7 +59,7 @@ MonoBehaviour:
   adjustForHill: 0
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 15
+  buildTime: 10
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
