@@ -191,12 +191,11 @@ public class TradeRouteManager : MonoBehaviour
                 
                 if (loading)
 				{
+					resourceAmount += amountMoved; //resetting to original amount
 					int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel;
 					if (space + amountMoved < resourceAmount)
-					{
-						resourceAmount = space;
-						resourceAmount += amountMoved;
-					}
+						resourceAmount = space + amountMoved;
+
 					resourceCurrentAmount = amountMoved;
 
 					if (resourceCheck)
@@ -478,12 +477,11 @@ public class TradeRouteManager : MonoBehaviour
 
 				if (loading)
                 {
+					resourceAmount += amountMoved;
 					int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel;
 					if (space + amountMoved < resourceAmount)
-                    {
-                        resourceAmount = space;
-						resourceAmount += amountMoved;
-					}
+                        resourceAmount = space + amountMoved;
+
 					resourceCurrentAmount = amountMoved;
 
                     if (resourceCheck)

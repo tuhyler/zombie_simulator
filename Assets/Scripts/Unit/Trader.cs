@@ -27,6 +27,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	[HideInInspector]
 	public Vector3Int homeCity;
 
+	public int loadUnloadFactor = 10;
 	[HideInInspector]
     public int loadUnloadRate = 1;
 	private float inLineSpeed = 0.5f;
@@ -71,7 +72,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         if (bySea)
             ripples.SetActive(false);
 
-		loadUnloadRate = personalResourceManager.resourceStorageLimit / world.traderUnloadFactor;
+		loadUnloadRate = personalResourceManager.resourceStorageLimit / loadUnloadFactor;
 	}
 
 	private void Start()

@@ -184,8 +184,7 @@ MonoBehaviour:
   - Move labor to work different resources if you're running low
   - Never invite howler monkeys to your ballet recital
   - Set resource max storage amounts to better manage city inventory level
-  - Product prices fluctuate based on supply and demand
-  - Work ethic increase production amount, rounded to the nearest integer
+  - Work ethic increases production amount, rounded to the nearest integer
 --- !u!4 &1087803693
 Transform:
   m_ObjectHideFlags: 0

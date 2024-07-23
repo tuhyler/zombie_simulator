@@ -105,9 +105,9 @@ public class ResourceManager : MonoBehaviour
             resourceDict[ResourceType.Food] = 50;
             resourceDict[ResourceType.Lumber] = 100;
             resourceDict[ResourceType.Stone] = 100;
-            resourceDict[ResourceType.Bricks] = 100;
-			resourceDict[ResourceType.CoilPottery] = 100;
-            resourceStorageLevel += 450;
+            resourceDict[ResourceType.Bricks] = 140;
+			resourceDict[ResourceType.Clay] = 100;
+            resourceStorageLevel += 490;
         }
     }
 
@@ -768,11 +768,11 @@ public class ResourceManager : MonoBehaviour
 
             if (totalDemand > 0)
             {
-                if (!resourceSellList.Contains(type))
-                {
-                    IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
-                    continue;
-                }
+                //if (!resourceSellList.Contains(type))
+                //{
+                //    IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
+                //    continue;
+                //}
 
 			    if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
 			    {
@@ -784,7 +784,7 @@ public class ResourceManager : MonoBehaviour
 				    resourceSellHistoryDict[data.resourceType] += sellAmount;
 				    SubtractResource(data.resourceType, sellAmount);
 
-                    SetNewPrice(data.resourceType, demandDiff, totalDemand, data.resourcePrice, currentPrice);
+                    //SetNewPrice(data.resourceType, demandDiff, totalDemand, data.resourcePrice, currentPrice);
 
 				    if (city.activeCity && sellAmount != 0)
                     {
@@ -794,15 +794,15 @@ public class ResourceManager : MonoBehaviour
                         i++;
                     }
 			    }
-                else
-                {
-				    IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
-			    }
+       //         else
+       //         {
+				   // IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
+			    //}
             }
-            else
-            {
-				DecreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
-			}
+   //         else
+   //         {
+			//	DecreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
+			//}
         }
 
         city.SetLast5Gold(goldAdded);
