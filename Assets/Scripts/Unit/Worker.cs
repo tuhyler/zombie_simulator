@@ -1617,8 +1617,15 @@ public class Worker : Unit
 
 				if (unitInTheWay.somethingToSay)
 				{
+					bool leader = unitInTheWay.military && unitInTheWay.military.leader;
 					if (isSelected && !isBusy)
 					{
+						if (leader)
+						{
+							if (unitInTheWay.conversationHaver.conversationTopics[0].Contains("intro"))
+								world.musicAudio.PlaySpecificSong(world.badGuySong);
+						}
+
 						world.unitMovement.QuickSelect(this);
 						unitInTheWay.SpeakingCheck();
 						if (unitInTheWay.buildDataSO.npc)
@@ -1627,7 +1634,6 @@ public class Worker : Unit
 							world.ToggleCharacterConversationCam(true);
 					}
 
-					bool leader = unitInTheWay.military && unitInTheWay.military.leader;
 					worker.SetUpSpeakingPositions(unitInTheWay.transform.position, leader);
 					FinishMoving(transform.position);
 					foreach (Unit unit in world.characterUnits)
@@ -1635,6 +1641,7 @@ public class Worker : Unit
 						if (!unit.isMoving)
 							unit.Rotate(unitInTheWay.transform.position);
 					}
+
 					return true;
 				}
 				else

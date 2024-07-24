@@ -201,6 +201,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  message: Find Koa (K)
+  message: Find Koa (1)
   secondDelay: 1
   workEthic: 0

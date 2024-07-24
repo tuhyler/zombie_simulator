@@ -1566,7 +1566,7 @@ public class TerrainGenerator : MonoBehaviour
 		//	propTiles.Add(terrainDict[swamp]);
 		//}
 
-        //adding food, max of two per start (if increasing, force more grassland above)
+        //adding food, max of two, three, or four per start (if increasing, force more grassland above)
         int foodToAdd;
         int floodPlainExcess = floodPlainTiles.Count - 2;
         if (floodPlainExcess > 0)

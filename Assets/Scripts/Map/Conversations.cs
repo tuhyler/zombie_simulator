@@ -3224,7 +3224,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaAnnoyed",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "So not only do I have to recreate human history, I have to also defeat all the bad guys along the way? I'm just trying to get back home!"
+			speakerText = "So not only do I have to recreate human history, I have to also deal with all the conquerors along the way? I'm just trying to get back home!"
 		};
 		conversationDict["Sennacherib_intro_coda"].Add(sennacherib_intro_coda5);
 		#endregion

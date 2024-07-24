@@ -42,6 +42,7 @@ public class UIResourceSelectionGrid : MonoBehaviour
             uiResourceSquare.SetInfo(resource.resourceType, resource.resourceName);
             uiResourceSquare.SetGrid(this);
             uiResourceSquare.resourceIcon.sprite = resource.resourceIcon;
+            resourceGO.SetActive(false);
         }
 
         int childMax = 0;

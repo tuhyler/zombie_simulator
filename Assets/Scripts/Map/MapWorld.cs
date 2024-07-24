@@ -9,6 +9,7 @@ using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.XR;
 
 public class MapWorld : MonoBehaviour
 {
@@ -1380,7 +1381,11 @@ public class MapWorld : MonoBehaviour
                     movingOut = true;
 
                 if (city.empire.capitalCity != cityTile || !city.empire.enemyLeader.dueling)
-                    city.LoadSendAttackWait(false);
+                {
+					if (city.empire.attackingCity == cityTile && !GetTerrainDataAt(cityTile).isDiscovered)
+						city.ActivateButHideCity();
+					city.LoadSendAttackWait(false);
+                }
 		    }
         }
         else
@@ -1869,54 +1874,55 @@ public class MapWorld : MonoBehaviour
                 cityBuilderManager.CombineMeshes(city, city.subTransform, false);
 
 			//reseting rock UVs 
-			if (improvementData.replaceRocks)
-			{
-				foreach (MeshFilter mesh in cityImprovement.MeshFilter)
-				{
-					if (mesh.name == "Rocks")
-					{
-						Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
-						Vector2[] newUVs = mesh.mesh.uv;
-						int i = 0;
+			ColorCityImprovementRocks(improvementData, cityImprovement, td, meshes);
+			//if (improvementData.replaceRocks)
+			//{
+			//	foreach (MeshFilter mesh in cityImprovement.MeshFilter)
+			//	{
+			//		if (mesh.name == "Rocks")
+			//		{
+			//			Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
+			//			Vector2[] newUVs = mesh.mesh.uv;
+			//			int i = 0;
 
-						while (i < newUVs.Length)
-						{
-							newUVs[i] = rockUVs;
-							i++;
-						}
-						mesh.mesh.uv = newUVs;
+			//			while (i < newUVs.Length)
+			//			{
+			//				newUVs[i] = rockUVs;
+			//				i++;
+			//			}
+			//			mesh.mesh.uv = newUVs;
 
-						foreach (MeshFilter mesh2 in meshes)
-						{
-							if (mesh2.name == "Rocks")
-							{
-								mesh2.mesh.uv = newUVs;
-								break;
-							}
-						}
+			//			foreach (MeshFilter mesh2 in meshes)
+			//			{
+			//				if (mesh2.name == "Rocks")
+			//				{
+			//					mesh2.mesh.uv = newUVs;
+			//					break;
+			//				}
+			//			}
 
-						if (cityImprovement.SkinnedMesh != null && cityImprovement.SkinnedMesh.name == "RocksAnim")
-						{
-							int j = 0;
-							Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
+			//			if (cityImprovement.SkinnedMesh != null && cityImprovement.SkinnedMesh.name == "RocksAnim")
+			//			{
+			//				int j = 0;
+			//				Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
 
-							while (j < skinnedUVs.Length)
-							{
-								skinnedUVs[j] = rockUVs;
-								j++;
-							}
+			//				while (j < skinnedUVs.Length)
+			//				{
+			//					skinnedUVs[j] = rockUVs;
+			//					j++;
+			//				}
 
-							cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
-							Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
-							cityImprovement.SkinnedMesh.material = mat;
-							cityImprovement.SetNewMaterial(mat);
-						}
+			//				cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
+			//				Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+			//				cityImprovement.SkinnedMesh.material = mat;
+			//				cityImprovement.SetNewMaterial(mat);
+			//			}
 
-						break;
-					}
-				}
+			//			break;
+			//		}
+			//	}
 
-			}
+			//}
 
 			if (td.prop != null && improvementData.hideProp)
                 td.ShowProp(false);
@@ -1991,6 +1997,51 @@ public class MapWorld : MonoBehaviour
                 
                 cityImprovement.LoadData(data, city, this);
             }
+		}
+	}
+
+    public void ColorCityImprovementRocks(ImprovementDataSO improvementData, CityImprovement cityImprovement, TerrainData td, MeshFilter[] meshes)
+    {
+		if (improvementData.replaceRocks)
+		{
+			foreach (MeshFilter mesh in cityImprovement.MeshFilter)
+			{
+				if (mesh.name == "Rocks")
+				{
+					Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
+					Vector2[] newUVs = mesh.mesh.uv;
+
+                    for (int i = 0; i < newUVs.Length; i++)
+						newUVs[i] = rockUVs;
+
+					mesh.mesh.uv = newUVs;
+
+					foreach (MeshFilter mesh2 in meshes)
+					{
+						if (mesh2.name == "Rocks")
+						{
+							mesh2.mesh.uv = newUVs;
+							break;
+						}
+					}
+
+					if (cityImprovement.SkinnedMesh != null && cityImprovement.SkinnedMesh.name == "RocksAnim")
+					{
+						Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
+
+                        for (int j = 0; j < skinnedUVs.Length; j++)
+							skinnedUVs[j] = rockUVs;
+
+						cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
+						Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+						cityImprovement.SkinnedMesh.material = mat;
+						cityImprovement.SetNewMaterial(mat);
+					}
+
+					break;
+				}
+			}
+
 		}
 	}
 
@@ -3388,8 +3439,8 @@ public class MapWorld : MonoBehaviour
 
     public void HandleK()
     {
-		if (!cityBuilderManager.uiCityNamer.activeStatus && !cityBuilderManager.uiTraderNamer.activeStatus)
-			uiTomFinder.FindTom();
+		//if (!cityBuilderManager.uiCityNamer.activeStatus && !cityBuilderManager.uiTraderNamer.activeStatus)
+		//	uiTomFinder.FindTom();
     }
 
     public void HandleM()
@@ -4565,7 +4616,7 @@ public class MapWorld : MonoBehaviour
         ResourceType obsolete = ResourceHolder.Instance.GetObsoleteResource(type);
         if (resourcePurchaseAmountDict.ContainsKey(obsolete))
         {
-            resourcePurchaseAmountDict[obsolete] *= obsoleteResourceReduction;
+            resourcePurchaseAmountDict[obsolete] *= 1-obsoleteResourceReduction;
 
             for (int i = 0; i < allTradeCenters.Count; i++)
             {
@@ -5392,7 +5443,7 @@ public class MapWorld : MonoBehaviour
 
     public void UpdateResourceSelectionGrids(ResourceType type)
     {
-        if (type == ResourceType.Gold || type == ResourceType.Research)
+        if (type == ResourceType.Gold || type == ResourceType.Research || type == ResourceType.Fish)
             return;
         
         for (int i = 0; i < resourceSelectionGridList.Count; i++)

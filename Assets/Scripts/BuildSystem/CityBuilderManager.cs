@@ -2370,59 +2370,60 @@ public class CityBuilderManager : MonoBehaviour
 		if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
 			td.SwitchToRoad();
 
-		//reseting rock UVs 
-		if (improvementData.replaceRocks)
-        {
-            foreach (MeshFilter mesh in cityImprovement.MeshFilter)
-            {
-                if (mesh.name == "Rocks")
-                {
-                    Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
-                    Vector2[] newUVs = mesh.mesh.uv;
-                    int i = 0;
+        //reseting rock UVs 
+        world.ColorCityImprovementRocks(improvementData, cityImprovement, td, meshes);
+		//if (improvementData.replaceRocks)
+  //      {
+  //          foreach (MeshFilter mesh in cityImprovement.MeshFilter)
+  //          {
+  //              if (mesh.name == "Rocks")
+  //              {
+  //                  Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
+  //                  Vector2[] newUVs = mesh.mesh.uv;
+  //                  int i = 0;
 
-                    while (i < newUVs.Length)
-                    {
-                        newUVs[i] = rockUVs;
-                        i++;
-                    }
-                    mesh.mesh.uv = newUVs;
+  //                  while (i < newUVs.Length)
+  //                  {
+  //                      newUVs[i] = rockUVs;
+  //                      i++;
+  //                  }
+  //                  mesh.mesh.uv = newUVs;
 
-                    foreach (MeshFilter mesh2 in meshes)
-                    {
-                        if (mesh2.name == "Rocks")
-                        {
-                            mesh2.mesh.uv = newUVs;
-                            break;
-                        }
-                    }
+  //                  foreach (MeshFilter mesh2 in meshes)
+  //                  {
+  //                      if (mesh2.name == "Rocks")
+  //                      {
+  //                          mesh2.mesh.uv = newUVs;
+  //                          break;
+  //                      }
+  //                  }
 
-                    if (cityImprovement.SkinnedMesh != null && cityImprovement.SkinnedMesh.name == "RocksAnim")
-                    {
-                        int j = 0;
-                        Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
+  //                  if (cityImprovement.SkinnedMesh != null && cityImprovement.SkinnedMesh.name == "RocksAnim")
+  //                  {
+  //                      int j = 0;
+  //                      Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
 
-                        while (j < skinnedUVs.Length)
-                        {
-                            skinnedUVs[j] = rockUVs;
-                            j++;
-                        }
+  //                      while (j < skinnedUVs.Length)
+  //                      {
+  //                          skinnedUVs[j] = rockUVs;
+  //                          j++;
+  //                      }
 
-                        cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
+  //                      cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
 
-                        //if (cityImprovement.SkinnedMesh.name == "RocksAnim")
-                        //{
-                        Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
-                        cityImprovement.SkinnedMesh.material = mat;
-                        cityImprovement.SetNewMaterial(mat);
-                        //}
-                    }
+  //                      //if (cityImprovement.SkinnedMesh.name == "RocksAnim")
+  //                      //{
+  //                      Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+  //                      cityImprovement.SkinnedMesh.material = mat;
+  //                      cityImprovement.SetNewMaterial(mat);
+  //                      //}
+  //                  }
 
-                    break;
-                }
-            }
+  //                  break;
+  //              }
+  //          }
 
-        }
+  //      }
 
         if (td.prop != null && improvementData.hideProp)
             td.ShowProp(false);

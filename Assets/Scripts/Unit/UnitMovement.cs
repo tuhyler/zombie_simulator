@@ -985,9 +985,9 @@ public class UnitMovement : MonoBehaviour
                                 if (!unit.isMoving)
                                     unit.Rotate(npc.transform.position);
                             }
-                            npc.SpeakingCheck();
                             if (npc.conversationHaver.conversationTopics[0].Contains("intro"))
 	    						world.musicAudio.PlaySpecificSong(world.badGuySong);
+                            npc.SpeakingCheck();
 							world.uiSpeechWindow.SetSpeakingNPC(npc);
                             break;
                         }
