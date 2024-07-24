@@ -750,7 +750,7 @@ public class Conversations : MonoBehaviour
 			speakerName = "Azai",
 			speakerDirection = "Koa",
 			speakerText = "Now that I have joined forces with you, we can build a barracks in any city. " +
-			"The barracks will serve to build military units, which can be used to protect the aforementioned city, or be sent out to acquire new lands."
+			"The barracks will serve to build military units, which can be used to protect its home city, or be sent out to acquire new lands."
 		};
 		conversationDict["hunting"].Add(hunting1);
 
@@ -1248,7 +1248,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Haniya",
-			speakerText = "That's not a bad idea, actually. You could call it \"Sparadise\" and overcharge for lemon water."
+			speakerText = "That's not a bad idea, actually. You could call it \"Sparadise\" and overcharge for lemon water!"
 		};
 		conversationDict["Haniya_quest0_complete"].Add(haniya_quest0_complete2);
 
@@ -2731,7 +2731,7 @@ public class Conversations : MonoBehaviour
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
 			speakerText = "Now that you mention it, we could use those aforementioned spices. We're in the process of preparing an enormous feast. " +
-			"Could you bring us something that could improve the flavor of our food? I'd like 8 of them, ideally."
+			"Could you bring us something that could improve the flavor of our food? I'd like 4 of them, ideally."
 		};
 		conversationDict["Natakamani_quest2"].Add(natakamani_quest27);
 
@@ -3178,6 +3178,56 @@ public class Conversations : MonoBehaviour
 		};
 		conversationDict["Sennacherib_intro"].Add(sennacherib_intro7);
 		#endregion
+		#region intro_coda
+		conversationDict["Sennacherib_intro_coda"] = new();
+
+		ConversationItem sennacherib_intro_coda1 = new()
+		{
+			speakerImage = "KoaAngry",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "What's HIS problem?"
+		};
+		conversationDict["Sennacherib_intro_coda"].Add(sennacherib_intro_coda1);
+
+		ConversationItem sennacherib_intro_coda2 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "That man is very powerful, we would be wise to prepare our armies accordingly. I fear only I alone can challenge him, " +
+			"and only when I am fully prepared to do so."
+		};
+		conversationDict["Sennacherib_intro_coda"].Add(sennacherib_intro_coda2);
+
+		ConversationItem sennacherib_intro_coda3 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Oh, so you're actually gonna do some fighting? No more following us around, watching our own military take out enemy camps by themselves?"
+		};
+		conversationDict["Sennacherib_intro_coda"].Add(sennacherib_intro_coda3);
+
+		ConversationItem sennacherib_intro_coda4 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "Indeed! I cannot possibly delegate this particular task, for none of our soldiers could handle this man alone. " +
+			"He seems the type of man who seeks a worthy challenge, and his attacks will come when we have sufficiently advanced technologically."
+		};
+		conversationDict["Sennacherib_intro_coda"].Add(sennacherib_intro_coda4);
+
+		ConversationItem sennacherib_intro_coda5 = new()
+		{
+			speakerImage = "KoaAnnoyed",
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "So not only do I have to recreate human history, I have to also defeat all the bad guys along the way? I'm just trying to get back home!"
+		};
+		conversationDict["Sennacherib_intro_coda"].Add(sennacherib_intro_coda5);
+		#endregion
 		#region challenge0
 		conversationDict["Sennacherib_challenge0"] = new();
 
@@ -3239,7 +3289,7 @@ public class Conversations : MonoBehaviour
 		};
 		conversationDict["Sennacherib_challenge1"].Add(sennacherib_challenge11);
 		#endregion
-		#region 
+		#region defeat
 		conversationDict["Sennacherib_defeat"] = new();
 
 		ConversationItem sennacherib_defeat1 = new()

@@ -768,13 +768,13 @@ public class ResourceManager : MonoBehaviour
 
             if (totalDemand > 0)
             {
-                //if (!resourceSellList.Contains(type))
-                //{
-                //    IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
-                //    continue;
-                //}
+                if (!resourceSellList.Contains(type))
+                {
+                    //IncreasePrice(type, data.resourcePrice, resourcePriceDict[data.resourceType]);
+                    continue;
+                }
 
-			    if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
+                if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
 			    {
                     int demandDiff = resourceDict[data.resourceType] - totalDemand;
                     int currentPrice = resourcePriceDict[data.resourceType];

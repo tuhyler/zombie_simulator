@@ -298,6 +298,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			{
 				if (conversationTopic.Contains("intro"))
 				{
+					world.azai.duelReport = speakingNPC.military.leader.leaderName + "_intro_coda";
 					ReturnMainPlayer();
 					speakingNPC.military.leader.BeginChallengeWait();
 				}

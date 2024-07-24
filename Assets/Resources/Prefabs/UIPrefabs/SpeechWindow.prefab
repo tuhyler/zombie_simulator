@@ -430,10 +430,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: I'm quite confident I could take your potato skins with spices like these
-    and turn them into a meal finer than anything you've ever tasted before. I was
-    taught by my mother, and I am exceedingly fortunate to have grown up under the
-    tutelate of a fantastic cook. Oh, and Koa?
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
