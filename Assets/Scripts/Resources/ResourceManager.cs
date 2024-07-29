@@ -57,14 +57,14 @@ public class ResourceManager : MonoBehaviour
                 continue;
             resourceGenerationPerMinuteDict[type] = 0;
 
-            if (type != ResourceType.Research)
+            if (type != ResourceType.Research && type != ResourceType.Fish)
             {
                 resourceDict[type] = 0;
                 resourceConsumedPerMinuteDict[type] = 0;
                 if (ResourceHolder.Instance.GetSell(type))
                     resourceSellList.Add(type);
                 resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
-                resourceMinHoldDict[type] = 0;
+                resourceMinHoldDict[type] = city.world.sellableResourceList.Contains(type) ? city.CalculateResourceSellAmount(type, city.purchaseAmountMultiple, city.currentPop) : 0;
                 resourceMaxHoldDict[type] = -1;
                 resourceSellHistoryDict[type] = 0;
                 resourcePriceChangeDict[type] = 0;
@@ -80,7 +80,8 @@ public class ResourceManager : MonoBehaviour
         if (ResourceHolder.Instance.GetSell(type))
             resourceSellList.Add(type);
         resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
-        resourceMinHoldDict[type] = 0;
+        resourceMinHoldDict[type] = city.world.sellableResourceList.Contains(type) ? city.CalculateResourceSellAmount(type, city.purchaseAmountMultiple, city.currentPop) : 0;
+
         resourceMaxHoldDict[type] = -1;
         resourceSellHistoryDict[type] = 0;
         resourcePriceChangeDict[type] = 0;
@@ -442,7 +443,7 @@ public class ResourceManager : MonoBehaviour
     //slightly faster
     public int SubtractTraderResource(ResourceType type, int amount)
     {
-		amount = SubtractResourceCheck(type, amount);
+		amount = SubtractResourceCheckTrader(type, amount);
 		if (amount > 0)
 			SubtractResourceFromStorage(type, amount);
 
@@ -459,7 +460,18 @@ public class ResourceManager : MonoBehaviour
 		return amount;
 	}
 
-    public int AddResource(ResourceType type, int amount)
+    //includes minimums
+	private int SubtractResourceCheckTrader(ResourceType type, int amount)
+	{
+		int prevAmount = Mathf.Max(0, resourceDict[type] - resourceMinHoldDict[type]);
+
+		if (prevAmount < amount)
+			amount = prevAmount;
+
+		return amount;
+	}
+
+	public int AddResource(ResourceType type, int amount)
     {
 		//if (type == ResourceType.Fish)
 		//	type = ResourceType.Food;
@@ -763,8 +775,8 @@ public class ResourceManager : MonoBehaviour
         {
             ResourceIndividualSO data = ResourceHolder.Instance.GetData(type);
             
-            int totalDemand = data.resourceType == ResourceType.Food ? Mathf.RoundToInt(city.world.resourcePurchaseAmountDict[type] * city.currentPop) :
-				(int)Math.Round(city.world.resourcePurchaseAmountDict[type] * city.currentPop * city.purchaseAmountMultiple, MidpointRounding.AwayFromZero);
+            int totalDemand = data.resourceType == ResourceType.Food ? city.CalculateResourceSellAmount(type, 1, city.currentPop) 
+                : city.CalculateResourceSellAmount(type, city.purchaseAmountMultiple, city.currentPop);
 
             if (totalDemand > 0)
             {
@@ -774,7 +786,7 @@ public class ResourceManager : MonoBehaviour
                     continue;
                 }
 
-                if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
+                if (resourceDict[data.resourceType] > 0)
 			    {
                     int demandDiff = resourceDict[data.resourceType] - totalDemand;
                     int currentPrice = resourcePriceDict[data.resourceType];

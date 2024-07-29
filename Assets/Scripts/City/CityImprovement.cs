@@ -358,50 +358,50 @@ public class CityImprovement : MonoBehaviour
         
         if (improvementData.replaceRocks)
         {
-            //SetRockColors(load);
+            SetRockColors(load);
             //         Material mat;
-   //         if (load)
-   //         {
-			//	mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
-			//}
-   //         else
-   //         {
-   //             if (td.materials.Count > 1)
-   //                 mat = td.materials[1];
-   //             else
-   //                 mat = world.atlasMain;
-   //         }
-            
-   //         skinnedMesh.material = mat;
-			//SetNewMaterial(mat);
+            //         if (load)
+            //         {
+            //	mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+            //}
+            //         else
+            //         {
+            //             if (td.materials.Count > 1)
+            //                 mat = td.materials[1];
+            //             else
+            //                 mat = world.atlasMain;
+            //         }
 
-			////recoloring the rocks (necessary as material transforms it back to original)
-			//foreach (MeshFilter mesh in meshFilter)
-			//{
-			//	if (mesh.name == "Rocks")
-			//	{
-			//		Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
-			//		Vector2[] newUVs = mesh.mesh.uv;
+            //         skinnedMesh.material = mat;
+            //SetNewMaterial(mat);
 
-			//		for (int i = 0; i < newUVs.Length; i++)
-			//			newUVs[i] = rockUVs;
+            ////recoloring the rocks (necessary as material transforms it back to original)
+            //foreach (MeshFilter mesh in meshFilter)
+            //{
+            //	if (mesh.name == "Rocks")
+            //	{
+            //		Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
+            //		Vector2[] newUVs = mesh.mesh.uv;
 
-			//		mesh.mesh.uv = newUVs;
+            //		for (int i = 0; i < newUVs.Length; i++)
+            //			newUVs[i] = rockUVs;
 
-			//		if (skinnedMesh != null && skinnedMesh.name == "RocksAnim")
-			//		{
-			//			Vector2[] skinnedUVs = skinnedMesh.sharedMesh.uv;
+            //		mesh.mesh.uv = newUVs;
 
-			//			for (int j = 0; j < skinnedUVs.Length; j++)
-			//				skinnedUVs[j] = rockUVs;
+            //		if (skinnedMesh != null && skinnedMesh.name == "RocksAnim")
+            //		{
+            //			Vector2[] skinnedUVs = skinnedMesh.sharedMesh.uv;
 
-			//			skinnedMesh.sharedMesh.uv = skinnedUVs;
-			//		}
+            //			for (int j = 0; j < skinnedUVs.Length; j++)
+            //				skinnedUVs[j] = rockUVs;
 
-			//		break;
-			//	}
-			//}
-		}
+            //			skinnedMesh.sharedMesh.uv = skinnedUVs;
+            //		}
+
+            //		break;
+            //	}
+            //}
+        }
 
         if (improvementData.improvementName == "Barracks")
             city.RevealUnitsInCamp();
@@ -446,33 +446,6 @@ public class CityImprovement : MonoBehaviour
 
 		skinnedMesh.material = mat;
 		SetNewMaterial(mat);
-
-		//recoloring the rocks (necessary as material transforms it back to original)
-		foreach (MeshFilter mesh in meshFilter)
-		{
-			if (mesh.name == "Rocks")
-			{
-				Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
-				Vector2[] newUVs = mesh.mesh.uv;
-
-				for (int i = 0; i < newUVs.Length; i++)
-					newUVs[i] = rockUVs;
-
-				mesh.mesh.uv = newUVs;
-
-				if (skinnedMesh != null && skinnedMesh.name == "RocksAnim")
-				{
-					Vector2[] skinnedUVs = skinnedMesh.sharedMesh.uv;
-
-					for (int j = 0; j < skinnedUVs.Length; j++)
-						skinnedUVs[j] = rockUVs;
-
-					skinnedMesh.sharedMesh.uv = skinnedUVs;
-				}
-
-				break;
-			}
-		}
 	}
 
     public void ShowEmbiggenedMesh()

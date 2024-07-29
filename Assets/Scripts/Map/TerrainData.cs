@@ -265,7 +265,7 @@ public class TerrainData : MonoBehaviour
     public void SetMinimapIcon()
     {
         if (minimapIconMesh)
-            minimapIconMesh.sharedMesh.uv = terrainMesh.sharedMesh.uv;   
+            minimapIconMesh.mesh.uv = terrainMesh.sharedMesh.uv;   
     }
 
     public void CheckMinimapResource(UIMapHandler uiMapHandler)

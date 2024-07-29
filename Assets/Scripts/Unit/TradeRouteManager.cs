@@ -861,7 +861,8 @@ public class TradeRouteManager : MonoBehaviour
         }
         else
         {
-            if (stop.city != null && resourceAssignments[currentStop][currentResource].resourceType == type && resourceAssignments[currentStop][currentResource].resourceAmount >= stop.city.resourceManager.resourceDict[type])
+            if (stop.city != null && resourceAssignments[currentStop][currentResource].resourceType == type && 
+                stop.city.resourceManager.resourceDict[type] - stop.city.resourceManager.resourceMinHoldDict[type] > 0)
             {
                 //ContinueLoadingUnloading();
                 //         resourceCheck = false;

@@ -242,7 +242,8 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
     public void SetNewProgressTime()
     {
-        uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime[producedResourceIndex]);
+        if (improvementData.producedResourceTime.Count > 0)
+            uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime[producedResourceIndex]);
     }
 
     public void SetConstructionTime(int time)

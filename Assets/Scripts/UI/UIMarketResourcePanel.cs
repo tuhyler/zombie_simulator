@@ -28,12 +28,12 @@ public class UIMarketResourcePanel : MonoBehaviour
     public Toggle sellToggle;
 
     [SerializeField]
-    public TMP_InputField /*minimumAmount, 4 in uimarketplacemanager, 3 here*/maximumAmount;
+    public TMP_InputField minimumAmount, maximumAmount;
+    
+	//[SerializeField]
+	//private TMP_Text minimumAmountText;
 
-    //[SerializeField]
-    //private TMP_Text minimumAmountText;
-
-    private UITooltipTrigger tooltipTrigger;
+	private UITooltipTrigger tooltipTrigger;
     private UIMarketPlaceManager uiMarketPlaceManager;
 
 	private void Awake()
@@ -43,7 +43,7 @@ public class UIMarketResourcePanel : MonoBehaviour
 
 	private void Start()
     {
-        //minimumAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
+        minimumAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
         maximumAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
 	}
 
@@ -143,35 +143,16 @@ public class UIMarketResourcePanel : MonoBehaviour
         }
     }
 
-    //public void UpdateMinHold()
-    //{
-    //    string chosenMinimumAmount = minimumAmount.text;
-    //    int finalMinimumAmount;
+    public void UpdateMinHold()
+    {
+        string chosenMinimumAmount = minimumAmount.text;
+        int finalMinimumAmount = 0;
 
-    //    if (int.TryParse(chosenMinimumAmount, out int result))
-    //    {
-    //        finalMinimumAmount = result;
-    //    }
-    //    else //silly workaround to remove trailing invisible char ("Trim" doesn't work)
-    //    {
-    //        string stringAmount = "0";
-    //        int i = 0;
+        if (int.TryParse(chosenMinimumAmount, out int result))
+            finalMinimumAmount = result;
 
-    //        foreach (char c in chosenMinimumAmount)
-    //        {
-    //            if (i == chosenMinimumAmount.Length - 1)
-    //                continue;
-
-    //            stringAmount += c;
-    //            Debug.Log("letter " + c);
-    //            i++;
-    //        }
-
-    //        finalMinimumAmount = int.Parse(stringAmount);
-    //    }
-
-    //    uiMarketPlaceManager.SetResourceMinHold(resourceType, finalMinimumAmount, this);
-    //}
+        uiMarketPlaceManager.SetResourceMinHold(resourceType, finalMinimumAmount, this);
+    }
 
     public void UpdateMaxHold()
     {

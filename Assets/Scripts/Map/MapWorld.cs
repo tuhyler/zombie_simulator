@@ -1494,7 +1494,11 @@ public class MapWorld : MonoBehaviour
 			if (city.enemyCamp.growing && !city.enemyCamp.prepping && !city.enemyCamp.attackReady && !city.enemyCamp.inBattle)
             {
                 if (city.empire.capitalCity != city.cityLoc || !city.empire.enemyLeader.dueling)
-				    city.StartSpawnCycle(false);
+                {
+					if (!GetTerrainDataAt(cityTile).isDiscovered)
+						city.ActivateButHideCity();
+					city.StartSpawnCycle(false);
+                }
             }
 		}
         else
@@ -1786,8 +1790,8 @@ public class MapWorld : MonoBehaviour
         }
         else
         {
-			if (!improvementData.isBuildingImprovement)
-                resourceProducer.SetNewProgressTime();
+			//if (!improvementData.isBuildingImprovement)
+            resourceProducer.SetNewProgressTime();
 			cityImprovement.SetMinimapIcon(td);
             if (city != null)
             {
@@ -1875,54 +1879,6 @@ public class MapWorld : MonoBehaviour
 
 			//reseting rock UVs 
 			ColorCityImprovementRocks(improvementData, cityImprovement, td, meshes);
-			//if (improvementData.replaceRocks)
-			//{
-			//	foreach (MeshFilter mesh in cityImprovement.MeshFilter)
-			//	{
-			//		if (mesh.name == "Rocks")
-			//		{
-			//			Vector2 rockUVs = ResourceHolder.Instance.GetUVs(td.resourceType);
-			//			Vector2[] newUVs = mesh.mesh.uv;
-			//			int i = 0;
-
-			//			while (i < newUVs.Length)
-			//			{
-			//				newUVs[i] = rockUVs;
-			//				i++;
-			//			}
-			//			mesh.mesh.uv = newUVs;
-
-			//			foreach (MeshFilter mesh2 in meshes)
-			//			{
-			//				if (mesh2.name == "Rocks")
-			//				{
-			//					mesh2.mesh.uv = newUVs;
-			//					break;
-			//				}
-			//			}
-
-			//			if (cityImprovement.SkinnedMesh != null && cityImprovement.SkinnedMesh.name == "RocksAnim")
-			//			{
-			//				int j = 0;
-			//				Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
-
-			//				while (j < skinnedUVs.Length)
-			//				{
-			//					skinnedUVs[j] = rockUVs;
-			//					j++;
-			//				}
-
-			//				cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
-			//				Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
-			//				cityImprovement.SkinnedMesh.material = mat;
-			//				cityImprovement.SetNewMaterial(mat);
-			//			}
-
-			//			break;
-			//		}
-			//	}
-
-			//}
 
 			if (td.prop != null && improvementData.hideProp)
                 td.ShowProp(false);
@@ -2027,12 +1983,15 @@ public class MapWorld : MonoBehaviour
 
 					if (cityImprovement.SkinnedMesh != null && cityImprovement.SkinnedMesh.name == "RocksAnim")
 					{
-						Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
-
+                        Mesh newSkinnedMesh = Instantiate(cityImprovement.SkinnedMesh.sharedMesh);
+                        Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
+                        
                         for (int j = 0; j < skinnedUVs.Length; j++)
 							skinnedUVs[j] = rockUVs;
 
-						cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
+                        cityImprovement.SkinnedMesh.sharedMesh = newSkinnedMesh;
+						//cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
+                        cityImprovement.SkinnedMesh.sharedMesh.SetUVs(0, skinnedUVs);
 						Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
 						cityImprovement.SkinnedMesh.material = mat;
 						cityImprovement.SetNewMaterial(mat);
@@ -4734,7 +4693,11 @@ public class MapWorld : MonoBehaviour
                 }
                     
                 if (city.empire.attackingCity == city.cityLoc)
+                {
+                    if (!GetTerrainDataAt(city.cityLoc).isDiscovered)
+                        city.ActivateButHideCity();
                     city.StartSendAttackWait();
+                }
             }
         }
     }
@@ -7926,13 +7889,23 @@ public class MapWorld : MonoBehaviour
     {
         string cityName = "";
         bool searching = true;
+        string prefix = "";
+        int totalCount = 0;
 
         while (searching)
         {
-            cityName = cityNamePool[UnityEngine.Random.Range(0, cityNamePool.Count)];
+            cityName = prefix + cityNamePool[UnityEngine.Random.Range(0, cityNamePool.Count)];
             
             if (!IsCityNameTaken(cityName))
                 searching = false;
+
+            totalCount++;
+
+            if (totalCount == cityNamePool.Count)
+            {
+                totalCount = 0;
+                prefix += "New ";
+            }
         }
 
         return cityName;

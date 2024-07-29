@@ -457,9 +457,15 @@ public class EnemyCamp
 		{
 			City city = world.GetEnemyCity(cityLoc);
 			if (city.countDownTimer == world.waitTillAttackTime)
+			{
+				if (!world.GetTerrainDataAt(loc).isDiscovered)
+					city.ActivateButHideCity();
 				city.StartSendAttackWait();
+			}
 			else
+			{
 				RestartCityCheck(city);
+			}
 		}
 	}
 
@@ -779,6 +785,9 @@ public class EnemyCamp
 
 	public void RestartCityCheck(City city)
 	{
+		if (!world.GetTerrainDataAt(loc).isDiscovered)
+			city.ActivateButHideCity();
+
 		if (growing)
 			city.StartSpawnCycle(false);
 		else

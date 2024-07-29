@@ -500,7 +500,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void PopulationGrowthCheck(bool joinCity, int amount)
     {
-        //int prevPop = cityPop.CurrentPop;
+        int prevPop = currentPop;
         PlaySelectAudio(world.cityBuilderManager.popGainClip);
         //PlayPopGainAudio();
 
@@ -563,6 +563,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             }
         }
 
+        SetResourceMins(purchaseAmountMultiple, prevPop);
 		//Debug.Log("setting data");
 		SetCityPop();
 		if (activeCity)
@@ -571,7 +572,45 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         //Debug.Log("All done");
 	}
 
-    private void NameCityCheck()
+	public void SetResourceMins(float prevMultiple, int prevPop)
+	{
+        List<ResourceType> types = resourceManager.resourceMinHoldDict.Keys.ToList();
+        for (int i = 0; i < types.Count; i++)
+        {
+			if (!world.sellableResourceList.Contains(types[i]))
+				continue;
+
+            if (types[i] == ResourceType.Food)
+            {
+				int prevAmount = CalculateResourceSellAmount(types[i], 1, prevPop);
+				if (prevAmount == resourceManager.resourceMinHoldDict[types[i]])
+					resourceManager.resourceMinHoldDict[types[i]] = CalculateResourceSellAmount(types[i], 1, currentPop);
+			}
+            else
+            {
+			    int prevAmount = CalculateResourceSellAmount(types[i], prevMultiple, prevPop);
+			    if (prevAmount == resourceManager.resourceMinHoldDict[types[i]])
+				    resourceManager.resourceMinHoldDict[types[i]] = CalculateResourceSellAmount(types[i], purchaseAmountMultiple, currentPop);
+            }
+		}
+  //      foreach (ResourceType type in resourceManager.resourceMinHoldDict.Keys)
+		//{
+		//	if (!world.sellableResourceList.Contains(type))
+		//		continue;
+
+		//	int prevAmount = CalculateResourceSellAmount(type, purchaseAmountMultiple, prev);
+
+		//	if (prev == resourceManager.resourceMinHoldDict[type])
+		//		resourceManager.resourceMinHoldDict[type] = CalculateResourceSellAmount(type, purchaseAmountMultiple, currentPop);
+		//}
+	}
+
+    public int CalculateResourceSellAmount(ResourceType type, float purchaseAmount, int pop)
+    {
+        return (int)Math.Round(purchaseAmount * world.resourcePurchaseAmountDict[type] * pop, MidpointRounding.AwayFromZero);
+	}
+
+	private void NameCityCheck()
     {
 		if (!isNamed)
 		{
@@ -640,6 +679,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             RemoveRandomFieldLaborer(any);
 
         resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, -unitFoodConsumptionPerMinute);
+        SetResourceMins(purchaseAmountMultiple, prevPop);
+        if (world.cityBuilderManager.uiMarketPlaceManager.activeStatus && world.cityBuilderManager.uiMarketPlaceManager.city == this)
+            world.cityBuilderManager.uiMarketPlaceManager.UpdateResourceMinHolds();
 
         if (!building)
         {
@@ -1021,7 +1063,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
        
         if (improvement.GetImprovementData.purchaseAmountChange != 0)
         {
+            float prevMultiple = purchaseAmountMultiple;
             purchaseAmountMultiple += improvement.GetImprovementData.purchaseAmountChange * labor;
+            SetResourceMins(prevMultiple, currentPop);
 
 			if (activeCity)
 			{

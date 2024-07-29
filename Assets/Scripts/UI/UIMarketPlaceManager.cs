@@ -223,7 +223,6 @@ public class UIMarketPlaceManager : MonoBehaviour
 
             if (isOn)
             {
-                //    resourcePanel.minimumAmount.text = city.resourceManager.resourceMinHoldDict[type].ToString();
 				resourcePanel.citySalesForecast.gameObject.SetActive(true);
                 resourcePanel.SetForecastedSales(city.currentPop);
             }
@@ -232,6 +231,7 @@ public class UIMarketPlaceManager : MonoBehaviour
                 resourcePanel.citySalesForecast.gameObject.SetActive(false);
 			}
 
+            resourcePanel.minimumAmount.text = city.resourceManager.resourceMinHoldDict[type].ToString();
             int maxHold = city.resourceManager.resourceMaxHoldDict[type];
             resourcePanel.maximumAmount.text = maxHold < 0 ? city.warehouseStorageLimit.ToString(): maxHold.ToString();
         }
@@ -245,18 +245,23 @@ public class UIMarketPlaceManager : MonoBehaviour
             city.resourceManager.resourceSellList.Remove(type);
     }
 
-    //public void SetResourceMinHold(ResourceType type, int minHold, UIMarketResourcePanel panel)
-    //{
-    //    if (minHold >= city.warehouseStorageLimit)
-    //    {
-    //        city.resourceManager.resourceMinHoldDict[type] = city.warehouseStorageLimit;
-    //        panel.minimumAmount.text = city.warehouseStorageLimit.ToString();
-    //    }
-    //    else
-    //    {
-    //        city.resourceManager.resourceMinHoldDict[type] = minHold;
-    //    }
-    //}
+    public void SetResourceMinHold(ResourceType type, int minHold, UIMarketResourcePanel panel)
+    {
+        if (minHold >= city.warehouseStorageLimit)
+        {
+            city.resourceManager.resourceMinHoldDict[type] = city.warehouseStorageLimit;
+            panel.minimumAmount.text = city.warehouseStorageLimit.ToString();
+        }
+        else if (city.resourceManager.resourceMaxHoldDict[type] > -1 && minHold > city.resourceManager.resourceMaxHoldDict[type])
+        {
+            city.resourceManager.resourceMinHoldDict[type] = city.resourceManager.resourceMaxHoldDict[type];
+            panel.minimumAmount.text = city.resourceManager.resourceMaxHoldDict[type].ToString();
+        }
+        else
+        {
+            city.resourceManager.resourceMinHoldDict[type] = minHold;
+        }
+    }
 
     public void SetResourceMaxHold(ResourceType type, int maxHold, UIMarketResourcePanel panel)
     {
@@ -264,6 +269,11 @@ public class UIMarketPlaceManager : MonoBehaviour
         {
             city.resourceManager.resourceMaxHoldDict[type] = -1;
             panel.maximumAmount.text = city.warehouseStorageLimit.ToString();
+        }
+        else if (maxHold < city.resourceManager.resourceMinHoldDict[type])
+        {
+            city.resourceManager.resourceMaxHoldDict[type] = city.resourceManager.resourceMinHoldDict[type];
+            panel.maximumAmount.text = city.resourceManager.resourceMinHoldDict[type].ToString();
         }
         else
         {
@@ -275,6 +285,12 @@ public class UIMarketPlaceManager : MonoBehaviour
     {
         marketResourceDict[type].SetAmount(amount);
         marketResourceDict[type].SetForecastedSales(city.currentPop);
+    }
+
+    public void UpdateResourceMinHolds()
+    {
+        foreach (ResourceType type in marketResourceDict.Keys)
+            marketResourceDict[type].minimumAmount.text = city.resourceManager.resourceMinHoldDict[type].ToString();
     }
 
     //sort button coloring
