@@ -20,7 +20,7 @@ MonoBehaviour:
   isBuilding: 0
   isBuildingImprovement: 0
   improvementName: Smith
-  improvementDisplayName: Jewel Smith
+  improvementDisplayName: Bronze Smith
   improvementLevel: 1
   improvementNameAndLevel: Smith-1
   improvementDescription: 
@@ -39,24 +39,14 @@ MonoBehaviour:
     resourceAmount: 2
   - resourceType: 4
     resourceAmount: 5
-  consumedResources1:
-  - resourceType: 14
-    resourceAmount: 1
-  - resourceType: 28
-    resourceAmount: 2
-  - resourceType: 10
-    resourceAmount: 2
-  - resourceType: 4
-    resourceAmount: 6
+  consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 16
     resourceAmount: 2
-  - resourceType: 29
-    resourceAmount: 2
-  producedResourceTime: 1e0000001e000000
+  producedResourceTime: 1e000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0

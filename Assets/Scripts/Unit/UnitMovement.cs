@@ -681,39 +681,12 @@ public class UnitMovement : MonoBehaviour
                 SelectCharacter(unitReference);
             }
         }
-    //    else if (detectedObject.TryGetComponent(out UnitMarker unitMarker))
-    //    {
-    //        Unit unit = unitMarker.unit;
-
-    //        if (unitMarker.CompareTag("Player"))
-    //        {
-				//if (unit.isUpgrading)
-				//{
-				//	UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently being upgraded");
-				//	return;
-				//}
-
-				//SelectUnitPrep(unit);
-    //        }
-    //        else if (unitMarker.CompareTag("Enemy"))
-    //        {
-    //            SelectEnemy(unit);
-    //        }
-    //        else if (unitMarker.CompareTag("Character"))
-    //        {
-    //            SelectCharacter(unitReference);
-    //        }
-    //    }
         else if (detectedObject.TryGetComponent(out Resource resource))
         {
             world.selectingUnit = true;
             Worker tempWorker = resource.GetHarvestingWorker();
 
-            /*if (tempWorker == null)
-            {
-                ClearSelection();
-            }
-            else*/ if (tempWorker == world.mainPlayer)
+            if (tempWorker == world.mainPlayer)
             {
                 world.mainPlayer.SendResourceToCity();
             }
@@ -721,15 +694,6 @@ public class UnitMovement : MonoBehaviour
             {
                 world.scott.SendResourceToCity();
             }
-    //        else
-    //        {
-    //            ClearSelection();
-    //            tempWorker.SendResourceToCity();
-    //            selectedUnit = tempWorker;
-    //            SelectWorker();
-				//if (!selectedUnit.sayingSomething)
-				//	PrepareMovement();
-    //        }
         }
         else
         {
@@ -742,6 +706,7 @@ public class UnitMovement : MonoBehaviour
         Military unit = selectedUnit.military;
         Vector3Int newLoc = newCity.singleBuildDict[selectedUnit.buildDataSO.singleBuildType];// army.GetAvailablePosition(selectedUnit.buildDataSO.unitType);
         List<Vector3Int> path;
+        
 
         if (unit.isMoving)
             unit.StopMovementCheck(false);
@@ -775,6 +740,7 @@ public class UnitMovement : MonoBehaviour
 			path = GridSearch.MilitaryMove(world, unit.transform.position, newLoc, selectedUnit.bySea);
 		}
 
+        unit.army.UnselectArmy(unit);
 		unit.army.RemoveFromArmy(unit, unit.barracksBunk, true);
 		unit.army = null;
 		unit.atHome = false;
@@ -783,16 +749,10 @@ public class UnitMovement : MonoBehaviour
 		unit.transferring = true;
 		//unit.army.isTransferring = true;
 
-		unit.finalDestinationLoc = newLoc;
+        unit.finalDestinationLoc = newLoc;
 		unit.MoveThroughPath(path);
         if (!unit.bySea && !unit.byAir)
             unit.outline.ToggleOutline(true);
-		
-      //  if (unit.isSelected)
-      //  {
-		    ////uiChangeCity.ToggleVisibility(true);
-		    ////uiCancelTask.ToggleVisibility(false);
-      //  }
 	}
 
     public void SelectUnitPrep(Unit unitReference)
@@ -2505,13 +2465,13 @@ public class UnitMovement : MonoBehaviour
             UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still training", false);
 			return;
         }
-        else if (homeBase.army.isTransferring)
-        {
-			Vector3 mousePosition = uiDeployArmy.transform.position;
-			mousePosition.x -= 150;
-			UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still transferring", false);
-            return;
-		}
+  //      else if (homeBase.army.isTransferring)
+  //      {
+		//	Vector3 mousePosition = uiDeployArmy.transform.position;
+		//	mousePosition.x -= 150;
+		//	UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still transferring", false);
+  //          return;
+		//}
         else if (homeBase.army.isRepositioning)
         {
 			Vector3 mousePosition = uiDeployArmy.transform.position;

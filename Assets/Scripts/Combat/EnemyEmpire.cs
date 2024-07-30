@@ -8,7 +8,8 @@ public class EnemyEmpire
     public Region enemyRegion;
     public List<Vector3Int> empireCities = new();
     public Vector3Int attackingCity = new Vector3Int(0, -10, 0), capitalCity;
-    public int empireUnitCount;
+    public int empireUnitCount, pauseTimer;
+    public bool paused;
 
     public void SetNextAttackingCity(MapWorld world, Vector3Int lastOne)
     {
@@ -84,6 +85,8 @@ public class EnemyEmpire
 		capitalCity = data.capitalCity;
 		empireCities = new();
         empireUnitCount = data.empireUnitCount;
+        paused = data.paused;
+        pauseTimer = data.pauseTimer;
 
 		for (int i = 0; i < data.empireCities.Count; i++)
 			empireCities.Add(data.empireCities[i]);

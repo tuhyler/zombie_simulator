@@ -316,6 +316,8 @@ public class MilitaryLeader : Military
 		data.capitalCity = empire.capitalCity;
 		data.empireUnitCount = empire.empireUnitCount;
 		data.empireCities = new();
+		data.paused = empire.paused;
+		data.pauseTimer = empire.pauseTimer;
 
 		for (int i = 0; i < empire.empireCities.Count; i++)
 			data.empireCities.Add(empire.empireCities[i]);

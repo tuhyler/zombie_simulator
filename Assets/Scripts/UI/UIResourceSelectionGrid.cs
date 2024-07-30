@@ -16,88 +16,82 @@ public class UIResourceSelectionGrid : MonoBehaviour
     public bool activeStatus;
     private IResourceGridUser resourceGridUser;
     private Dictionary<ResourceType, GameObject> resourceGODict = new();
-    private List<ResourceType> resourceExluded = new();
+    //private List<ResourceType> resourceExluded = new();
 
     //private UITradeResourceTask resourceTask;
     //private UILaborResourcePriority laborResourcePriority;
 
     private void Awake()
     {
-        float maxX = 290;
-        float maxY = 70;
-        int width = 50;
+		float maxX = 290;
+		float maxY = 70;
+		int width = 50;
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
-        {
-            if (resource.forVisual)
-            {
-                resourceExluded.Add(resource.resourceType);
-                continue;
-            }
+		foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+		{
+			GameObject resourceGO = Instantiate(resourceSquare);
+			resourceGODict[resource.resourceType] = resourceGO;
+			AssignParent(resource.resourceCategory, resourceGO);
+			UIResourceSquare uiResourceSquare = resourceGO.GetComponent<UIResourceSquare>();
+			uiResourceSquare.SetInfo(resource.resourceType, resource.resourceName);
+			uiResourceSquare.SetGrid(this);
+			uiResourceSquare.resourceIcon.sprite = resource.resourceIcon;
+			resourceGO.SetActive(false);
+		}
 
-            GameObject resourceGO = Instantiate(resourceSquare);
-            resourceGODict[resource.resourceType] = resourceGO;
-            AssignParent(resource.resourceCategory, resourceGO);
-            UIResourceSquare uiResourceSquare = resourceGO.GetComponent<UIResourceSquare>();
-            uiResourceSquare.SetInfo(resource.resourceType, resource.resourceName);
-            uiResourceSquare.SetGrid(this);
-            uiResourceSquare.resourceIcon.sprite = resource.resourceIcon;
-            resourceGO.SetActive(false);
-        }
+		int childMax = 0;
 
-        int childMax = 0;
+		if (rawHolder.childCount > 0)
+		{
+			maxY += width;
 
-        if (rawHolder.childCount > 0)
-        {
-            maxY += width;
+			if (rawHolder.childCount > childMax)
+			{
+				maxX = rawHolder.childCount * width;
+				childMax = rawHolder.childCount;
+			}
+		}
+		if (rockHolder.childCount > 0)
+		{
+			maxY += width;
 
-            if (rawHolder.childCount > childMax)
-            {
-                maxX = rawHolder.childCount * width;
-                childMax = rawHolder.childCount;
-            }
-        }
-        if (rockHolder.childCount > 0)
-        {
-            maxY += width;
-            
-            if (rockHolder.childCount > childMax)
-            {
-                maxX = rockHolder.childCount * width;
-                childMax = rockHolder.childCount;
-            }
-        }
-        if (buildingHolder.childCount > 0)
-        {
-            maxY += width;
+			if (rockHolder.childCount > childMax)
+			{
+				maxX = rockHolder.childCount * width;
+				childMax = rockHolder.childCount;
+			}
+		}
+		if (buildingHolder.childCount > 0)
+		{
+			maxY += width;
 
-            if (buildingHolder.childCount > childMax)
-            {
-                maxX = buildingHolder.childCount * width;
-                childMax = buildingHolder.childCount;
-            }
-        }
-        if (soldHolder.childCount > 0)
-        {
-            maxY += width;
-            
-            if (soldHolder.childCount > childMax)
-            {
-                maxX = soldHolder.childCount * width;
-                childMax = soldHolder.childCount;
-            }
-        }
-        if (luxuryHolder.childCount > 0)
-        {
-            maxY += width;
-            
-            if (luxuryHolder.childCount > childMax)
-                maxX = luxuryHolder.childCount * width;
-        }
+			if (buildingHolder.childCount > childMax)
+			{
+				maxX = buildingHolder.childCount * width;
+				childMax = buildingHolder.childCount;
+			}
+		}
+		if (soldHolder.childCount > 0)
+		{
+			maxY += width;
 
-        allContents.sizeDelta = new Vector2(maxX - 80 ,maxY + 40);
-        gameObject.SetActive(false);
-        world.AddToResourceSelectionGridList(this);
+			if (soldHolder.childCount > childMax)
+			{
+				maxX = soldHolder.childCount * width;
+				childMax = soldHolder.childCount;
+			}
+		}
+		if (luxuryHolder.childCount > 0)
+		{
+			maxY += width;
+
+			if (luxuryHolder.childCount > childMax)
+				maxX = luxuryHolder.childCount * width;
+		}
+
+		allContents.sizeDelta = new Vector2(maxX - 80, maxY + 40);
+		gameObject.SetActive(false);
+		world.AddToResourceSelectionGridList(this);
     }
 
     private void Update()
@@ -199,10 +193,10 @@ public class UIResourceSelectionGrid : MonoBehaviour
 
     public void DiscoverResource(ResourceType type)
     {
-		if (resourceExluded.Contains(type))
-			return;
-
-		resourceGODict[type].SetActive(true);
+        if (type == ResourceType.Gold || type == ResourceType.Research)
+            return;
+        
+        resourceGODict[type].SetActive(true);
     }
     
     private void PositionCheck()

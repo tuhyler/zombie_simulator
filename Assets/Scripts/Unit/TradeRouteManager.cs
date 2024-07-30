@@ -187,12 +187,12 @@ public class TradeRouteManager : MonoBehaviour
 			}
 			else if (resourceAmount > 0) //moving from city to trader
 			{
-                resourceAmount -= trader.personalResourceManager.resourceDict[value.resourceType]; //subtracting amount already present in trader
+                resourceAmount = Mathf.Max(0, resourceAmount - trader.personalResourceManager.resourceDict[value.resourceType]); //subtracting amount already present in trader
                 
                 if (loading)
 				{
 					resourceAmount += amountMoved; //resetting to original amount
-					int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel;
+					int space = Mathf.Max(0, trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel);
 					if (space + amountMoved < resourceAmount)
 						resourceAmount = space + amountMoved;
 
@@ -212,13 +212,13 @@ public class TradeRouteManager : MonoBehaviour
 					resourceCurrentAmount = 0;
 
 					//if trader wants more than it can store
-					int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel;
+					int space = Mathf.Max(0, trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel);
 					if (space < resourceAmount)
 					{
 						resourceAmount = space;
 
 						//for when inventory is full
-						if (resourceAmount == 0)
+						if (resourceAmount <= 0)
 						{
 							SuddenFinish(true);
 							complete = true;
@@ -228,7 +228,7 @@ public class TradeRouteManager : MonoBehaviour
 				}
 
 				//for when trader already has requisite amount
-				if (resourceAmount == 0)
+				if (resourceAmount <= 0)
 				{
 					SuddenFinish(false);
 					complete = true;
@@ -473,12 +473,12 @@ public class TradeRouteManager : MonoBehaviour
             }
             else if (resourceAmount > 0) //moving from trade center to trader
             {
-				resourceAmount -= trader.personalResourceManager.resourceDict[value.resourceType]; //subtracting amount already present in trader
+				resourceAmount = Mathf.Max(0, resourceAmount - trader.personalResourceManager.resourceDict[value.resourceType]); //subtracting amount already present in trader
 
 				if (loading)
                 {
 					resourceAmount += amountMoved;
-					int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel;
+					int space = Mathf.Max(0, trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel);
 					if (space + amountMoved < resourceAmount)
                         resourceAmount = space + amountMoved;
 
@@ -500,13 +500,13 @@ public class TradeRouteManager : MonoBehaviour
                     resourceCurrentAmount = 0;
                 
                     //if trader wants more than it can store
-                    int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel;
+                    int space = Mathf.Max(0, trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel);
                     if (space < resourceAmount)
                     {
                         resourceAmount = space;
 
                         //for when inventory is full
-                        if (resourceAmount == 0)
+                        if (resourceAmount <= 0)
                         {
                             SuddenFinish(true);
                             complete = true;
@@ -516,7 +516,7 @@ public class TradeRouteManager : MonoBehaviour
                 }
 
                 //for when trader already has requisite amount
-                if (resourceAmount == 0)
+                if (resourceAmount <= 0)
                 {
                     SuddenFinish(false);
                     complete = true;

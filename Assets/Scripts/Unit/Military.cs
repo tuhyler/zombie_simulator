@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Military : Unit
@@ -925,12 +926,6 @@ public class Military : Unit
 					if (guardedTrader.isSelected)
 						guardedTrader.RemoveWarning();
 					guardedTrader.BeginNextStepInRoute();
-
-					//if (!guardedTrader.BeginNextStepCheck(guardedTrader.currentLocation))
-					//{
-					//	//guardedTrader.atHome = false;
-					//	guardedTrader.TradeRouteCheck(guardedTrader.currentLocation);
-					//}
 				}
 			}
 			else if (endPosition == barracksBunk)
@@ -940,14 +935,17 @@ public class Military : Unit
 				switchLocs.Clear();
 				atHome = true;
 				outline.ToggleOutline(false);
-				//marker.ToggleVisibility(false);
 
 				Rotate(army.GetRandomSpot(barracksBunk));
 				if (isSelected && !world.unitOrders)
+				{
 					world.unitMovement.ShowIndividualCityButtonsUI();
-
-				if (army.AllAreHomeCheck())
-					army.isTransferring = false;
+					military.army.SelectArmy(military);
+				}
+				else if (army.selected)
+				{
+					SoftSelect(Color.white);
+				}
 			}
 			else 
 			{

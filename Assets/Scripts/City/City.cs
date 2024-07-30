@@ -1457,7 +1457,20 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
                 co = null;
 
                 if (empire.attackingCity == cityLoc)
-                    StartSendAttackWait();
+                {
+                    if (empire.paused)
+                    {
+                        empire.paused = false;
+                        countDownTimer = empire.pauseTimer;
+
+                        if (SendAttackCheck())
+                            LoadSendAttackWait(true);
+                    }
+                    else
+                    {
+                        StartSendAttackWait();
+                    }
+                }
             }
         }
     }
@@ -2131,7 +2144,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 			armyData.attackingSpots = army.attackingSpots;
 			armyData.movementRange = army.movementRange;
 			armyData.cavalryRange = army.cavalryRange;
-			armyData.isTransferring = army.isTransferring;
+			//armyData.isTransferring = army.isTransferring;
 			armyData.isRepositioning = army.isRepositioning;
 			armyData.traveling = army.traveling;
 			armyData.inBattle = army.inBattle;
@@ -2292,7 +2305,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 			army.attackingSpots = armyData.attackingSpots;
 			army.movementRange = armyData.movementRange;
 			army.cavalryRange = armyData.cavalryRange;
-			army.isTransferring = armyData.isTransferring;
+			//army.isTransferring = armyData.isTransferring;
 			army.isRepositioning = armyData.isRepositioning;
 			army.traveling = armyData.traveling;
 			army.inBattle = armyData.inBattle;

@@ -4662,6 +4662,8 @@ public class MapWorld : MonoBehaviour
                         }
                         else
                         {
+                            enemyCity.empire.paused = true;
+                            enemyCity.empire.pauseTimer = enemyCity.countDownTimer;
                             enemyCity.CancelSendAttackWait();
 
 							if (!GetTerrainDataAt(enemyCity.cityLoc).isDiscovered)
@@ -5389,6 +5391,9 @@ public class MapWorld : MonoBehaviour
     public void AddToResourceSelectionGridList(UIResourceSelectionGrid selectionGrid)
     {
         resourceSelectionGridList.Add(selectionGrid);
+
+        foreach (ResourceType type in resourceDiscoveredList)
+            selectionGrid.DiscoverResource(type);
     }
 
     public void AddToDiscoverList(ResourceType type)
@@ -5408,11 +5413,9 @@ public class MapWorld : MonoBehaviour
     {
         if (type == ResourceType.Gold || type == ResourceType.Research || type == ResourceType.Fish)
             return;
-        
+
         for (int i = 0; i < resourceSelectionGridList.Count; i++)
-        {
             resourceSelectionGridList[i].DiscoverResource(type);
-        }
     }
 
 	public EnemyCamp GetEnemyCamp(Vector3Int loc)

@@ -21,8 +21,8 @@ public class UITradeRouteManager : MonoBehaviour
     public TMP_Dropdown chosenStop;
 
     private Trader selectedTrader;
-    [HideInInspector]
-    public Canvas rootCanvas;
+    //[HideInInspector]
+    //public Canvas rootCanvas;
 
     [SerializeField]
     public UIResourceSelectionGrid resourceSelectionGrid; 
@@ -59,7 +59,7 @@ public class UITradeRouteManager : MonoBehaviour
 
     private void Awake()
     {
-        rootCanvas = GetComponentInParent<Canvas>();
+        //rootCanvas = GetComponentInParent<Canvas>();
         originalLoc = allContents.anchoredPosition3D;
         originalButtonColor = buttonImage.color;
         gameObject.SetActive(false);
