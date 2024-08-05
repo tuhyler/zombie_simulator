@@ -561,6 +561,9 @@ public class UICityUpgradePanel : MonoBehaviour
 
     public void OnPointerClick()
     {
+        if (!activeStatus)
+            return;
+        
         if (cityBuilderManager.SelectedCity.attacked)
         {
 			ShakeCheck();
@@ -715,6 +718,9 @@ public class UICityUpgradePanel : MonoBehaviour
 
     public void CloseWindow()
     {
+        if (!activeStatus)
+            return;
+        
         cityBuilderManager.PlayCloseAudio();
         ToggleVisibility(false);
     }

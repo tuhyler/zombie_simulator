@@ -476,6 +476,11 @@ public class EnemyCamp
 		if (isCity && !world.enemyAttackBegin)
 			world.StartAttacks();
 
+		int seigeBonus = 0;
+
+		foreach (Military unit in attackingArmy.UnitsInArmy)
+			seigeBonus += unit.buildDataSO.cityDefenseReduction;
+
 		foreach (Military unit in unitsInCamp)
 		{
 			unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
@@ -484,7 +489,7 @@ public class EnemyCamp
 			if (world.CompletedImprovementCheck(terrainLoc))
 				unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(terrainLoc).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
 			else if (world.IsEnemyCityOnTile(terrainLoc))
-				unit.strengthBonus += Mathf.RoundToInt(world.GetEnemyCity(terrainLoc).attackBonus * 0.01f * unit.attackStrength);
+				unit.strengthBonus += Mathf.RoundToInt(Mathf.Max(0,world.GetEnemyCity(terrainLoc).attackBonus - seigeBonus) * 0.01f * unit.attackStrength);
 
 			if (unit.isSelected)
 				world.unitMovement.infoManager.UpdateStrengthBonus(unit.strengthBonus);
@@ -499,6 +504,8 @@ public class EnemyCamp
 				unit.enemyAI.RangedAggroCheck();
 			else if (type == UnitType.Cavalry)
 				unit.enemyAI.CavalryAggroCheck();
+			else if (type == UnitType.Seige)
+				unit.enemyAI.SeigeAggroCheck();
 		}
 	}
 
@@ -1645,60 +1652,58 @@ public class EnemyCamp
 	{
 		Vector3Int openSpot = openSpots[0];
 
-		switch (type)
+		if (type == UnitType.Infantry)
 		{
-			case UnitType.Infantry:
-				Vector3Int[] frontSpots = new Vector3Int[4] { new Vector3Int(0, 0, -1), new Vector3Int(-1, 0, -1), new Vector3Int(1, 0, -1) , new Vector3Int(0, 0, 0) };
-				for (int i = 0; i < frontSpots.Length; i++)
+			Vector3Int[] frontSpots = new Vector3Int[4] { new Vector3Int(0, 0, -1), new Vector3Int(-1, 0, -1), new Vector3Int(1, 0, -1), new Vector3Int(0, 0, 0) };
+			for (int i = 0; i < frontSpots.Length; i++)
+			{
+				Vector3Int trySpot = frontSpots[i] + loc;
+
+				if (openSpots.Contains(trySpot))
 				{
-					Vector3Int trySpot = frontSpots[i] + loc;
+					if (leader && leader.buildDataSO.unitType == UnitType.Infantry && trySpot == leader.barracksBunk)
+						continue;
 
-					if (openSpots.Contains(trySpot))
-					{
-						if (leader && leader.buildDataSO.unitType == UnitType.Infantry && trySpot == leader.barracksBunk)
-							continue;
-
-						openSpot = trySpot;
-						break;
-					}
+					openSpot = trySpot;
+					break;
 				}
-				break;
-			case UnitType.Ranged:
-				Vector3Int[] backSpots = new Vector3Int[6] { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 0, 1) };
+			}
+		}
+		else if (type == UnitType.Ranged || type == UnitType.Seige)
+		{
+			Vector3Int[] backSpots = new Vector3Int[6] { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 0, 1) };
 
-				for (int i = 0; i < backSpots.Length; i++)
+			for (int i = 0; i < backSpots.Length; i++)
+			{
+				Vector3Int trySpot = backSpots[i] + loc;
+
+				if (openSpots.Contains(trySpot))
 				{
-					Vector3Int trySpot = backSpots[i] + loc;
+					if (leader && leader.buildDataSO.unitType == UnitType.Ranged && trySpot == leader.barracksBunk)
+						continue;
 
-					if (openSpots.Contains(trySpot))
-					{
-						if (leader && leader.buildDataSO.unitType == UnitType.Ranged && trySpot == leader.barracksBunk)
-							continue;
-						
-						openSpot = trySpot;
-						break;
-					}
+					openSpot = trySpot;
+					break;
 				}
+			}
+		}
+		else if (type == UnitType.Cavalry)
+		{
+			Vector3Int[] sideSpots = new Vector3Int[4] { new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1) };
 
-				break;
-			case UnitType.Cavalry:
-				Vector3Int[] sideSpots = new Vector3Int[4] { new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1) };
+			for (int i = 0; i < sideSpots.Length; i++)
+			{
+				Vector3Int trySpot = sideSpots[i] + loc;
 
-				for (int i = 0; i < sideSpots.Length; i++)
+				if (openSpots.Contains(trySpot))
 				{
-					Vector3Int trySpot = sideSpots[i] + loc;
+					if (leader && leader.buildDataSO.unitType == UnitType.Cavalry && trySpot == leader.barracksBunk)
+						continue;
 
-					if (openSpots.Contains(trySpot))
-					{
-						if (leader && leader.buildDataSO.unitType == UnitType.Cavalry && trySpot == leader.barracksBunk)
-							continue;
-
-						openSpot = trySpot;
-						break;
-					}
+					openSpot = trySpot;
+					break;
 				}
-
-				break;
+			}
 		}
 
 		openSpots.Remove(openSpot);
@@ -1763,7 +1768,7 @@ public class EnemyCamp
 			if (i == 8)
 				rayCastLoc.y += 1.5f;
 
-			//can't only hit one at a time, not sure how to hit through objects that's already been hit
+			//can't only hit one at a time
 			Debug.DrawRay(rayCastLoc, pos * distance, Color.yellow, 10);
 			if (Physics.Raycast(rayCastLoc, pos, out hit, distance, world.enemyKillLayerMask))
 			{

@@ -24,7 +24,7 @@ public class UnitData : IUnitData
 	public int currentHealth, strengthBonus, upgradeLevel;
 	public float baseSpeed;
 	public bool readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, 
-		isUpgrading, ambush, aoe, guard, isGuarding, returning, atSea, benched, duelWatch, posSet;
+		isUpgrading, ambush, guard, isGuarding, returning, atSea, benched, duelWatch, posSet;
 
 	public MilitaryLeaderData leaderData = null;
 	public BodyGuardData bodyGuardData = null;

@@ -53,6 +53,9 @@ public class UIDuelWarning : MonoBehaviour
 
 	public void ConfirmDuel()
 	{
+		if (!activeStatus)
+			return;
+		
 		uiSpeechWindow.FinishText(true);
 		leader.DuelSetup();
 		leader.world.unitMovement.ClearSelection();
@@ -63,7 +66,10 @@ public class UIDuelWarning : MonoBehaviour
 	}
 
 	public void DenyDuel()
-	{	
+	{
+		if (!activeStatus)
+			return;
+
 		uiSpeechWindow.ReturnMainPlayer();
 		leader.BeginChallengeWait();
 		ToggleVisibility(false);

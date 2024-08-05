@@ -430,7 +430,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: We have a task that requires a sellable item! It'll be easier for us to
+    accumulate enough of those items if we temporarily turn off the ability for our
+    pop to purchase those goods. Don't forget to turn back on the ability to sell
+    the good once we have enough!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,

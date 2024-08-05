@@ -140,30 +140,45 @@ public class UIMainMenu : MonoBehaviour, IImmoveable
 
 	public void SaveGameButton()
 	{
+		if (!activeStatus)
+			return;
+
 		world.cityBuilderManager.PlaySelectAudio();
 		uiSaveGame.ToggleVisibility(true);
 	}
 
 	public void LoadGameButton()
 	{
+		if (!activeStatus)
+			return;
+
 		world.cityBuilderManager.PlaySelectAudio();
 		uiSaveGame.ToggleVisibility(true, true);
 	}
 
 	public void OpenSettingsButton()
 	{
+		if (!activeStatus)
+			return;
+
 		world.cityBuilderManager.PlaySelectAudio();
 		uiSettings.ToggleVisibility(true);
 	}
 
 	public void CloseMenuButton()
 	{
+		if (!activeStatus)
+			return;
+		
 		world.cityBuilderManager.PlaySelectAudio();
 		ToggleVisibility(false);
 	}
 
 	public void ExitToDesktopButton()
 	{
+		if (!activeStatus)
+			return;
+
 		Cursor.visible = false;
 		Application.Quit();
 	}

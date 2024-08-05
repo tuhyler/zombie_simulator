@@ -28,6 +28,9 @@ public class UIWarning : MonoBehaviour
 
 	public void CloseWarning()
 	{
+		if (!activeStatus)
+			return;
+
 		ToggleVisibilty(false);
 	}
 }

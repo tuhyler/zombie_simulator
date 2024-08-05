@@ -39,6 +39,7 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
         {
 			gameObject.SetActive(true);
 			activeStatus = true;
+            buttonButton.interactable = true;
             buttonImage.color = originalButtonColor;
             allContents.localScale = Vector3.zero;
             LeanTween.scale(allContents, Vector3.one, 0.25f).setDelay(0.125f).setEase(LeanTweenType.easeOutSine);
@@ -46,6 +47,7 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
         else
         {
             activeStatus = false;
+            buttonButton.interactable = false;
             //gameObject.SetActive(false);
             LeanTween.scale(allContents, Vector3.zero, 0.25f).setDelay(0.125f).setOnComplete(SetActiveStatusFalse);
         }

@@ -2,8 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
+using static UnityEngine.GraphicsBuffer;
+using static UnityEngine.RuleTile.TilingRuleOutput;
+using static UnityEngine.UI.CanvasScaler;
 
 public class Military : Unit
 {
@@ -24,7 +29,7 @@ public class Military : Unit
 
 	[HideInInspector]
 	public bool atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, 
-		flankedOnce, cavalryLine, aoe, guard, isGuarding, returning, atSea, benched, duelWatch, battleCam;
+		flankedOnce, cavalryLine, guard, isGuarding, returning, atSea, benched, duelWatch, battleCam;
 
 	[HideInInspector]
 	public List<Vector3Int> switchLocs = new();
@@ -84,10 +89,10 @@ public class Military : Unit
 		military = this;
 		attackStrength = buildDataSO.baseAttackStrength;
 
-		if (buildDataSO.unitType == UnitType.Ranged)
+		if (buildDataSO.unitType == UnitType.Ranged || buildDataSO.unitType == UnitType.Seige)
 		{
 			projectile = GetComponentInChildren<Projectile>();
-			projectile.SetProjectilePos();
+			//projectile.SetProjectilePos();
 			projectile.gameObject.SetActive(false);
 		}
 
@@ -169,7 +174,7 @@ public class Military : Unit
 			transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
 			StartAttackingAnimation();
 			yield return attackPauses[2];
-			target.ReduceHealth(this, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
+			target.ReduceHealth(this, transform.eulerAngles, attackStrength + strengthBonus, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
 			yield return attackPauses[0];
 		}
 
@@ -199,7 +204,7 @@ public class Military : Unit
 			transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
 			StartAttackingAnimation();
 			yield return attackPauses[2];
-			projectile.SetPoints(transform.position, target.transform.position);
+			projectile.SetPoints(transform.position, target.transform.position, false);
 			StartCoroutine(projectile.Shoot(this, target));
 			yield return attackPauses[0];
 		}
@@ -212,6 +217,139 @@ public class Military : Unit
 			StopAnimation();
 			AggroCheck();
 		}
+	}
+
+	private IEnumerator SeigeAttack(Vector3Int loc)
+	{
+		attacking = true;
+
+		int wait = UnityEngine.Random.Range(0, 3);
+		if (wait != 0)
+			yield return attackPauses[wait];
+		Vector3 endPoint = loc;
+		endPoint.y += world.GetTerrainDataAt(loc).isHill ? 0.65f : 0;
+
+		while (army.targetCamp != null)
+		{
+			transform.rotation = Quaternion.LookRotation(loc - transform.position);
+			StartAttackingAnimation();
+			yield return attackPauses[2];
+			projectile.SetPoints(transform.position, endPoint, true);
+			StartCoroutine(projectile.Shoot(this, null, true));
+			yield return attackPauses[0];
+			yield return attackPauses[0];
+		}
+
+		attackCo = null;
+		attacking = false;
+	}
+
+	public void AOEExplosion(Vector3 position)
+	{
+		Vector3Int loc = world.RoundToInt(position);
+		
+		//if (world.IsUnitLocationTaken(loc))
+		//{
+		//	Military enemy = world.GetUnit(loc).military;
+
+		//	if (enemyAI)
+		//	{
+		//		if (enemyCamp.attackingArmy.UnitsInArmy.Contains(enemy))
+		//			enemy.ReduceHealth(this, transform.eulerAngles, military.attackStrength + military.strengthBonus, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
+		//	}
+		//	else
+		//	{
+		//		if (army.targetCamp.UnitsInCamp.Contains(enemy))
+		//			enemy.ReduceHealth(this, transform.eulerAngles, military.attackStrength + military.strengthBonus, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
+		//	}
+		//}
+
+		//foreach (Vector3Int pos in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+		//{
+		//	Vector3Int neighbor = pos + loc;
+
+		//	if (world.IsUnitLocationTaken(neighbor))
+		//	{
+		//		Military enemy = world.GetUnit(neighbor).military;
+		//		int damage = Mathf.RoundToInt((military.attackStrength + military.strengthBonus) * 0.2f);
+		//		Vector3 eulerAngles = Quaternion.LookRotation(enemy.transform.position - position, Vector3.up).eulerAngles;
+
+		//		if (enemyAI)
+		//		{
+		//			if (enemyCamp.attackingArmy.UnitsInArmy.Contains(enemy))
+		//				enemy.ReduceHealth(this, eulerAngles, damage, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
+		//		}
+		//		else
+		//		{
+		//			if (army.targetCamp.UnitsInCamp.Contains(enemy))
+		//				enemy.ReduceHealth(this, eulerAngles, damage, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
+		//		}
+		//	}
+		//}
+
+
+		bool isHill = world.GetTerrainDataAt(loc).isHill;
+		float increase = isHill ? 1.15f : 0.15f;
+
+		Vector3 rayCastLoc = loc;
+		rayCastLoc.y += increase;
+
+		List<Vector3Int> directions = world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY);
+		directions.Add(Vector3Int.down);
+		for (int i = 0; i < directions.Count; i++)
+		{
+			Vector3 pos = directions[i];
+			if (isHill)
+				pos.y -= 0.5f;
+
+			float distance = i % 2 == 0 ? 1.5f : 2.1f;
+			if (i == 8)
+				rayCastLoc.y += 1.2f;
+
+			//can't only hit one at a time
+			Debug.DrawRay(rayCastLoc, pos * distance, Color.yellow, 10);
+
+			RaycastHit[] hits = Physics.RaycastAll(rayCastLoc, pos, distance, world.unitMask);
+			for (int j = 0; j < hits.Length; j++)
+			{
+				GameObject hitGO = hits[j].collider.gameObject;
+
+				if (hitGO && hitGO.TryGetComponent(out Military enemy))
+				{
+					float diffDist = Mathf.Sqrt(Mathf.Pow(rayCastLoc.x - enemy.transform.position.x, 2) + Mathf.Pow(rayCastLoc.z - enemy.transform.position.z, 2));
+					float perc = Mathf.Max(0, 1 - diffDist / distance);
+					int damage = Mathf.RoundToInt((military.attackStrength + military.strengthBonus) * perc);
+					Vector3 diff = enemy.transform.position - position;
+					Vector3 eulerAngles;
+					if (diff == Vector3.zero)
+						eulerAngles = transform.eulerAngles;
+					else
+						eulerAngles = Quaternion.LookRotation(enemy.transform.position - position, Vector3.up).eulerAngles;
+
+					bool hit = false;
+					if (enemyAI)
+					{
+						if (enemy.buildDataSO.inMilitary && enemyCamp.attackingArmy.UnitsInArmy.Contains(enemy))
+							hit = true;
+					}
+					else
+					{
+						if (enemy.enemyAI && army.targetCamp.UnitsInCamp.Contains(enemy))
+							hit = true;
+					}
+					
+					if (hit)
+						enemy.ReduceHealth(this, eulerAngles, damage, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
+				}
+			}
+		}
+	}
+
+	public void PlayExplosion(Vector3 loc)
+	{
+		ParticleSystem explosion = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/" + buildDataSO.aoeExplosionPrefab), loc, Quaternion.Euler(-90, 0, 0));
+		explosion.transform.SetParent(world.psHolder, false);
+		explosion.Play();
 	}
 
 	public void AggroCheck()
@@ -347,6 +485,14 @@ public class Military : Unit
 
 		if (enemy != null)
 			attackCo = StartCoroutine(RangedAttack(enemy));
+	}
+
+	public void SeigeAggroCheck()
+	{
+		if (isDead)
+			return;
+
+		attackCo = StartCoroutine(SeigeAttack(army.enemyTarget));
 	}
 
 	public void RangedAmbushCheck(Unit enemy)
@@ -1323,7 +1469,6 @@ public class Military : Unit
 			data.returning = returning;
 			data.inBattle = inBattle;
 			data.attacking = attacking;
-			data.aoe = aoe;
 			data.targetSearching = targetSearching;
 			data.flanking = flanking;
 			data.flankedOnce = flankedOnce;
@@ -1426,7 +1571,6 @@ public class Military : Unit
 			returning = data.returning;
 			inBattle = data.inBattle;
 			attacking = data.attacking;
-			aoe = data.aoe;
 			targetSearching = data.targetSearching;
 			flanking = data.flanking;
 			flankedOnce = data.flankedOnce;

@@ -111,6 +111,9 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void MoveStopUp()
     {
+        if (!tradeRouteManager.activeStatus)
+            return;
+        
         int placement = transform.GetSiblingIndex();
         if (placement == 0)
             return;
@@ -123,7 +126,10 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void MoveStopDown()
     {
-        int placement = transform.GetSiblingIndex();
+		if (!tradeRouteManager.activeStatus)
+			return;
+
+		int placement = transform.GetSiblingIndex();
         if (placement == tradeRouteManager.stopCount - 1)
             return;
 
@@ -147,6 +153,9 @@ public class UITradeStopHandler : MonoBehaviour
     public void SetChosenCity(int value)
     {
 		//tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
+		if (!tradeRouteManager.activeStatus)
+			return;
+
 		bool newValue = false;
 
         if (cityNameList.options.Contains(defaultFirstChoice))
@@ -191,9 +200,11 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void WaitForever(bool v)
     {
-        //inputWaitTime.interactable = !v;
-        //inputWaitTime.text = "";
-        waitSlider.gameObject.SetActive(!v);
+		if (!tradeRouteManager.activeStatus)
+			return;
+		//inputWaitTime.interactable = !v;
+		//inputWaitTime.text = "";
+		waitSlider.gameObject.SetActive(!v);
         waitTimeText.gameObject.SetActive(!v);
         waitForever = v;
 		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio(tradeRouteManager.world.cityBuilderManager.checkClip);
@@ -265,12 +276,14 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void SetSlider(float value)
     {
-        //float value2 = value * 0.01f;
-        //float b = 1.475561021f;
-        //float c = 8.821349657f;
+		//float value2 = value * 0.01f;
+		//float b = 1.475561021f;
+		//float c = 8.821349657f;
+		if (!tradeRouteManager.activeStatus)
+			return;
 
-        //waitTime = Mathf.RoundToInt(b * (Mathf.Exp(c * value2) - 1));
-        waitTime = secondPool[(int)value];
+		//waitTime = Mathf.RoundToInt(b * (Mathf.Exp(c * value2) - 1));
+		waitTime = secondPool[(int)value];
         waitTimeText.text = waitTime.ToString();
     }
 
@@ -290,6 +303,9 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void AddResourceTaskPanelButton() //added this as a method attached to button can't return anything
     {
+		if (!tradeRouteManager.activeStatus)
+			return;
+
 		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
         if (tradeRouteManager.resourceSelectionGrid.activeStatus)
             tradeRouteManager.resourceSelectionGrid.ToggleVisibility(false);
@@ -609,6 +625,9 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void CloseWindow()
     {
+		if (!tradeRouteManager.activeStatus)
+			return;
+
 		tradeRouteManager.world.cityBuilderManager.PlayCloseAudio();
 		CloseWindow(true);
     }

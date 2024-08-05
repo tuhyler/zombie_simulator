@@ -78,39 +78,36 @@ public class Army : MonoBehaviour
     {
         Vector3Int openSpot = openSpots[0];
         
-        switch (type)
+        if (type == UnitType.Ranged || type == UnitType.Seige)
         {
-            case UnitType.Ranged:
-				Vector3Int[] backSpots = new Vector3Int[6] { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0) };
+			Vector3Int[] backSpots = new Vector3Int[6] { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0) };
 
-				for (int i = 0; i < backSpots.Length; i++)
+			for (int i = 0; i < backSpots.Length; i++)
+			{
+				Vector3Int trySpot = backSpots[i] + loc;
+
+				if (openSpots.Contains(trySpot))
 				{
-					Vector3Int trySpot = backSpots[i] + loc;
-
-					if (openSpots.Contains(trySpot))
-					{
-						openSpot = trySpot;
-						break;
-					}
+					openSpot = trySpot;
+					break;
 				}
+			}
+		}
+        else if (type == UnitType.Cavalry)
+        {
+			Vector3Int[] sideSpots = new Vector3Int[6] { new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(0, 0, 1) };
 
-				break;
-            case UnitType.Cavalry:
-                Vector3Int[] sideSpots = new Vector3Int[6] { new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(0, 0, 1) };
+			for (int i = 0; i < sideSpots.Length; i++)
+			{
+				Vector3Int trySpot = sideSpots[i] + loc;
 
-                for (int i = 0; i < sideSpots.Length; i++)
-                {
-                    Vector3Int trySpot = sideSpots[i] + loc;
-                    
-                    if (openSpots.Contains(trySpot))
-                    {
-                        openSpot = trySpot;
-                        break;
-                    }
-                }
-
-                break;
-        }
+				if (openSpots.Contains(trySpot))
+				{
+					openSpot = trySpot;
+					break;
+				}
+			}
+		}
         
         openSpots.Remove(openSpot);
 
@@ -1060,7 +1057,12 @@ public class Army : MonoBehaviour
     private void ArmyCharge()
     {
         inBattle = true;
-        
+
+        int seigeBonus = 0;
+
+        foreach (Military unit in targetCamp.UnitsInCamp)
+            seigeBonus += unit.buildDataSO.cityDefenseReduction;
+
         foreach (Military unit in unitsInArmy)
         {
             if (unit.isSelected)
@@ -1072,7 +1074,7 @@ public class Army : MonoBehaviour
             if (world.CompletedImprovementCheck(terrainLoc))
                 unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(terrainLoc).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
             else if (world.IsCityOnTile(terrainLoc))
-                unit.strengthBonus += Mathf.RoundToInt(world.GetCity(terrainLoc).attackBonus * 0.01f * unit.attackStrength);
+                unit.strengthBonus += Mathf.RoundToInt(Mathf.Max(0, world.GetCity(terrainLoc).attackBonus - seigeBonus) * 0.01f * unit.attackStrength);
 
 			if (unit.isSelected)
 				world.unitMovement.infoManager.UpdateStrengthBonus(unit.strengthBonus);
@@ -1086,6 +1088,8 @@ public class Army : MonoBehaviour
                 unit.RangedAggroCheck();
             else if (type == UnitType.Cavalry)
                 unit.CavalryAggroCheck();
+            else if (type == UnitType.Seige)
+                unit.SeigeAggroCheck();
         }
     }
 

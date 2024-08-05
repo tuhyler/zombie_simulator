@@ -492,6 +492,7 @@ public class Worker : Unit
 
 		if (isPlayer && isSelected && somethingToSay)
 		{
+			world.unitMovement.QuickSelect(this);
 			SpeakingCheck();
 			world.ToggleCharacterConversationCam(true);
 		}
@@ -584,7 +585,7 @@ public class Worker : Unit
 			SkipRoadRemoval();
 			return;
 		}
-		else if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile) || world.IsTradeCenterOnTile(workerTile))
+		else if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile) || world.IsTradeCenterMainOnTile(workerTile))
 		{
 			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't remove this");
 			SkipRoadRemoval();
@@ -900,10 +901,17 @@ public class Worker : Unit
 		{
 			return;
 		}
+
 		if (!world.IsTileOpenButRoadCheck(workerTile))
 		{
 			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "Already something here");
 			return;
+		}
+
+		if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.noWaterCity && CheckForNoWater(workerTile))
+		{
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "Note: No water nearby for pop, must build well");
+			GameLoader.Instance.gameData.tutorialData.noWaterCity = true;
 		}
 
 		TerrainData td = world.GetTerrainDataAt(workerTile);
@@ -989,6 +997,20 @@ public class Worker : Unit
 		}
 
 		return false;
+	}
+
+	public bool CheckForNoWater(Vector3Int workerTile)
+	{
+		List<Vector3Int> cityRadius = world.GetNeighborsCoordinates(MapWorld.State.CITYRADIUS);
+		for (int i = 0; i < cityRadius.Count; i++)
+		{
+			Vector3Int neighbor = cityRadius[i] + workerTile;
+
+			if (world.GetTerrainDataAt(neighbor).terrainData.terrainDesc == TerrainDesc.River)
+				return false;
+		}
+
+		return true;
 	}
 
 	public bool CheckForCity(Vector3Int workerPos) //finds if city is nearby, returns it (interface? in WorkerTaskManager)

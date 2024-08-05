@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Housing03SouthData
   m_EditorClassIdentifier: 
-  showOrder: 0
+  showOrder: 7
   secondaryData: []
   prefabLoc: BuildingPrefabs/Housing03South
   audio: {fileID: 0}

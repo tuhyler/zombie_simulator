@@ -26,8 +26,8 @@ public class UICityBuildTabHandler : MonoBehaviour
     private ResourceManager resourceManager;
     private List<UIShowTabHandler> tabList = new();
 
-    [HideInInspector]
-    public bool buttonsAreWorking;
+    //[HideInInspector]
+    //public bool buttonsAreWorking;
 
     [SerializeField] // for tweening
     private RectTransform allContents;
@@ -43,7 +43,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     {
         gameObject.SetActive(false);
         originalLoc = allContents.anchoredPosition3D;
-        buttonsAreWorking = true;
+        //buttonsAreWorking = true;
 
 		foreach (Transform selection in allContents)
 		{
@@ -269,7 +269,7 @@ public class UICityBuildTabHandler : MonoBehaviour
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
-			if (cityBuilderManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)
+			if (cityBuilderManager.world.tutorial && cityBuilderManager.world.flashingButton)
 			{
 				for (int i = 0; i < tabList.Count; i++)
 				{
@@ -307,10 +307,10 @@ public class UICityBuildTabHandler : MonoBehaviour
     //    canvasGroup.interactable = v;
     //}
 
-    public void ToggleEnable(bool v)
-    {
-        buttonsAreWorking = v;
-    }
+    //public void ToggleEnable(bool v)
+    //{
+    //    buttonsAreWorking = v;
+    //}
 
     public void ShowUI()
     {

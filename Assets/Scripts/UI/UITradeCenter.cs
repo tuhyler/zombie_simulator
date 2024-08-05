@@ -155,6 +155,9 @@ public class UITradeCenter : MonoBehaviour/*, IGoldUpdateCheck*/
 
     public void CloseUITradeCenter()
     {
+        if (!activeStatus)
+            return;
+
         world.cityBuilderManager.PlayCloseAudio();
 		world.cityBuilderManager.UnselectTradeCenter();
     }

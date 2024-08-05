@@ -27,6 +27,9 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
+            if (!buttonHandler.activeStatus)
+                return;
+
             if (toggleColor)
             {
                 if (isSelected)

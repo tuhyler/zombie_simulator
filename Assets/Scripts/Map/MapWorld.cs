@@ -252,7 +252,8 @@ public class MapWorld : MonoBehaviour
     public int ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber, popGrowth, popLost, enemyCount, militaryCount, maxResearchLevel;
     [HideInInspector]
     public string tutorialStep, gameStep;
-    private bool flashingButton;
+    [HideInInspector]
+    public bool flashingButton;
     private List<string> cityNamePool;
 
     //for when terrain runs out of resources
@@ -669,7 +670,7 @@ public class MapWorld : MonoBehaviour
         {
             ToggleMainUI(false);
             playerInput.paused = true;
-            Physics.gravity = new Vector3(0, -5, 0);
+            Physics.gravity = new Vector3(0, -3, 0);
             Vector3 skyRotation = unit.transform.localEulerAngles;
             skyRotation.y += 180;
             unit.transform.rotation = Quaternion.Euler(skyRotation);
@@ -3028,6 +3029,9 @@ public class MapWorld : MonoBehaviour
 		}
         else
         {
+			if (hideUI)
+				return;
+
 			if (unitOrders || buildingWonder)
 				CloseBuildingSomethingPanel();
 
@@ -4141,6 +4145,9 @@ public class MapWorld : MonoBehaviour
 		}
 		else
 		{
+			if (hideUI)
+				return;
+
 			uiConversationTaskManager.ToggleVisibility(true);
 			conversationListButton.ToggleButtonColor(true);
 		}
@@ -4170,7 +4177,10 @@ public class MapWorld : MonoBehaviour
         }
         else
         {
-            wonderHandler.ToggleVisibility(true);
+			if (hideUI)
+				return;
+
+			wonderHandler.ToggleVisibility(true);
             wonderButton.ToggleButtonColor(true);
         }
     }
@@ -4217,9 +4227,16 @@ public class MapWorld : MonoBehaviour
 			CloseBuildingSomethingPanel();
 
         if (uiProfitabilityStats.activeStatus)
+        {
             uiProfitabilityStats.ToggleVisibility(false);
+        }
         else
-            uiProfitabilityStats.ToggleVisibility(true);
+        {
+			if (hideUI)
+				return;
+
+			uiProfitabilityStats.ToggleVisibility(true);
+        }
 	}
 
     //Research info
@@ -4231,9 +4248,16 @@ public class MapWorld : MonoBehaviour
             CloseBuildingSomethingPanel();
         
         if (researchTree.activeStatus)
+        {
             researchTree.ToggleVisibility(false);
+        }
         else
-            researchTree.ToggleVisibility(true);
+        {
+			if (hideUI)
+				return;
+
+			researchTree.ToggleVisibility(true);
+        }
     }
 
     public void CloseResearchTree()
@@ -5843,6 +5867,9 @@ public class MapWorld : MonoBehaviour
     {
         foreach (Vector3Int tile in enemyCampDict.Keys)
         {
+            if (enemyCampDict[tile].attacked || enemyCampDict[tile].attackReady || enemyCampDict[tile].inBattle)
+                continue;
+            
             TerrainData td = GetTerrainDataAt(tile);
             if (!td.isDiscovered)
                 continue;
@@ -6111,7 +6138,7 @@ public class MapWorld : MonoBehaviour
 					if (cityImprovementDict.ContainsKey(tile))
 						cityImprovementDict[tile].RevealImprovement(false);
 
-					if (IsTradeCenterOnTile(tile))
+					if (IsTradeCenterMainOnTile(tile))
 						GetTradeCenter(tile).Reveal();
 				}
             }
@@ -8137,8 +8164,11 @@ public class MapWorld : MonoBehaviour
                     }
                     else if (food > 1 && food < 5)
                     {
-                        StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
-                        unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
+                        if (!mainPlayer.isBusy)
+                        {
+                            StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
+                            unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
+                        }
                     }
                     break;
                 case "first_labor":
@@ -8173,7 +8203,7 @@ public class MapWorld : MonoBehaviour
 					bool enoughLumber = false;
 					foreach (City city in cityDict.Values)
 					{
-						if (city.resourceManager.resourceDict[ResourceType.Lumber] >= 6)
+						if (city.resourceManager.resourceDict[ResourceType.Lumber] >= 5)
 						{
 							enoughLumber = true;
 							break;
@@ -8186,8 +8216,11 @@ public class MapWorld : MonoBehaviour
 					}
                     else
 					{
-						StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
-						unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
+						if (!mainPlayer.isBusy)
+                        {
+                            StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
+						    unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
+                        }
 						return;
 					}
 
@@ -8217,7 +8250,7 @@ public class MapWorld : MonoBehaviour
 
                     for (int i = 0; i < cityBuilderManager.uiBuildingBuilder.buildOptions.Count; i++)
                     {
-                        if (cityBuilderManager.uiBuildingBuilder.buildOptions[i].BuildData.improvementName == "Housing")
+                        if (cityBuilderManager.uiBuildingBuilder.buildOptions[i].BuildData.improvementNameAndLevel == "Housing-1")
                         {
     						StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiBuildingBuilder.buildOptions[i].transform, true, true));
                             cityBuilderManager.uiBuildingBuilder.buildOptions[i].isFlashing = true;
@@ -8327,7 +8360,7 @@ public class MapWorld : MonoBehaviour
 
 					for (int i = 0; i < cityBuilderManager.uiProducerBuilder.buildOptions.Count; i++)
 					{
-						if (cityBuilderManager.uiProducerBuilder.buildOptions[i].BuildData.improvementName == "Research")
+						if (cityBuilderManager.uiProducerBuilder.buildOptions[i].BuildData.improvementNameAndLevel == "Research-1")
 						{
 							StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiProducerBuilder.buildOptions[i].transform, true, true));
 							cityBuilderManager.uiProducerBuilder.buildOptions[i].isFlashing = true;
@@ -8401,6 +8434,9 @@ public class MapWorld : MonoBehaviour
 							StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Sell").transform, true));
 							cityBuilderManager.uiCityTabs.GetTab("Sell").isFlashing = true;
 							break;
+                        case "Hunting Research Complete":
+							mainPlayer.conversationHaver.SetSomethingToSay("hunting", azai);
+							break;
                         case "Trade Research Complete":
 							mainPlayer.conversationHaver.SetSomethingToSay("trade", scott);
                             break;
@@ -8445,10 +8481,10 @@ public class MapWorld : MonoBehaviour
 							mainPlayer.conversationHaver.SetSomethingToSay("first_pop_loss", scott);
                             GameLoader.Instance.gameData.tutorialData.hadPopLoss = true;
 							break;
-                        case "New City":
-							mainPlayer.conversationHaver.SetSomethingToSay("new_city", scott);
-							GameLoader.Instance.gameData.tutorialData.newCity = true;
-                            break;
+       //                 case "New City":
+							//mainPlayer.conversationHaver.SetSomethingToSay("new_city", scott);
+							//GameLoader.Instance.gameData.tutorialData.newCity = true;
+       //                     break;
                         case "Finished Building Finance Center":
                             if (GameLoader.Instance.gameData.tutorialData.newFinance)
                                 return;
@@ -8503,13 +8539,13 @@ public class MapWorld : MonoBehaviour
     public IEnumerator EnableButtonHighlight(Transform selection, bool button, bool big = false)
     {
 		ButtonFlashCheck();
+		flashingButton = true;
 
         //wait til end of frame to make sure everything is active
 		yield return new WaitForEndOfFrame();
 
         buttonHighlight.transform.SetParent(selection, false);
         buttonHighlight.PlayFlash(button, big);
-		flashingButton = true;
 	}
 
 	//in case some actions need to take place during and immediately after conversation (step numbers must be manually entered,
@@ -8523,7 +8559,7 @@ public class MapWorld : MonoBehaviour
                 {
 				    if (tutorial)
 				    {
-                        uiConversationTaskManager.CreateConversationTask("Tutorial");
+                        //uiConversationTaskManager.CreateConversationTask("Tutorial");
                         tutorialStep = "just_landed";
 						StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Build").transform, true));
 						unitMovement.uiWorkerTask.GetButton("Build").isFlashing = true;
@@ -8720,12 +8756,7 @@ public class MapWorld : MonoBehaviour
 				}
                 break;
             case "first_infantry":
-                if (number == 1)
-                {
-                    if (tutorial)
-						mainPlayer.conversationHaver.SetSomethingToSay("hunting", azai);
-                }
-                else if (number == 11)
+                if (number == 11)
                 {
                     RemoveNPCLoc(azai.currentLocation);
                     azaiFollow = true;
@@ -8751,13 +8782,29 @@ public class MapWorld : MonoBehaviour
 				}
 				break;
             case "next_city":
-                if (number == 2)
+                if (number == 2 && tutorial)
                 {
 					StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("LoadUnload").transform, true));
 					unitMovement.uiWorkerTask.GetButton("LoadUnload").isFlashing = true;
 				}
                 break;
-            case "Haniya_intro":
+            case "Natakamani_quest0":
+                if (number == 14 && tutorial)
+                {
+				    mainPlayer.conversationHaver.SetSomethingToSay("first_task");
+					StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("LoadUnload").transform, true));
+					unitMovement.uiWorkerTask.GetButton("LoadUnload").isFlashing = true;
+				}
+				break;
+			case "Natakamani_quest1":
+				if (number == 11 && tutorial)
+				{
+					mainPlayer.conversationHaver.SetSomethingToSay("toggle_sell");
+					StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Sell").transform, true));
+					cityBuilderManager.uiCityTabs.GetTab("Sell").isFlashing = true;
+				}
+				break;
+			case "Haniya_intro":
                 mainPlayer.conversationHaver.SetSomethingToSay("Haniya_intro_coda");
                 break;
 			case "Haniya_quest0_complete":

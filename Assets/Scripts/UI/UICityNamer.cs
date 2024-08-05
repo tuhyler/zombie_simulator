@@ -118,6 +118,9 @@ public class UICityNamer : MonoBehaviour
 
     public void StoreName() //method for 'confirm' button
     {
+        if (!activeStatus)
+            return;
+
         MapWorld world;
         if (tempCity != null)
             world = tempCity.world;

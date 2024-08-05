@@ -366,7 +366,10 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     {
 		if (eventData.button == PointerEventData.InputButton.Left)
         {
-		    if (researchTree.researchTooltip.activeStatus)
+            if (!researchTree.activeStatus)
+                return;
+            
+            if (researchTree.researchTooltip.activeStatus)
             {
                 researchTree.researchTooltip.ToggleVisibility(false);
                 return;

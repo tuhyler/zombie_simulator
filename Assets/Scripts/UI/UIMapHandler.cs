@@ -80,7 +80,10 @@ public class UIMapHandler : MonoBehaviour
         }
         else
         {
-            world.cityBuilderManager.PlaySelectAudio();
+			if (world.hideUI)
+				return;
+
+			world.cityBuilderManager.PlaySelectAudio();
             world.somethingSelected = false;
             ToggleVisibility(true);
         }

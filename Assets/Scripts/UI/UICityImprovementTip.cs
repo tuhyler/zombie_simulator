@@ -454,6 +454,9 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
 
     public void ChangeResourceProduced(int a)
     {
+        if (!activeStatus)
+            return;
+        
         if (highlightIndex == a)
             return;
         

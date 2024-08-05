@@ -872,7 +872,7 @@ public class GridSearch
 				if (world.CheckIfEnemyTerritory(neighbor) && neighbor != endTerrain)
                     continue;
 
-				if (world.IsTradeCenterOnTile(neighbor))
+				if (world.IsTradeCenterMainOnTile(neighbor))
 					continue;
 
 				int tempCost = world.GetMovementCost(neighbor);
@@ -948,7 +948,7 @@ public class GridSearch
 				if (world.CheckForFinalMarch(neighbor))
 					continue;
 
-				if (world.IsTradeCenterOnTile(neighbor))
+				if (world.IsTradeCenterMainOnTile(neighbor))
 					continue;
 
 				int tempCost;

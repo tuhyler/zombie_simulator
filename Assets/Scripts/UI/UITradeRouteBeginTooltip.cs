@@ -247,6 +247,8 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 	{
 		addGuardButton.GetComponent<UITooltipTrigger>().CancelCall();
 		UITooltipSystem.Hide();
+		if (!activeStatus)
+			return;
 
 		if (trader.isMoving)
 		{

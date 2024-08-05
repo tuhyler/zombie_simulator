@@ -36,7 +36,10 @@ public class UnitBuildDataSO : ScriptableObject
     public TransportationType transportationType = TransportationType.Land;
     public bool characterUnit;
     public bool npc;
+    //public int aoeDamage = 1;
+    public string aoeExplosionPrefab;
     public SingleBuildType singleBuildType;
+    public int cityDefenseReduction;
     public Era unitEra;
     public Region unitRegion = Region.None;
 }

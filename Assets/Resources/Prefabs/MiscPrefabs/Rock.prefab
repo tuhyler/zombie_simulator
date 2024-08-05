@@ -45,8 +45,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f05f39d3bccbd2438342e9194bbf247, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1.75
-  archHeight: 6
+  launches:
+  - {fileID: 8300000, guid: 610e1e086c4891b46a91d8a54b644920, type: 3}
+  attacks:
+  - {fileID: 8300000, guid: 53f693d899fc6c340b313fe35d74585e, type: 3}
+  speed: 0.5
+  archHeight: 5
 --- !u!1001 &2018206735589336938
 PrefabInstance:
   m_ObjectHideFlags: 0

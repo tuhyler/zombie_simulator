@@ -259,7 +259,7 @@ public class Unit : MonoBehaviour
     }
 
     //taking damage
-    public void ReduceHealth(Unit attackingUnit, AudioClip audio)
+    public void ReduceHealth(Unit attackingUnit, Vector3 eulerAngles, int damage, AudioClip audio)
     {
         audioSource.clip = audio;
         audioSource.Play();
@@ -269,7 +269,7 @@ public class Unit : MonoBehaviour
 
 		healthbar.gameObject.SetActive(true);
 
-        currentHealth -= attackingUnit.military.attackStrength + attackingUnit.military.strengthBonus/* - 1 + UnityEngine.Random.Range(0, 3)*/;
+        currentHealth -= damage/*attackingUnit.military.attackStrength + attackingUnit.military.strengthBonus*//* - 1 + UnityEngine.Random.Range(0, 3)*/;
 
         if (currentHealth <= 0)
         {
@@ -282,9 +282,6 @@ public class Unit : MonoBehaviour
 
                 military.StopAttacking(false);
             }
-
-            if (!attackingUnit.military.aoe)
-                attackingUnit.military.attacking = false;
 
 			if (military && military.bodyGuard)
 			{
@@ -299,7 +296,7 @@ public class Unit : MonoBehaviour
 			}
             else
             {
-			    KillUnit(attackingUnit.transform.eulerAngles);
+			    KillUnit(/*attackingUnit.transform.eulerAngles*/eulerAngles);
                 return;
             }
         }
@@ -773,7 +770,7 @@ public class Unit : MonoBehaviour
 
             td2.Reveal(false);
             world.cameraController.CheckLoc(loc);
-            if (world.IsTradeCenterOnTile(loc))
+            if (world.IsTradeCenterMainOnTile(loc))
                 world.GetTradeCenter(loc).Reveal();
             else if (world.IsEnemyCityOnTile(loc))
                 world.enemyCityDict[loc].gameObject.SetActive(true);
@@ -841,7 +838,7 @@ public class Unit : MonoBehaviour
 
 			td.Reveal(true);
 			world.cameraController.CheckLoc(tilesToCheck[i]);
-			if (world.IsTradeCenterOnTile(tilesToCheck[i]))
+			if (world.IsTradeCenterMainOnTile(tilesToCheck[i]))
 				world.GetTradeCenter(tilesToCheck[i]).Reveal();
 
 		}

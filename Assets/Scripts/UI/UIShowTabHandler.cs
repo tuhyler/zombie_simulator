@@ -60,10 +60,10 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
         {
 			UITooltipSystem.Hide();
 
-			if (!uiBuildTabHandler.buttonsAreWorking)
+			if (!uiBuildTabHandler.activeStatus)
                 return;
 
-		    if (uiBuildTabHandler.cityBuilderManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)
+		    if (uiBuildTabHandler.cityBuilderManager.world.tutorial && uiBuildTabHandler.cityBuilderManager.world.flashingButton)
             {
                 if (isFlashing)
                 {
@@ -102,10 +102,10 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
 
     public void SelectTabKeyboardShortcut()
     {
-		if (!uiBuildTabHandler.buttonsAreWorking)
+		if (!uiBuildTabHandler.activeStatus)
 			return;
 
-		if (uiBuildTabHandler.cityBuilderManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)
+		if (uiBuildTabHandler.cityBuilderManager.world.tutorial)
 		{
 			if (isFlashing)
 			{

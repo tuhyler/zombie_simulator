@@ -217,7 +217,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             SelectWonder(wonder);
         }
-        else if (world.IsTradeCenterOnTile(terrainLocation) && td != null)
+        else if (world.IsTradeCenterMainOnTile(terrainLocation) && td != null)
         {
             SelectTradeCenter(world.GetTradeCenter(terrainLocation));
         }
@@ -661,6 +661,9 @@ public class CityBuilderManager : MonoBehaviour
 
     public void BuildHarbor()
     {
+        if (!uiWonderSelection.activeStatus)
+            return;
+
         if (selectedWonder.singleBuildDict.ContainsKey(SingleBuildType.Harbor))
         {
             PlaySelectAudio(removeClip);
@@ -669,9 +672,6 @@ public class CityBuilderManager : MonoBehaviour
             return;
         }
         
-        if (!uiWonderSelection.buttonsAreWorking)
-            return;
-
         PlaySelectAudio();
         tilesToChange.Clear();
 
@@ -703,7 +703,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void CreateWorkerButton()
     {
-        if (!uiWonderSelection.buttonsAreWorking)
+        if (!uiWonderSelection.activeStatus)
             return;
 
         if (selectedWonder.workersReceived == 0)
@@ -863,7 +863,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void OpenCancelWonderConstructionWarning()
     {
-        if (uiWonderSelection.buttonsAreWorking)
+        if (uiWonderSelection.activeStatus)
         {
             PlaySelectAudio();
             uiDestroyCityWarning.ToggleVisibility(true);
@@ -3154,6 +3154,9 @@ public class CityBuilderManager : MonoBehaviour
 				return;
 			}
         }
+
+        if (!uiInfoPanelCity.activeStatus)
+            return;
         
         PlaySelectAudio();
         
@@ -3353,6 +3356,9 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCityConfirm()
     {
+        if (!uiDestroyCityWarning.activeStatus)
+            return;
+
         PlaySelectAudio();
         
         if (selectedWonder != null)
@@ -3493,6 +3499,9 @@ public class CityBuilderManager : MonoBehaviour
 
     public void NoDestroyCity() //in case user chickens out
     {
+        if (!uiDestroyCityWarning.activeStatus)
+            return;
+
         PlayCloseAudio();
         
         uiDestroyCityWarning.ToggleVisibility(false);

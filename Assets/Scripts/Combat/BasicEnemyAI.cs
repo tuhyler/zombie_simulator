@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -157,6 +158,14 @@ public class BasicEnemyAI : MonoBehaviour
 
 		if (enemy != null)
 			unit.attackCo = StartCoroutine(RangedAttack(enemy));
+	}
+
+	public void SeigeAggroCheck()
+	{
+		if (unit.isDead)
+			return;
+
+		unit.attackCo = StartCoroutine(SeigeAttack(unit.enemyCamp.threatLoc));
 	}
 
 	public void CavalryAggroCheck()
@@ -362,7 +371,7 @@ public class BasicEnemyAI : MonoBehaviour
 			unit.StartAttackingAnimation();
 			yield return unit.attackPauses[2];
 			if (!target.isDead)
-				target.ReduceHealth(unit, unit.attacks[UnityEngine.Random.Range(0,unit.attacks.Length)]);
+				target.ReduceHealth(unit, unit.transform.eulerAngles, unit.military.attackStrength + unit.military.strengthBonus, unit.attacks[UnityEngine.Random.Range(0,unit.attacks.Length)]);
 			yield return unit.attackPauses[0];
 			if (!target.isDead)
 				dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
@@ -441,7 +450,7 @@ public class BasicEnemyAI : MonoBehaviour
 			yield return unit.attackPauses[2];
 			if (!target.isDead)
 			{
-				unit.projectile.SetPoints(transform.position, target.transform.position);
+				unit.projectile.SetPoints(transform.position, target.transform.position, false);
 				StartCoroutine(unit.projectile.Shoot(unit, target));
 			}
 			yield return unit.attackPauses[0];
@@ -464,6 +473,31 @@ public class BasicEnemyAI : MonoBehaviour
 			unit.StopAttackAnimation();
 			AggroCheck();
 		}
+	}
+
+	private IEnumerator SeigeAttack(Vector3Int loc)
+	{
+		unit.attacking = true;
+
+		int wait = UnityEngine.Random.Range(0, 3);
+		if (wait != 0)
+			yield return unit.attackPauses[wait];
+		Vector3 endPoint = loc;
+		endPoint.y += unit.world.GetTerrainDataAt(loc).isHill ? 0.65f : 0;
+
+		while (unit.enemyCamp.attackingArmy != null)
+		{
+			transform.rotation = Quaternion.LookRotation(loc - transform.position);
+			unit.StartAttackingAnimation();
+			yield return unit.attackPauses[2];
+			unit.projectile.SetPoints(transform.position, endPoint, true);
+			StartCoroutine(unit.projectile.Shoot(unit, null, true));
+			yield return unit.attackPauses[0];
+			yield return unit.attackPauses[0];
+		}
+
+		unit.attackCo = null;
+		unit.attacking = false;
 	}
 
 	public void StartReturn()

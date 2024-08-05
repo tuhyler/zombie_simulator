@@ -54,7 +54,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 0}
-  buttonButton: {fileID: 0}
+  buttonButton: {fileID: 7163163137336047446}
+  newIcon: {fileID: 0}
   allContents: {fileID: 5260703463605753538}
   activeStatus: 0
   buttonImage: {fileID: 1185987772734000577}

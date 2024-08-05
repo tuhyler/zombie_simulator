@@ -48,6 +48,8 @@ MonoBehaviour:
   transportationType: 0
   characterUnit: 0
   npc: 0
+  aoeExplosionPrefab: 
   singleBuildType: 1
+  cityDefenseReduction: 0
   unitEra: 0
   unitRegion: 4

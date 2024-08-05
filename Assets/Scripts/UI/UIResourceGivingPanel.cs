@@ -137,6 +137,9 @@ public class UIResourceGivingPanel : MonoBehaviour
 
 	public void ConfirmGiftButton()
 	{
+		if (!activeStatus)
+			return;
+		
 		ResourceValue gift;
 		gift.resourceType = giftedResource.resourceType;
 		gift.resourceAmount = giftedResource.resourceAmount;

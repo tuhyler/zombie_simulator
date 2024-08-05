@@ -315,7 +315,7 @@ public class UnitMovement : MonoBehaviour
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No road here");
                 }
-                else if (world.IsCityOnTile(pos) || world.IsWonderOnTile(pos) || world.IsTradeCenterOnTile(pos))
+                else if (world.IsCityOnTile(pos) || world.IsWonderOnTile(pos) || world.IsTradeCenterMainOnTile(pos))
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't remove this");
                 }
@@ -543,7 +543,7 @@ public class UnitMovement : MonoBehaviour
 					uiBuildingSomething.SetText("Select Attack Zone");
 					ShutDownAttackZones();
                     potentialAttackLoc = pos;
-                    isCity = false; //for attacks on barracks
+                    //isCity = false; //for attacks on barracks
 					SetUpAttackZoneInfo(pos, isCity);
 				}
                 else if (attackZoneList.Contains(pos))
@@ -1565,7 +1565,13 @@ public class UnitMovement : MonoBehaviour
 
     public void LoadUnloadPrep() //for loadunload button for Koa
     {
-		world.cityBuilderManager.PlaySelectAudio();
+        if (world.tutorial)
+        {
+            uiWorkerTask.GetButton("LoadUnload").isFlashing = false;
+            world.ButtonFlashCheck();
+        }
+
+        world.cityBuilderManager.PlaySelectAudio();
 		UITooltipSystem.Hide();
 
 		if (!loadScreenSet)
@@ -2007,6 +2013,8 @@ public class UnitMovement : MonoBehaviour
 	public void SetUpTradeRoute()
     {
 		UITooltipSystem.Hide();
+        if (selectedUnit == null)
+            return;
 
 		//if (!selectedUnit.bySea && !selectedUnit.trader.followingRoute && !world.IsRoadOnTileLocation(world.GetClosestTerrainLoc(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
 		//{
@@ -2040,6 +2048,9 @@ public class UnitMovement : MonoBehaviour
     public void ShowTradeRouteCost()
     {
 		UITooltipSystem.Hide();
+
+        if (selectedUnit == null)
+            return;
 
 		if (!selectedUnit.trader.hasRoute)
             return;
@@ -2317,16 +2328,20 @@ public class UnitMovement : MonoBehaviour
 
     public void SetUpAttackZoneInfo(Vector3Int loc, bool isCity, int numUsed = 0)
     {
-        Vector3Int barracksLoc = loc;
-        if (isCity)
-            barracksLoc = world.GetEnemyCity(loc).singleBuildDict[SingleBuildType.Barracks];
+        //Vector3Int barracksLoc = loc;
+        //if (isCity)
+        //    barracksLoc = world.GetEnemyCity(loc).singleBuildDict[SingleBuildType.Barracks];
+
+        int seigeBonus = 0;
+        foreach (Military unit in selectedUnit.military.army.UnitsInArmy)
+            seigeBonus += unit.buildDataSO.cityDefenseReduction;
 
 		int i = numUsed;
         foreach (Vector3Int tile in world.GetNeighborsFor(loc, MapWorld.State.FOURWAYINCREMENT))
         {
             TerrainData td = world.GetTerrainDataAt(tile);
 
-            if (!td.isDiscovered || td.terrainData.terrainDesc == TerrainDesc.Mountain || tile == barracksLoc || world.IsEnemyCityOnTile(tile) || attackZoneList.Contains(tile))
+            if (!td.isDiscovered || td.terrainData.terrainDesc == TerrainDesc.Mountain /*|| tile == barracksLoc || world.IsEnemyCityOnTile(tile) || attackZoneList.Contains(tile)*/)
                 continue;
 
             attackZoneList.Add(tile);
@@ -2354,14 +2369,14 @@ public class UnitMovement : MonoBehaviour
         if (isCity)
         {
             if (world.CompletedImprovementCheck(potentialAttackLoc))
-                enemyAttackZoneBonus += world.GetCityDevelopment(potentialAttackLoc).GetImprovementData.attackBonus;
+                enemyAttackZoneBonus += Mathf.Max(0, world.GetCityDevelopment(potentialAttackLoc).GetImprovementData.attackBonus - seigeBonus);
             else if (world.IsEnemyCityOnTile(potentialAttackLoc))
-                enemyAttackZoneBonus += world.GetEnemyCity(potentialAttackLoc).attackBonus;
+                enemyAttackZoneBonus += Mathf.Max(0, world.GetEnemyCity(potentialAttackLoc).attackBonus - seigeBonus);
         }
-        else if (world.CompletedImprovementCheck(barracksLoc))
-        {
-            enemyAttackZoneBonus += world.GetCityDevelopment(barracksLoc).GetImprovementData.attackBonus;
-        }
+        //else if (world.CompletedImprovementCheck(barracksLoc))
+        //{
+        //    enemyAttackZoneBonus += world.GetCityDevelopment(barracksLoc).GetImprovementData.attackBonus;
+        //}
 
 		if (enemyAttackZoneBonus != 0)
         {
@@ -2370,13 +2385,13 @@ public class UnitMovement : MonoBehaviour
             i++;
 		}
 
-        if (isCity)
-        {
-            world.GetCityDevelopment(barracksLoc).EnableHighlight(Color.red);
-            world.GetTerrainDataAt(barracksLoc).EnableHighlight(Color.red);
-            attackZoneList.Add(barracksLoc);
-            SetUpAttackZoneInfo(barracksLoc, false, i);
-        }
+        //if (isCity)
+        //{
+        //    world.GetCityDevelopment(barracksLoc).EnableHighlight(Color.red);
+        //    world.GetTerrainDataAt(barracksLoc).EnableHighlight(Color.red);
+        //    attackZoneList.Add(barracksLoc);
+        //    SetUpAttackZoneInfo(barracksLoc, false, i);
+        //}
     }
 
     public void SetMovingAttackBonusText(Vector3Int attackZone, Vector3Int enemyTarget)

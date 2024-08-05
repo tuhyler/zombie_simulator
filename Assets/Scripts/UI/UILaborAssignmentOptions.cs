@@ -54,6 +54,9 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (!buttonHandler.activeStatus)
+            return;
+
         if (!isSelected)
         {
             ToggleButtonSelection(true);

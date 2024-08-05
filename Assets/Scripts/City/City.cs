@@ -623,8 +623,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 			if (activeCity)
 				world.cityBuilderManager.uiInfoPanelCity.UpdateCityName(newName);
 
-			if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.newCity)
-				world.TutorialCheck("New City");
+			//if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.newCity)
+			//	world.TutorialCheck("New City");
 		}
 
 		cityNameField.ToggleVisibility(true);

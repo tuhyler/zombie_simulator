@@ -60,7 +60,7 @@ public class UILaborAssignment : MonoBehaviour
         activeStatus = true;
         allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
-        if (cityBuildingManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)
+        if (cityBuildingManager.world.tutorial && cityBuildingManager.world.flashingButton)
         {
             for (int i = 0; i < laborOptions.Count; i++)
             {

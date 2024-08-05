@@ -546,7 +546,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Nope! Like I said before, the people here are happy to help. We'll just need to research the proper technologies first before they can do anything."
+			speakerText = "Nope! Like I said before, the people here are happy to help. We'll just need to build the necessary raw goods producers discovered through our research before they can do anything."
 		};
 		conversationDict["last_resource"].Add(last_resource2);
 		#endregion
@@ -588,8 +588,8 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "We can now build a ceramist! This is a producer that will create a crafted good for which our people will be willing to spend much more money. " +
-			"The more of these we make, the more money we can pay to our researchers!"
+			speakerText = "We can now build a ceramist! This is a producer that will create a crafted good that our people will be willing to spend more money on. " +
+			"The more of these products we sell, the more money we can use to get more researchers!"
 		};
 		conversationDict["pottery"].Add(pottery1);
 
@@ -598,7 +598,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "(Go to a nearby city and camp and click on the \"Sea Market Pricds\" button to learn more about selling prices and quantities.)"
+			speakerText = "(Go to a nearby city and camp and click on the \"Sell\" button to learn more about resource prices and quantities)"
 		};
 		conversationDict["pottery"].Add(pottery2);
 		#endregion
@@ -643,8 +643,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "Hello! Who are you? Another helper for me I hope?",
-			action = true
+			speakerText = "Hello! Who are you? Another helper for me I hope?"
 		};
 		conversationDict["first_infantry"].Add(first_infantry1);
 
@@ -801,9 +800,53 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottSad",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "We just lost our first pop... If we don't have enough food, housing or water for a cycle, a pop will leave camp forever. Worst of all, that slightly dampens my otherwise constant ecstatic mood..."
+			speakerText = "We just lost our first pop... If we don't have enough food, housing or water for a cycle, a pop will leave camp forever. Worst of all, " +
+			"that slightly dampens my otherwise constant ecstatic mood..."
 		};
 		conversationDict["first_pop_loss"].Add(first_pop_loss1);
+		#endregion
+		#region first_task
+		conversationDict["first_task"] = new();
+
+		ConversationItem first_task1 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "We were just assigned a task! In order to pick up the requested item, we need to be standing in a city center."
+		};
+		conversationDict["first_task"].Add(first_task1);
+
+		ConversationItem first_task2 = new()
+		{
+			speakerImage = "KoaHappy",
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "(While standing in a city center, press the \"Load\" button to pick up items in a city)"
+		};
+		conversationDict["first_task"].Add(first_task2);
+		#endregion
+		#region toggle_sell
+		conversationDict["toggle_sell"] = new();
+
+		ConversationItem toggle_sell1 = new()
+		{
+			speakerImage = "ScottSad",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "We just got a task that requires a sellable item! It'll be easier for us to accumulate enough of this item if we temporarily " +
+			"turn off the ability to sell the item. Don't forget to turn back on the ability to sell it once we have enough!"
+		};
+		conversationDict["toggle_sell"].Add(toggle_sell1);
+
+		ConversationItem toggle_sell2 = new()
+		{
+			speakerImage = "KoaHappy",
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "(While in the city screen, click the \"Sell\" button. From the menu that opens, you can select or deselect which of the sellable products you'd like to sell.)"
+		};
+		conversationDict["toggle_sell"].Add(toggle_sell2);
 		#endregion
 		#region first_ambush
 		conversationDict["first_ambush"] = new();
@@ -856,7 +899,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "One of our camps just becamse a city! If a camp reaches the pop amount of four or more, then it becomes a city with a new name displayed overhead. " +
+			speakerText = "One of our camps just became a city! If the pop amount of a camp reaches a certain level, then it becomes a city with a new name displayed overhead. " +
 			"Traders will then recognize that city under its new name for their stops on their route."
 		};
 		conversationDict["new_city"].Add(new_city1);
@@ -900,7 +943,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "We just built our first finance center! Adding labor to these centers will increase the amount of goods purchased each cycle for every " +
+			speakerText = "We just built our first bazaar! Adding labor to these centers will increase the amount of goods purchased each cycle for every " +
 			"sellable item (except for food). These centers are a great way to increase our sales!"
 		};
 		conversationDict["new_finance_center"].Add(new_finance_center1);
@@ -927,7 +970,7 @@ public class Conversations : MonoBehaviour
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "We just built our first goods producer! It's difficult to run an economy just on food sales alone, so selling higher priced goods created by producers, " +
-			"such as pottery or cloth, can generate much higher sales for us!"
+			"such as pottery or cloth, can generate higher sales for us!"
 		};
 		conversationDict["new_producer"].Add(new_producer1);
 		#endregion
@@ -2430,7 +2473,8 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Natakamani",
-			speakerText = "I know! Isn't it splendid to hear about? Anyways, we'll find stones for you, and we'll return when we do, Mr. Natakamani!"
+			speakerText = "I know! Isn't it splendid to hear about? Anyways, we'll find stones for you, and we'll return when we do, Mr. Natakamani!",
+			action = true
 		};
 		conversationDict["Natakamani_quest0"].Add(natakamani_quest014);
 		#endregion
@@ -2583,7 +2627,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "NatakamaniQuestion",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
-			speakerText = "Yes, it definitely sounds like a worthy use of your time."
+			speakerText = "Yes, it definitely sounds like a worthy use of time."
 		};
 		conversationDict["Natakamani_quest1"].Add(natakamani_quest18);
 

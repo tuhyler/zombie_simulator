@@ -95,7 +95,10 @@ public class UISettings : MonoBehaviour
 
     public void CloseWindowButton()
     {
-        if (world != null)
+		if (!activeStatus)
+			return;
+
+		if (world != null)
             world.cityBuilderManager.PlayCloseAudio();
         else
             titleScreen.PlayCloseAudio();
@@ -104,12 +107,18 @@ public class UISettings : MonoBehaviour
 
     public void ChangeMain(float value)
     {
-        audioMixer.SetFloat("MainVolume", value);
+		if (!activeStatus)
+			return;
+
+		audioMixer.SetFloat("MainVolume", value);
     }
 
     public void ChangeMusic(float value)
     {
-        audioMixer.SetFloat("MusicVolume", value);
+		if (!activeStatus)
+			return;
+
+		audioMixer.SetFloat("MusicVolume", value);
 
         if (world != null)
         {
@@ -139,17 +148,26 @@ public class UISettings : MonoBehaviour
 
     public void ChangeAmbience(float value)
     {
+		if (!activeStatus)
+			return;
+
 		audioMixer.SetFloat("AmbienceVolume", value);
     }
 
 	public void ChangeSound(float value)
 	{
+		if (!activeStatus)
+			return;
+
 		audioMixer.SetFloat("SoundEffectVolume", value);
 	}
 
     public void SetGraphics(int index)
     {
-        if (world != null)
+		if (!activeStatus)
+			return;
+
+		if (world != null)
             world.cityBuilderManager.PlaySelectAudio();
         else
             titleScreen.PlaySelectAudio();
@@ -159,6 +177,9 @@ public class UISettings : MonoBehaviour
 
     public void SetResolution(int index)
     {
+		if (!activeStatus)
+			return;
+
 		if (world != null)
         {
             if (world.cityBuilderManager.audioSource != null)

@@ -6,21 +6,21 @@ public class Projectile : MonoBehaviour
     public AudioClip[] launches, attacks;
     
     public float speed = 2, archHeight = 2.5f;
-    public Vector3 adjustment;
 
     private float flightSpeed;
     private Vector3 originalPosition, startPoint, endPoint, archTop;
 
-    public void SetProjectilePos()
+	public void SetProjectilePos()
     {
         originalPosition = transform.localPosition;
     }
 
-    public void SetPoints(Vector3 startPoint, Vector3 endPoint)
+    public void SetPoints(Vector3 startPoint, Vector3 endPoint, bool seige)
     {
-        startPoint += adjustment;
+        originalPosition = transform.position;
+        startPoint = originalPosition;
         this.startPoint = startPoint;
-        endPoint.y += 0.5f;
+        endPoint.y += seige ? 0 : 0.5f;
         this.endPoint = endPoint;
         float distance = Mathf.Abs(startPoint.x - endPoint.x) + Mathf.Abs(startPoint.z - endPoint.z);
         flightSpeed = Mathf.Max(speed * 4 - ((speed * 4 - speed) * distance / 7),speed); 
@@ -35,7 +35,7 @@ public class Projectile : MonoBehaviour
         return Vector3.Lerp(ac, cb, t);
     }
 
-    public IEnumerator Shoot(Unit unit, Unit target)
+    public IEnumerator Shoot(Unit unit, Unit target = null, bool aoe = false)
     {
         unit.PlayAudioClip(launches[0]);
         gameObject.SetActive(true);
@@ -63,7 +63,17 @@ public class Projectile : MonoBehaviour
         }
 
         gameObject.SetActive(false);
-		transform.localPosition = originalPosition;
-		target.ReduceHealth(unit, attacks[Random.Range(0,attacks.Length)]);
+
+        if (aoe)
+        {
+            unit.military.PlayExplosion(transform.position);
+            unit.military.AOEExplosion(transform.position);
+        }
+        else
+        {
+		    target.ReduceHealth(unit, unit.transform.eulerAngles, unit.military.attackStrength + unit.military.strengthBonus, attacks[Random.Range(0,attacks.Length)]);
+        }
+
+		transform.position = originalPosition;
 	}
 }

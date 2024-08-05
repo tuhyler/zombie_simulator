@@ -24,8 +24,8 @@ public class UIWonderSelection : MonoBehaviour
     [SerializeField]
     private GameObject addHarborButton, cancelConstructionButton;
 
-    [HideInInspector]
-    public bool buttonsAreWorking;
+    //[HideInInspector]
+    //public bool buttonsAreWorking;
 
     [HideInInspector]
     public Wonder wonder;
@@ -42,7 +42,7 @@ public class UIWonderSelection : MonoBehaviour
         originalLoc = allContents.anchoredPosition3D;
         percentDone.outlineWidth = 0.5f;
         percentDone.outlineColor = new Color(0, 0, 0, 255);
-        buttonsAreWorking = true;
+        //buttonsAreWorking = true;
 
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
@@ -234,8 +234,8 @@ public class UIWonderSelection : MonoBehaviour
 			workerCount.color = Color.white;
     }
 
-    internal void ToggleEnable(bool v)
-    {
-        buttonsAreWorking = v;
-    }
+    //internal void ToggleEnable(bool v)
+    //{
+    //    buttonsAreWorking = v;
+    //}
 }

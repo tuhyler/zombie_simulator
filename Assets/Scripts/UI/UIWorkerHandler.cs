@@ -27,7 +27,8 @@ public class UIWorkerHandler : MonoBehaviour
     [SerializeField]
     private RectTransform allContents;
     private Vector3 originalLoc;
-    private bool activeStatus; //set this up so we don't have to wait for tween to set inactive
+    [HideInInspector]
+    public bool activeStatus; //set this up so we don't have to wait for tween to set inactive
 
     private void Awake()
     {
@@ -74,7 +75,7 @@ public class UIWorkerHandler : MonoBehaviour
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
             
-            if (world.tutorial && GameLoader.Instance.gameData.tutorialData.builtFarm)
+            if (world.tutorial && world.flashingButton)
             {
                 for (int i = 0; i < buildOptions.Count; i++)
                 {

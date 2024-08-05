@@ -193,6 +193,9 @@ public class UISaveGame : MonoBehaviour
 
     public void CloseSaveGameButton()
     {
+		if (!activeStatus)
+			return;
+
 		if (world != null)
 			world.cityBuilderManager.PlayCloseAudio();
 		else
@@ -203,7 +206,10 @@ public class UISaveGame : MonoBehaviour
 
     public void SelectItem(UISaveItem uiSaveItem)
     {
-        if (selectedSaveItem != null)
+		if (!activeStatus)
+			return;
+
+		if (selectedSaveItem != null)
             selectedSaveItem.UnselectItem();
 
         playTimeTitle.SetActive(true);
@@ -244,7 +250,10 @@ public class UISaveGame : MonoBehaviour
 
     public void ConfirmWarning()
     {
-		if (world != null)
+        if (!uiWarning.activeStatus)
+            return;
+
+        if (world != null)
 			world.cityBuilderManager.PlaySelectAudio();
 		else
 			titleScreen.PlaySelectAudio();
@@ -259,6 +268,9 @@ public class UISaveGame : MonoBehaviour
 
     public void DeleteGame()
     {
+		if (!activeStatus)
+			return;
+
 		string path = Application.persistentDataPath + "/" + selectedSaveItem.saveName + ".save";
 		Destroy(selectedSaveItem.gameObject);
 		playTime.gameObject.SetActive(false);

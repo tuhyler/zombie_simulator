@@ -226,6 +226,15 @@ public class CityImprovement : MonoBehaviour
 				animMesh.SetActive(true);
 			co = StartCoroutine(StartWorkAnimation(offset));
 		}
+
+		foreach (Light light in workLights)
+		{
+			if (!light.isActiveAndEnabled)
+				light.gameObject.SetActive(true);
+		}
+
+		foreach (ParticleSystem ps in workPS)
+			ps.Play();
 	}
 
     public void HideIdleMesh()

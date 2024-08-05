@@ -116,7 +116,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (draggable)
+        if (draggable && resourceHolder.tradeStopHandler.tradeRouteManager.activeStatus)
         {
             Vector3 p = Input.mousePosition;
             p.z = 935;
@@ -128,7 +128,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (draggable)
+        if (draggable && resourceHolder.tradeStopHandler.tradeRouteManager.activeStatus)
         {
             resourceHolder.tradeStopHandler.dragging = false;
             transform.SetParent(originalParent);
@@ -165,6 +165,8 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     //when choosing load or unload
     public void SetChosenResourceMultiple(int value)
     {
+        if (!resourceHolder.tradeStopHandler.tradeRouteManager.activeStatus)
+            return;
         //resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
 
         if (value == 1)
@@ -221,7 +223,10 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
     public void OpenResourceNumInput()
     {
-        resourceHolder.tradeStopHandler.tradeRouteManager.uiTradeResourceNum.ToggleVisibility(true, this);
+		if (!resourceHolder.tradeStopHandler.tradeRouteManager.activeStatus)
+			return;
+
+		resourceHolder.tradeStopHandler.tradeRouteManager.uiTradeResourceNum.ToggleVisibility(true, this);
     }
 
     public void SetCompletePerc(int amount, int totalAmount)
@@ -362,6 +367,8 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
     public void OpenResourceGrid()
     {
+		if (!resourceHolder.tradeStopHandler.tradeRouteManager.activeStatus)
+			return;
 		//resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlayCheckAudio();
 		resourceHolder.tradeStopHandler.tradeRouteManager.resourceSelectionGrid.ToggleVisibility(true, this);
     }
@@ -388,7 +395,10 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
     public void ChangeSlider(float value)
     {
-        chosenResourceAmount = valuePool[(int)value]/*Mathf.RoundToInt(value)*/;
+		if (!resourceHolder.tradeStopHandler.tradeRouteManager.activeStatus)
+			return;
+
+		chosenResourceAmount = valuePool[(int)value]/*Mathf.RoundToInt(value)*/;
         SetValue(chosenResourceAmount);
         //resourceCount.text = chosenResourceAmount.ToString();
     }
@@ -486,7 +496,10 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
     public void CloseWindow()
     {
-        resourceHolder.CloseWindow(true);
+		if (!resourceHolder.tradeStopHandler.tradeRouteManager.activeStatus)
+			return;
+
+		resourceHolder.CloseWindow(true);
 		resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlayCloseAudio();
 	}
 

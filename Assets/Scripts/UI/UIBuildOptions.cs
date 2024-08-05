@@ -506,7 +506,10 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-		if (eventData.button == PointerEventData.InputButton.Left)
+        if (!buttonHandler.activeStatus)
+            return;
+        
+        if (eventData.button == PointerEventData.InputButton.Left)
         {
 			UITooltipSystem.Hide();
             City city = buttonHandler.cityBuilderManager.SelectedCity;
